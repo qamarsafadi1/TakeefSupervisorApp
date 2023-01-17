@@ -100,7 +100,8 @@ fun NavigationHost(
             }
         }
         composable(Destinations.SUCCESS) {
-            SuccessView()
+            SuccessView(){
+            }
         }
         composable(Destinations.SPECIAL_ORDER) {
             PlaceSpecialOrderView()

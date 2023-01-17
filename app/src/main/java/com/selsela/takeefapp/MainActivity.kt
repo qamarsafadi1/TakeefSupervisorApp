@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity() {
                                             && currentRoute.value?.destination?.route != Destinations.PROFILE_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.LOGIN_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.COMPLETE_INFO_SCREEN
+                                            && currentRoute.value?.destination?.route != Destinations.SUCCESS
                                         ) {
                                             if (currentRoute.value?.destination?.route != Destinations.VERIFY_SCREEN)
                                                 Color.White.ChangeStatusBarColor()
@@ -208,6 +209,7 @@ class MainActivity : ComponentActivity() {
             || currentRoute.value?.destination?.route == Destinations.ORDER_DETAILS
             || currentRoute.value?.destination?.route == Destinations.COMPLETE_INFO_SCREEN
             || currentRoute.value?.destination?.route == Destinations.PROFILE_SCREEN
+            || currentRoute.value?.destination?.route == Destinations.SUCCESS
         ) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
         } else {

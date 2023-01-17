@@ -198,7 +198,6 @@ fun ElasticButton(
         .width(167.dp)
         .requiredHeight(48.dp)
 ) {
-    // ElasticView(onClick = { onClick() }) {
     Button(
         onClick = {
             onClick()

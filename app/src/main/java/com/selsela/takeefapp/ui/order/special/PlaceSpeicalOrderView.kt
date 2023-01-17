@@ -89,7 +89,7 @@ fun PlaceSpecialOrderView() {
                 if (isAnimated.not()) {
                     SpecialOrderFormView()
                 } else {
-                    SuccessSend()
+                    SuccessSend(){}
                 }
             }
 
@@ -240,7 +240,7 @@ private fun SpecialOrderFormView() {
 }
 
 @Composable
-fun SuccessSend() {
+fun SuccessSend(goToRate: () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -264,7 +264,7 @@ fun SuccessSend() {
 
         Spacer(modifier = Modifier.height(20.dp))
         ElasticButton(
-            onClick = { /*TODO*/ }, title = "تقييم",
+            onClick = { goToRate() }, title = "تقييم",
             icon = R.drawable.starfill,
             iconGravity = RIGHT,
             modifier = Modifier

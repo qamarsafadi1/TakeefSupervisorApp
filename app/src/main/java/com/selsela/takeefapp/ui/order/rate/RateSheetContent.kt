@@ -43,7 +43,7 @@ fun RateSheetContent(onConfirm: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f)
+            .fillMaxHeight(0.8f)
             .padding(
                 horizontal = 24.dp,
                 vertical = 10.dp
@@ -69,7 +69,6 @@ fun RateSheetContent(onConfirm: () -> Unit) {
             color = Color.White,
             modifier = Modifier.paddingTop(29)
         )
-        QualityRating()
         PriceRating()
         SupervisorRating()
         NoteView()
@@ -157,7 +156,7 @@ private fun PriceRating() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "سعر الخدمة",
+            text = "تعامل العميل",
             style = text14,
             color = SecondaryColor2
         )
@@ -189,7 +188,7 @@ private fun SupervisorRating() {
 
     ) {
         Text(
-            text = "تعامل المشرف",
+            text = "تجاوز الطلب",
             style = text14,
             color = SecondaryColor2
         )
