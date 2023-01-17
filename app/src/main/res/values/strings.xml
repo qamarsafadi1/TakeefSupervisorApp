@@ -77,4 +77,6 @@
     <string name="wallet">المحفظة</string>
     <string name="reject">رفض</string>
     <string name="accept_1">قبول</string>
+    <string name="supervisor">مشرف الصيانة</string>
+    <string name="temp_user">محمد احمد على</string>
 </resources>

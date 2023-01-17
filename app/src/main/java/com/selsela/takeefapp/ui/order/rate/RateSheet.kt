@@ -55,7 +55,9 @@ fun RateSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
             sheetShape = RoundedCornerShape(topEnd = 42.dp, topStart = 42.dp),
             sheetBackgroundColor = TextColor,
             sheetContent = {
-                RateSheetContent(onConfirm)
+                RateSheetContent(){
+                    onConfirm()
+                }
             }) {
         }
     }

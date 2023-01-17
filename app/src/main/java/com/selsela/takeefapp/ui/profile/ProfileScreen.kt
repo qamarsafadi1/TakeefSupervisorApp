@@ -1,7 +1,10 @@
 package com.selsela.takeefapp.ui.profile
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,12 +46,16 @@ import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.EditText
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.InputEditText
+import com.selsela.takeefapp.ui.common.ListedBottomSheet
 import com.selsela.takeefapp.ui.order.PaySheet
 import com.selsela.takeefapp.ui.profile.delete.DeleteAccountSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
+import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor
+import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
+import com.selsela.takeefapp.ui.theme.TextFieldBg
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Bold
@@ -71,6 +78,16 @@ fun ProfileScreen(
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
         skipHalfExpanded = true
     )
+    val citySheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = true
+    )
+    val areaSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = true
+    )
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier
@@ -81,7 +98,7 @@ fun ProfileScreen(
         ) {
             Box(
                 Modifier
-                    .padding(top =20.dp)
+                    .padding(top = 20.dp)
                     .fillMaxWidth()
                     .requiredHeight(88.dp)
                     .background(Color.White)
@@ -141,7 +158,7 @@ fun ProfileScreen(
             }
             Column(
                 modifier = Modifier
-                    .padding(bottom = 21.dp, top = 47.dp)
+                    .padding(top = 13.dp)
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth()
                     .background(TextColor, RoundedCornerShape(33.dp))
@@ -149,14 +166,31 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                ProfileForm()
+                ProfileForm(
+                    onAreaClick = {
+                        coroutineScope.launch {
+                            if (areaSheetState.isVisible)
+                                areaSheetState.hide()
+                            else
+                                areaSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
+                    }
+                ) {
+                    coroutineScope.launch {
+                        if (citySheetState.isVisible)
+                            citySheetState.hide()
+                        else
+                            citySheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
+                }
 
             }
 
             Spacer(modifier = Modifier.weight(1f))
             Row(
                 Modifier
-                    .padding(horizontal = 22.dp, vertical = 40.dp)
+                    .padding(horizontal = 22.dp)
+                    .padding(bottom = 20.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -191,22 +225,31 @@ fun ProfileScreen(
         }
         DeleteAccountSheet(sheetState = paySheetState) {
         }
+        ListedBottomSheet(sheetState = citySheetState)
+        ListedBottomSheet(sheetState = areaSheetState)
+
+
     }
 
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun ProfileForm() {
+private fun ProfileForm(
+    onAreaClick: () -> Unit,
+    onCityClick: () -> Unit
+) {
+
     Column(
         Modifier
-            .padding(bottom = 61.dp)
+            .padding(bottom = 20.dp)
             .fillMaxWidth()
     ) {
 
         Text(
             text = stringResource(R.string.full_name),
             style = text11,
-            modifier = Modifier.padding(top = 61.dp)
+            modifier = Modifier.padding(top = 26.dp)
         )
         var name by remember {
             mutableStateOf("")
@@ -244,6 +287,27 @@ private fun ProfileForm() {
             modifier = Modifier.padding(top = 6.8.dp)
         )
         EditTextView()
+        CityAreaView(onAreaClick = { onAreaClick() }) {
+            onCityClick()
+        }
+        var district by remember {
+            mutableStateOf("")
+        }
+        Text(
+            text = stringResource(R.string.district),
+            style = text11,
+            color = SecondaryColor2.copy(0.85f),
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        InputEditText(
+            onValueChange = {
+                district = it
+            },
+            text = district,
+            hint = stringResource(R.string.district),
+            inputType = KeyboardType.Text,
+            modifier = Modifier.padding(top = 16.dp)
+        )
     }
 }
 
@@ -268,4 +332,106 @@ private fun EditTextView() {
         },
         modifier = Modifier.padding(top = 16.dp)
     )
+}
+
+
+@Composable
+private fun CityAreaView(
+    onAreaClick: () -> Unit,
+    onCityClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .paddingTop(16)
+            .fillMaxWidth()
+    ) {
+        CityView(Modifier.weight(1f)) {
+            onCityClick()
+        }
+        Spacer(modifier = Modifier.width(width = 8.dp))
+        AreaView(
+            modifier = Modifier.weight(1f)
+        ) {
+            onAreaClick()
+        }
+    }
+}
+
+@Composable
+private fun AreaView(
+    modifier: Modifier,
+    onAreaClick: () -> Unit
+) {
+    Column(modifier) {
+        Text(
+            text = stringResource(R.string.city),
+            style = text11
+        )
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth()
+                .requiredHeight(46.dp)
+                .background(TextFieldBg, RoundedCornerShape(8.dp))
+                .border(1.dp, color = BorderColor, RoundedCornerShape(8.dp))
+                .clickable(onClick = {
+                    onAreaClick()
+                })
+                .padding(horizontal = 16.dp)
+
+        ) {
+            val area by remember {
+                mutableStateOf("")
+            }
+            Text(
+                if (area.isEmpty().not()) area else
+                    stringResource(id = R.string.city),
+                style = text11,
+                color = if (area.isEmpty().not()) Color.White else SecondaryColor.copy(0.39f),
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+            )
+        }
+    }
+}
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun CityView(
+    weight: Modifier,
+    onCityClick: () -> Unit
+) {
+
+    Column(weight) {
+        Text(
+            text = stringResource(R.string.area),
+            style = text11
+        )
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth()
+                .requiredHeight(46.dp)
+                .background(TextFieldBg, RoundedCornerShape(8.dp))
+                .border(1.dp, color = BorderColor, RoundedCornerShape(8.dp))
+                .clickable(onClick = {
+                    onCityClick()
+                })
+                .padding(horizontal = 16.dp)
+
+        ) {
+            val city by remember {
+                mutableStateOf("")
+            }
+            Text(
+                if (city.isEmpty().not()) city else
+                    stringResource(id = R.string.area),
+                style = text11,
+                color = if (city.isEmpty().not()) Color.White else SecondaryColor.copy(0.39f),
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+            )
+        }
+    }
 }

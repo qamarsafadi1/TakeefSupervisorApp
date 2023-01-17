@@ -222,6 +222,18 @@ val text12 = TextStyle(
         trim = LineHeightStyle.Trim.Both
     )
 )
+val text12White= TextStyle(
+    fontFamily = fonts,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 12.sp,
+    lineHeight = 22.sp,
+    letterSpacing = 0.5.sp,
+    lineHeightStyle = LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.Both
+    ),
+    color = Color.White
+)
 val text12Bold = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.Bold,

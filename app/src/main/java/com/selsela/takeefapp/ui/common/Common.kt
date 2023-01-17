@@ -358,6 +358,7 @@ fun InputEditText(
     textAlign: TextAlign = TextAlign.Start,
     cornerRaduis: Dp = 8.dp,
     fillMax: Float = 1f,
+    hintColor: Color =  SecondaryColor.copy(0.39f),
     textStyle: androidx.compose.ui.text.TextStyle = text14White
 ) {
     BasicTextField(
@@ -378,7 +379,7 @@ fun InputEditText(
                 if (text.isEmpty()) {
                     Text(
                         text = hint,
-                        color = SecondaryColor.copy(0.39f),
+                        color = hintColor,
                         style = textStyle
                     )
                 }

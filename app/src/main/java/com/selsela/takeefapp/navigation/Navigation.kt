@@ -51,7 +51,7 @@ object Navigation {
     }
 
     fun NavOptionsBuilder.navigateWithClearBackStack(navController: NavController) {
-        popUpTo(navController.currentBackStackEntry?.destination?.route ?: return) {
+        popUpTo(navController.graph.id ) {
             inclusive = true
         }
     }

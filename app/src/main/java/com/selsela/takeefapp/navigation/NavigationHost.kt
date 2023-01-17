@@ -101,6 +101,7 @@ fun NavigationHost(
         }
         composable(Destinations.SUCCESS) {
             SuccessView(){
+                navActions.navigateToHome()
             }
         }
         composable(Destinations.SPECIAL_ORDER) {
@@ -172,8 +173,11 @@ fun NavigationHost(
             TermsView()
         }
         composable(Destinations.TECHNICAL_SUPPORT) {
-            SupportScreen()
+            SupportScreen(){
+                navController.navigateUp()
+            }
         }
+
         composable(Destinations.PROFILE_SCREEN) {
             ProfileScreen() {
                 navController.navigateUp()

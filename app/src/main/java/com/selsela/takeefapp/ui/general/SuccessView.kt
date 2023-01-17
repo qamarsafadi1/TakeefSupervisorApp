@@ -78,7 +78,10 @@ fun SuccessView(
                 .align(Alignment.TopCenter)
         )
         RateSheet(rateSheetState) {
-
+            coroutineScope.launch {
+                rateSheetState.hide()
+            }
+            goToRate()
         }
     }
 }

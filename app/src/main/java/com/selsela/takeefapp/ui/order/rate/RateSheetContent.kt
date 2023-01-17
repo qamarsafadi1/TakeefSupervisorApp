@@ -91,7 +91,7 @@ fun RateSheetContent(onConfirm: () -> Unit) {
         }
 
         ElasticButton(
-            onClick = { /*TODO*/ }, title = "إرسال التقييم",
+            onClick = { onConfirm() }, title = "إرسال التقييم",
             modifier = Modifier
                 .padding(vertical = 30.dp)
                 .fillMaxWidth()

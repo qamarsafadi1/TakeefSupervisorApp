@@ -1,5 +1,6 @@
 package com.selsela.takeefapp.ui.account
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,7 +40,9 @@ import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.LanguageSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.ColorAccent
+import com.selsela.takeefapp.ui.theme.Gray3
 import com.selsela.takeefapp.ui.theme.LightBlue
+import com.selsela.takeefapp.ui.theme.LogoutBg
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -77,21 +80,14 @@ fun MyAccountView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(TextColor)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .requiredHeight(207.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.accountheader),
-                contentDescription = "header",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
-        }
-
+                .background(TextColor)
+        )
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -110,8 +106,7 @@ fun MyAccountView(
                 }) {
                     Image(
                         painter = painterResource(id = R.drawable.backbutton),
-                        contentDescription = "",
-                        colorFilter = ColorFilter.tint(Color.White)
+                        contentDescription = ""
                     )
                 }
                 LogoutButton()
@@ -124,12 +119,20 @@ fun MyAccountView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CircularImage()
-                Text(
-                    text = "محمد صالح الجربوع",
-                    style = text16Bold,
-                    color = Color.White,
+                Column(
                     modifier = Modifier.padding(start = 18.dp)
-                )
+                ) {
+                    Text(
+                        text = "محمد صالح الجربوع",
+                        style = text16Bold,
+                        color = Color.White,
+                    )
+                    Text(
+                        text = "جده",
+                        style = text14,
+                        color = SecondaryColor,
+                    )
+                }
             }
 
             Column(
@@ -137,19 +140,19 @@ fun MyAccountView(
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
             ) {
-                WalletCard(){
+                WalletCard() {
                     goToWallet()
                 }
                 OrderCards(goToSpecialOrder = {
                     goToSpecialOrders()
-                }){
+                }) {
                     goToOrder()
                 }
                 SettingsCards(
                     goToProfile = {
                         goToProfile()
                     }
-                ){
+                ) {
                     goToNotification()
                 }
                 Text(
@@ -159,7 +162,8 @@ fun MyAccountView(
                     modifier = Modifier.paddingTop(41)
                 )
                 Row(
-                    modifier = Modifier.paddingTop(25.9)
+                    modifier = Modifier
+                        .paddingTop(25.9)
                         .clickable {
                             goToSupport()
                         }
@@ -171,13 +175,14 @@ fun MyAccountView(
                     Text(
                         text = "المساعدة والدعم الفني",
                         style = text14,
-                        color = TextColor,
+                        color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
                     )
                 }
 
                 Row(
-                    modifier = Modifier.paddingTop(31)
+                    modifier = Modifier
+                        .paddingTop(31)
                         .clickable {
                             goToTerms()
                         }
@@ -189,13 +194,14 @@ fun MyAccountView(
                     Text(
                         text = "الشروط والاحكام",
                         style = text14,
-                        color = TextColor,
+                        color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
                     )
                 }
 
                 Row(
-                    modifier = Modifier.paddingTop(31)
+                    modifier = Modifier
+                        .paddingTop(31)
                         .clickable {
                             goToAboutApp()
                         }
@@ -207,7 +213,7 @@ fun MyAccountView(
                     Text(
                         text = "عن التطبيق",
                         style = text14,
-                        color = TextColor,
+                        color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
                     )
                 }
@@ -234,7 +240,7 @@ fun MyAccountView(
                         Text(
                             text = "اللغة",
                             style = text14,
-                            color = TextColor,
+                            color = Color.White,
                             modifier = Modifier.padding(start = 18.6.dp)
                         )
                     }
@@ -281,41 +287,15 @@ private fun SettingsCards(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .requiredHeight(88.dp),
-            shape = RoundedCornerShape(13.dp),
-            elevation = 20.dp,
-            backgroundColor = Color.White
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.archive),
-                    contentDescription = ""
-                )
-                Text(
-                    text = "الأرشيف",
-                    style = text12,
-                    color = SecondaryColor,
-                    modifier = Modifier.paddingTop(10)
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+                .weight(2f)
                 .requiredHeight(88.dp)
                 .clickable {
                     goToProfile()
                 },
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
-            backgroundColor = Color.White
+            backgroundColor = LogoutBg,
+            border = BorderStroke(width = 1.dp, Gray3)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -346,7 +326,9 @@ private fun SettingsCards(
                 },
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
-            backgroundColor = Color.White
+            backgroundColor = LogoutBg,
+            border = BorderStroke(width = 1.dp, Gray3)
+
         ) {
             Box {
                 Column(
@@ -412,7 +394,7 @@ private fun OrderCards(
                 },
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
-            backgroundColor = TextColor
+            backgroundColor = Color.White
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -422,12 +404,12 @@ private fun OrderCards(
                 Text(
                     text = "02",
                     style = text16Medium,
-                    color = Color.White
+                    color = TextColor
                 )
                 Text(
                     text = "طلبات جديدة",
                     style = text12,
-                    color = Color.White
+                    color =TextColor
                 )
             }
         }
@@ -455,7 +437,7 @@ private fun OrderCards(
                     color = Color.White
                 )
                 Text(
-                    text = "طلبات خاصة",
+                    text = "طلبات جارية",
                     style = text12,
                     color = Color.White
                 )
@@ -466,10 +448,7 @@ private fun OrderCards(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .requiredHeight(88.dp)
-                .clickable {
-                    goToOrder()
-                },
+                .requiredHeight(88.dp),
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
             backgroundColor = Purple40
@@ -479,15 +458,16 @@ private fun OrderCards(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "02",
-                    style = text16Medium,
-                    color = Color.White
+                Image(
+                    painter = painterResource(id = R.drawable.archive),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(Color.White)
                 )
                 Text(
-                    text = "طلب جارية",
+                    text = "الأرشيف",
                     style = text12,
-                    color = Color.White
+                    color = Color.White,
+                    modifier = Modifier.paddingTop(10)
                 )
             }
         }
@@ -508,10 +488,14 @@ private fun WalletCard(
                 goToWallet()
             },
         shape = RoundedCornerShape(13.dp),
-        elevation = 20.dp
+        backgroundColor = LogoutBg,
+        elevation = 20.dp,
+        border = BorderStroke(width = 1.dp, Gray3)
+
     ) {
         Row(
             modifier = Modifier
+                .background(Color.Transparent)
                 .fillMaxWidth()
                 .padding(horizontal = 18.7.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -519,7 +503,10 @@ private fun WalletCard(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .background(Color.Transparent)
+
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.wallet),
@@ -535,12 +522,14 @@ private fun WalletCard(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .background(Color.Transparent)
             ) {
                 androidx.compose.material3.Text(
                     text = "100",
                     style = text14Meduim,
-                    color = TextColor
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 androidx.compose.material3.Text(
@@ -582,7 +571,7 @@ private fun LogoutButton() {
                     38.dp
                 )
                 .background(
-                    color = TextColor.copy(0.10f),
+                    color = LogoutBg,
                     RoundedCornerShape(19.dp)
                 ),
             verticalAlignment = Alignment.CenterVertically,
@@ -590,7 +579,8 @@ private fun LogoutButton() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logout),
-                contentDescription = "logout"
+                contentDescription = "logout",
+                colorFilter = ColorFilter.tint(SecondaryColor)
             )
             Text(
                 text = "تسجيل الخروج",

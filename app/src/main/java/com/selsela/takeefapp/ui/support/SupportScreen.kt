@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,33 +33,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.InputEditText
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.Gray
 import com.selsela.takeefapp.ui.theme.Gray3
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
+import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text10
 import com.selsela.takeefapp.ui.theme.text12
+import com.selsela.takeefapp.ui.theme.text12White
+import com.selsela.takeefapp.ui.theme.text14
+import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 
 @Preview
 @Composable
-fun SupportScreen() {
+fun SupportScreen(
+    onBack: () -> Unit
+) {
 
+    Color.White.ChangeStatusBarColor()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier
+                .padding(top = 88.dp)
                 .fillMaxWidth()
                 .fillMaxHeight(0.89f)
                 .background(Color.White)
                 .padding(start = 29.dp, end = 20.dp)
         ) {
+
             item {
                 AdminItem()
             }
@@ -72,7 +84,7 @@ fun SupportScreen() {
                     textAlign = TextAlign.Center
                 )
             }
-            items(2){
+            items(2) {
                 MeItem()
             }
         }
@@ -93,6 +105,55 @@ fun SupportScreen() {
             Image(painter = painterResource(id = R.drawable.send), contentDescription = "")
 
         }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .requiredHeight(88.dp)
+                .background(Color.White)
+                .padding(horizontal = 6.dp),
+        ) {
+
+            IconButton(
+                onClick = { onBack() },
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.backbutton),
+                    contentDescription = ""
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                androidx.compose.material.Text(
+                    text = stringResource(id = R.string.supervisor),
+                    textAlign = TextAlign.Center,
+                    style = text12,
+                    color = SecondaryColor
+                )
+                androidx.compose.material.Text(
+                    text = stringResource(id = R.string.temp_user),
+                    textAlign = TextAlign.Center,
+                    style = text14,
+                    color = TextColor
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.placeholder2),
+                contentDescription = "",
+                modifier = Modifier
+                    .padding(end = 23.dp)
+                    .align(Alignment.CenterEnd)
+                    .clip(CircleShape)
+                    .size(28.dp)
+            )
+
+        }
     }
 
 }
@@ -102,36 +163,26 @@ fun AdminItem() {
 
     Row(
         Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Bottom
     ) {
         Column(verticalArrangement = Arrangement.Center) {
-
             Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .border(width = 1.dp, color = Gray3, shape = CircleShape)
-                    .size(40.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.BottomCenter
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.logosmall), contentDescription = "",
+                    painter = painterResource(id = R.drawable.placeholder2),
+                    contentDescription = "",
                     modifier = Modifier
-                        .width(20.dp)
-                        .height(19.dp)
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .size(28.dp)
                 )
             }
-            Text(
-                text = "ادارة النظام",
-                style = text10,
-                color = TextColor,
-                modifier = Modifier.paddingTop(6)
-            )
-
         }
         Spacer(modifier = Modifier.width(17.dp))
         Box(
             modifier = Modifier
-                .wrapContentWidth()
+                .fillMaxWidth()
                 .background(
                     LightBlue.copy(0.10f), RoundedCornerShape(
                         topEnd = 23.dp, topStart = 23.dp,
@@ -141,7 +192,7 @@ fun AdminItem() {
                 .padding(horizontal = 18.dp, vertical = 24.dp)
         ) {
             Text(
-                text = "مرحبا بك في تطبيق ام جي \n يسعدنا الرد علي استفساراتكم واقتراحاتكم ",
+                text = "مرحبا بك في تطبيق ام جي ",
                 style = text12,
                 color = TextColor,
 
@@ -150,6 +201,7 @@ fun AdminItem() {
     }
 
 }
+
 @Composable
 fun MeItem() {
     Spacer(modifier = Modifier.height(16.dp))
@@ -196,9 +248,10 @@ private fun MessageEditText() {
         onValueChange = {
             message = it
         },
-        textStyle = text12,
+        textStyle = text12White,
         hint = "كتابة نص الرسالة هنا",
         cornerRaduis = 30.dp,
-        fillMax = 0.85f
+        fillMax = 0.85f,
+        hintColor = SecondaryColor2.copy(0.67f)
     )
 }
