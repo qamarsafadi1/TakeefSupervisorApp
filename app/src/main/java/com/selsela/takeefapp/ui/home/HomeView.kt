@@ -2,16 +2,13 @@ package com.selsela.takeefapp.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -28,20 +25,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
-import com.selsela.takeefapp.ui.common.AppLogoImage
 import com.selsela.takeefapp.ui.common.components.Switch
 import com.selsela.takeefapp.ui.order.cell.NextOrderItem
 import com.selsela.takeefapp.ui.order.cell.OrderItem
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.NoRippleTheme
 import com.selsela.takeefapp.ui.theme.SecondaryColor
-import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Meduim
 
 @Composable
 fun HomeView(
     goToRoute: () -> Unit,
     goToMyAccount: () -> Unit,
+    goToDetails: () -> Unit,
     goToCost: () -> Unit,
 ) {
     var paddingTitle by remember {
@@ -111,7 +107,9 @@ fun HomeView(
                     }
 
                     items(2) {
-                        NextOrderItem(onClick = { /*TODO*/ }) {
+                        NextOrderItem(onClick = {
+                            goToDetails()
+                        }) {
 
                         }
                     }

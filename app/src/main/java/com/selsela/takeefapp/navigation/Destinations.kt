@@ -13,9 +13,6 @@ object Destinations {
     const val PENDING_ACCOUNT_SCREEN = "pending_account"
     const val ADD_COST_SCREEN = "add_cost_screen"
     const val ADDRESS_SCREEN = "address"
-    const val SEARCH_ADDRESS_SCREEN = "address/"
-    const val SEARCH_ADDRESS_SCREEN_WITH_ARGUMENT = "address/{query}"
-    const val REVIEW_ORDER = "review_order"
     const val SUCCESS = "success"
     const val ERROR = "error"
     const val SPECIAL_ORDER = "special_order"
@@ -23,8 +20,6 @@ object Destinations {
     const val ORDERS_SCREEN = "orders"
     const val ORDER_ROUTE_SCREEN = "order_route_screen"
     const val ORDER_DETAILS = "order_details"
-    const val SPECIAL_ORDERS = "special_orders"
-    const val SPECIAL_ORDERS_DETAILS = "special_orders_details"
     const val NOTIFICATION_SCREEN = "notification_screen"
     const val ABOUT_APP_SCREEN = "about_app_screen"
     const val TERMS = "terms"
@@ -39,7 +34,6 @@ class NavigationActions(private val navController: NavController) {
             navigateWithClearBackStack(navController)
         }
     }
-
     fun navigateToLogin() {
         navController.navigate(Destinations.LOGIN_SCREEN)
     }
@@ -51,26 +45,8 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToCompleteInfo() {
         navController.navigate(Destinations.COMPLETE_INFO_SCREEN)
     }
-
-    fun navigateToAddress() {
-        navController.navigate(Destinations.ADDRESS_SCREEN)
-    }
-
-    fun navigateToSearchAddress(query: String?) {
-        val queryResult = query ?: "none"
-        navController.navigate("${Destinations.SEARCH_ADDRESS_SCREEN}${queryResult}")
-    }
-
-    fun navigateToReviewOrder() {
-        navController.navigate(Destinations.REVIEW_ORDER)
-    }
-
     fun navigateToSuccess() {
         navController.navigate(Destinations.SUCCESS)
-    }
-
-    fun navigateToSpecialOrder() {
-        navController.navigate(Destinations.SPECIAL_ORDER)
     }
 
     fun navigateToMyAccount() {
@@ -88,15 +64,6 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToOrderDetails() {
         navController.navigate(Destinations.ORDER_DETAILS)
     }
-
-    fun navigateToSpecialOrders() {
-        navController.navigate(Destinations.SPECIAL_ORDERS)
-    }
-
-    fun navigateToSpecialOrderDetails() {
-        navController.navigate(Destinations.SPECIAL_ORDERS_DETAILS)
-    }
-
     fun navigateToNotification() {
         navController.navigate(Destinations.NOTIFICATION_SCREEN)
     }
@@ -112,7 +79,6 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToSupport() {
         navController.navigate(Destinations.TECHNICAL_SUPPORT)
     }
-
     fun navigateToProfile() {
         navController.navigate(Destinations.PROFILE_SCREEN)
     }

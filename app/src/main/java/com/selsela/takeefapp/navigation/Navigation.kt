@@ -11,19 +11,13 @@ object Navigation {
         val title = when (currentRoute.destination.route) {
             Destinations.HOME_SCREEN, Destinations.LOGIN_SCREEN,
             Destinations.VERIFY_SCREEN, Destinations.SUCCESS,
-            Destinations.SPECIAL_ORDER, Destinations.ABOUT_APP_SCREEN,
+            Destinations.ABOUT_APP_SCREEN,
             Destinations.TERMS, Destinations.COMPLETE_INFO_SCREEN,
             Destinations.PENDING_ACCOUNT_SCREEN,Destinations.ADD_COST_SCREEN -> ""
-
-            Destinations.SEARCH_ADDRESS_SCREEN_WITH_ARGUMENT -> this.context.getString(R.string.chosse_address)
-            Destinations.REVIEW_ORDER -> this.context.getString(R.string.review_order)
             Destinations.ORDERS_SCREEN -> this.context.getString(R.string.new_orders)
             Destinations.ORDER_ROUTE_SCREEN -> this.context.getString(R.string.order_route)
             Destinations.ORDER_DETAILS -> this.context.getString(R.string.order_details)
-            Destinations.SPECIAL_ORDERS -> this.context.getString(R.string.special_order)
-            Destinations.SPECIAL_ORDERS_DETAILS -> this.context.getString(R.string.special_order_detail)
             Destinations.NOTIFICATION_SCREEN -> this.context.getString(R.string.notification)
-            Destinations.TECHNICAL_SUPPORT -> this.context.getString(R.string.tech_support)
             Destinations.PROFILE_SCREEN -> this.context.getString(R.string.profile)
             Destinations.WALLET_SCREEN -> this.context.getString(R.string.wallet)
             else -> "Selsela"

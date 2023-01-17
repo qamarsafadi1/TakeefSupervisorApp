@@ -161,25 +161,6 @@ fun OrderDetailsView(
                             .fillMaxWidth(),
                         isDetails = true,
                     )
-                    MaintenanceCostWarning()
-                    AcceptRejectButtons() {
-                        coroutineScope.launch {
-                            when (it) {
-                                REJECT -> {
-                                    if (rateSheetState.isVisible)
-                                        rateSheetState.hide()
-                                    else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                }
-
-                                ACCEPT -> {
-                                    if (paySheetState.isVisible)
-                                        paySheetState.hide()
-                                    else paySheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                }
-                            }
-
-                        }
-                    }
                     Divider(
                         thickness = 1.dp,
                         color = DividerColor,
@@ -222,9 +203,6 @@ fun OrderDetailsView(
             }
         }
 
-    }
-
-    PaySheet(sheetState = paySheetState) {
     }
     RateSheet(rateSheetState) {
 

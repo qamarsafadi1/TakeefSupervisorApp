@@ -8,35 +8,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.selsela.takeefapp.ui.aboutapp.AboutAppView
 import com.selsela.takeefapp.ui.account.MyAccountView
-import com.selsela.takeefapp.ui.address.AddressView
-import com.selsela.takeefapp.ui.address.SearchAddressView
 import com.selsela.takeefapp.ui.auth.CompleteInfoScreen
 import com.selsela.takeefapp.ui.auth.LoginView
 import com.selsela.takeefapp.ui.auth.PendingAccountScreen
 import com.selsela.takeefapp.ui.auth.VerifyView
 import com.selsela.takeefapp.ui.general.SuccessView
 import com.selsela.takeefapp.ui.home.HomeView
-import com.selsela.takeefapp.ui.intro.IntroView
 import com.selsela.takeefapp.ui.notification.NotificationView
 import com.selsela.takeefapp.ui.order.AddCostScreen
 import com.selsela.takeefapp.ui.order.OrderDetailsView
 import com.selsela.takeefapp.ui.order.OrderRouteView
 import com.selsela.takeefapp.ui.order.OrdersView
-import com.selsela.takeefapp.ui.order.ReviewOrderView
-import com.selsela.takeefapp.ui.order.special.PlaceSpecialOrderView
-import com.selsela.takeefapp.ui.order.special.SpecialOrderDetailsView
-import com.selsela.takeefapp.ui.order.special.SpecialOrders
 import com.selsela.takeefapp.ui.profile.ProfileScreen
 import com.selsela.takeefapp.ui.splash.SplashView
 import com.selsela.takeefapp.ui.support.SupportScreen
 import com.selsela.takeefapp.ui.terms.TermsView
 import com.selsela.takeefapp.ui.wallet.WalletScreen
-import com.selsela.takeefapp.utils.LocalData
 
 @Composable
 fun NavigationHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Destinations.HOME_SCREEN,
+    startDestination: String = Destinations.SPLASH_SCREEN,
     navActions: NavigationActions = remember(navController) {
         NavigationActions(navController)
     },
@@ -47,17 +39,15 @@ fun NavigationHost(
                 navActions.navigateToLogin()
             }
         }
-        composable(Destinations.INTRO_SCREEN) {
-            IntroView() {
-                navActions.navigateToHome()
-            }
-        }
         composable(Destinations.HOME_SCREEN) {
             HomeView(goToRoute = {
                 navActions.navigateToOrderRoute()
 
             }, goToMyAccount = {
                 navActions.navigateToMyAccount()
+            },
+            goToDetails = {
+                navActions.navigateToOrderDetails()
             }) {
                 navActions.navigateToAddCostScreen()
             }
@@ -81,39 +71,15 @@ fun NavigationHost(
                 navActions.navigateToCompleteInfo()
             }
         }
-        composable(Destinations.ADDRESS_SCREEN) {
-            AddressView(
-                goToSearchView = { query ->
-                    val queryResult = query.ifEmpty { "none" }
-                    navActions.navigateToSearchAddress(queryResult)
-                }) {
-                navActions.navigateToReviewOrder()
-            }
-        }
-        composable(Destinations.SEARCH_ADDRESS_SCREEN_WITH_ARGUMENT) {
-            val query = it.arguments?.getString("query") ?: ""
-            SearchAddressView(query)
-        }
-        composable(Destinations.REVIEW_ORDER) {
-            ReviewOrderView {
-                navActions.navigateToSuccess()
-            }
-        }
         composable(Destinations.SUCCESS) {
             SuccessView(){
                 navActions.navigateToHome()
             }
         }
-        composable(Destinations.SPECIAL_ORDER) {
-            PlaceSpecialOrderView()
-        }
         composable(Destinations.MY_ACCOUNT) {
             MyAccountView(
                 onBack = {
                     navController.navigateUp()
-                },
-                goToSpecialOrders = {
-                    navActions.navigateToSpecialOrders()
                 },
                 goToNotification = {
                     navActions.navigateToNotification()
@@ -154,14 +120,6 @@ fun NavigationHost(
             OrderDetailsView() {
                 navController.navigateUp()
             }
-        }
-        composable(Destinations.SPECIAL_ORDERS) {
-            SpecialOrders() {
-                navActions.navigateToSpecialOrderDetails()
-            }
-        }
-        composable(Destinations.SPECIAL_ORDERS_DETAILS) {
-            SpecialOrderDetailsView()
         }
         composable(Destinations.NOTIFICATION_SCREEN) {
             NotificationView()

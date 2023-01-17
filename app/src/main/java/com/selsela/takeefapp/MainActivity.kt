@@ -8,9 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -24,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -39,11 +35,12 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.rememberNavController
 import com.selsela.takeefapp.navigation.Destinations
+import com.selsela.takeefapp.navigation.Navigation.bindToolbarTitle
+import com.selsela.takeefapp.navigation.Navigation.showingBackButton
 import com.selsela.takeefapp.navigation.NavigationHost
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor
@@ -52,12 +49,6 @@ import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
-import com.selsela.takeefapp.navigation.Navigation.bindToolbarTitle
-import com.selsela.takeefapp.navigation.Navigation.showingBackButton
-import com.selsela.takeefapp.ui.common.ElasticButton
-import com.selsela.takeefapp.ui.order.AddedCostSheet
-import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @OptIn(
@@ -178,15 +169,6 @@ class MainActivity : ComponentActivity() {
                                     ) {
                                         NavigationHost(navController)
                                     }
-                                }
-
-                                val sheetState = rememberModalBottomSheetState(
-                                    initialValue = ModalBottomSheetValue.Hidden,
-                                    confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
-                                    skipHalfExpanded = true
-                                )
-                                AddedCostSheet(sheetState = sheetState) {
-
                                 }
                             }
                         }

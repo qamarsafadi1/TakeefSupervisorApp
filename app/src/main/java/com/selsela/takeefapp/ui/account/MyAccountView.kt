@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.LanguageSheet
+import com.selsela.takeefapp.ui.splash.ChangeNavigationBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.ColorAccent
 import com.selsela.takeefapp.ui.theme.Gray3
@@ -61,7 +62,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyAccountView(
     onBack: () -> Unit,
-    goToSpecialOrders: () -> Unit,
     goToAboutApp: () -> Unit,
     goToNotification: () -> Unit,
     goToTerms: () -> Unit,
@@ -71,6 +71,7 @@ fun MyAccountView(
     goToOrder: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
+    TextColor.ChangeNavigationBarColor()
     val coroutineScope = rememberCoroutineScope()
     val languageSheet = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -144,7 +145,7 @@ fun MyAccountView(
                     goToWallet()
                 }
                 OrderCards(goToSpecialOrder = {
-                    goToSpecialOrders()
+                    goToOrder()
                 }) {
                     goToOrder()
                 }

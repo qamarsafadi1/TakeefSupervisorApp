@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.safeGesturesPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -40,16 +39,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.EditText
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.InputEditText
 import com.selsela.takeefapp.ui.common.ListedBottomSheet
-import com.selsela.takeefapp.ui.order.PaySheet
 import com.selsela.takeefapp.ui.profile.delete.DeleteAccountSheet
-import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
+import com.selsela.takeefapp.ui.splash.ChangeNavigationBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor
@@ -58,7 +55,6 @@ import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.TextFieldBg
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
-import com.selsela.takeefapp.ui.theme.text12Bold
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Bold
 import com.selsela.takeefapp.ui.theme.text14Meduim
@@ -72,6 +68,8 @@ fun ProfileScreen(
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
+    Color.White.ChangeNavigationBarColor()
+
     val coroutineScope = rememberCoroutineScope()
     val paySheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
