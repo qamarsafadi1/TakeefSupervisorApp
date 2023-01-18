@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,7 +69,7 @@ fun PendingAccountScreen(
             }
             Spacer(modifier = Modifier.height(56.dp))
             Text(
-                text = "مرحبا بك",
+                text = stringResource(R.string.welcome_1),
                 style = text16,
                 color = TextColor
             )
@@ -79,14 +80,14 @@ fun PendingAccountScreen(
                 modifier = Modifier.paddingTop(9)
             )
             Text(
-                text = "الطلب قيد المراجعة",
+                text = stringResource(R.string.under_review),
                 style = text18,
                 color = TextColor,
                 modifier = Modifier.paddingTop(23)
             )
             Text(
-                text = "نشكرك علي صبرك , سيتم التواصل معك \n" +
-                        "لاستكمال اجراءات الاتفاق وتفعيل الحساب",
+                text = stringResource(R.string.under_review_lbl) +
+                        stringResource(R.string.under_review_lbl_1),
                 style = text16Line,
                 color = TextColor,
                 modifier = Modifier

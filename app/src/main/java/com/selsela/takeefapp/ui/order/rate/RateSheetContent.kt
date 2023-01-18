@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
@@ -64,7 +65,7 @@ fun RateSheetContent(onConfirm: () -> Unit) {
         )
 
         Text(
-            text = "تقييم الخدمة",
+            text = stringResource(id = R.string.rate_service),
             style = text260Book,
             color = Color.White,
             modifier = Modifier.paddingTop(29)
@@ -78,12 +79,12 @@ fun RateSheetContent(onConfirm: () -> Unit) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = "التقييم يظهر فقط للادارة ويساعدنا في تحسين الخدمة",
+                text = stringResource(id = R.string.rate_shows_only_for_admin),
                 style = text11,
                 color = SecondaryColor2
             )
             Text(
-                text = "المقدمة من قبل مراكز الصيانة",
+                text =  stringResource(id = R.string.from_maintinance),
                 style = text11,
                 color = SecondaryColor2,
                 modifier = Modifier.paddingTop(10)
@@ -91,7 +92,7 @@ fun RateSheetContent(onConfirm: () -> Unit) {
         }
 
         ElasticButton(
-            onClick = { onConfirm() }, title = "إرسال التقييم",
+            onClick = { onConfirm() }, title = stringResource(id = R.string.send_rate),
             modifier = Modifier
                 .padding(vertical = 30.dp)
                 .fillMaxWidth()
@@ -105,7 +106,7 @@ private fun NoteView() {
     var note by remember { mutableStateOf("") }
     InputEditText(
         text = note,
-        hint = "كتابة ملاحظة",
+        hint =  stringResource(id = R.string.write_note),
         modifier = Modifier.padding(top = 34.dp),
         onValueChange = {
             note = it
@@ -125,7 +126,7 @@ private fun QualityRating() {
 
     ) {
         Text(
-            text = "جودة الخدمة ",
+            text = stringResource(id = R.string.service_quality),
             style = text14,
             color = SecondaryColor2
         )
@@ -156,7 +157,7 @@ private fun PriceRating() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "تعامل العميل",
+            text =  stringResource(id = R.string.supervisor_attitude),
             style = text14,
             color = SecondaryColor2
         )
@@ -188,7 +189,7 @@ private fun SupervisorRating() {
 
     ) {
         Text(
-            text = "تجاوز الطلب",
+            text = stringResource(R.string.order_apply),
             style = text14,
             color = SecondaryColor2
         )

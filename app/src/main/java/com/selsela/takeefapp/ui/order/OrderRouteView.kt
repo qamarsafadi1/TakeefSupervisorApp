@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
@@ -80,7 +81,7 @@ fun OrderRouteView() {
                                 horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
-                                    text = "المستخدم",
+                                    text = stringResource(R.string.user_lbl),
                                     style = text12,
                                     color = SecondaryColor
                                 )
@@ -156,7 +157,7 @@ private fun ArrivalView() {
         ) {
 
             Text(
-                text = "الوصول خلال",
+                text =  stringResource(id = R.string.arrive_within),
                 style = text12,
                 color = SecondaryColor
             )
@@ -170,7 +171,7 @@ private fun ArrivalView() {
                 )
 
                 Text(
-                    text = "دقائق",
+                    text = stringResource(id = R.string.mintues),
                     style = text12,
                     color = SecondaryColor,
                     modifier = Modifier.padding(start = 5.dp)

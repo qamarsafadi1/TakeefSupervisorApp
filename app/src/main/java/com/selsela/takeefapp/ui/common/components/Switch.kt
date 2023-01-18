@@ -33,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
@@ -78,7 +80,7 @@ fun Switch(
        modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = if (switchOn) "متاح" else "مشغول",
+        Text(text = if (switchOn) stringResource(R.string.available) else stringResource(R.string.busy),
         style = text12,
         color = SecondaryColor)
         Spacer(modifier = Modifier.width(7.dp))

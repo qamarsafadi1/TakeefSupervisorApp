@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
@@ -157,7 +158,7 @@ fun MyAccountView(
                     goToNotification()
                 }
                 Text(
-                    text = "الاعدادات",
+                    text = stringResource(id = R.string.settings),
                     style = text12,
                     color = SecondaryColor,
                     modifier = Modifier.paddingTop(41)
@@ -174,7 +175,7 @@ fun MyAccountView(
                         contentDescription = ""
                     )
                     Text(
-                        text = "المساعدة والدعم الفني",
+                        text = stringResource(id = R.string.help_and_support),
                         style = text14,
                         color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
@@ -193,7 +194,7 @@ fun MyAccountView(
                         contentDescription = ""
                     )
                     Text(
-                        text = "الشروط والاحكام",
+                        text = stringResource(id = R.string.terms_confaitions),
                         style = text14,
                         color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
@@ -212,7 +213,7 @@ fun MyAccountView(
                         contentDescription = ""
                     )
                     Text(
-                        text = "عن التطبيق",
+                        text = stringResource(id = R.string.about_app),
                         style = text14,
                         color = Color.White,
                         modifier = Modifier.padding(start = 18.6.dp)
@@ -222,24 +223,25 @@ fun MyAccountView(
                 Row(
                     modifier = Modifier
                         .paddingTop(31)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .clickable {
+                            coroutineScope.launch {
+                                if (languageSheet.isVisible)
+                                    languageSheet.hide()
+                                else languageSheet.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(modifier = Modifier.clickable {
-                        coroutineScope.launch {
-                            if (languageSheet.isVisible)
-                                languageSheet.hide()
-                            else languageSheet.animateTo(ModalBottomSheetValue.Expanded)
-                        }
-                    }
+                    Row(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.langauage),
                             contentDescription = ""
                         )
                         Text(
-                            text = "اللغة",
+                            text = stringResource(id = R.string.langague),
                             style = text14,
                             color = Color.White,
                             modifier = Modifier.padding(start = 18.6.dp)
@@ -308,7 +310,7 @@ private fun SettingsCards(
                     contentDescription = ""
                 )
                 Text(
-                    text = "حسابي",
+                    text = stringResource(id = R.string.my_account),
                     style = text12,
                     color = SecondaryColor,
                     modifier = Modifier.paddingTop(10)
@@ -342,7 +344,7 @@ private fun SettingsCards(
                         contentDescription = ""
                     )
                     Text(
-                        text = "الاشعارات",
+                        text = stringResource(id = R.string.notifications),
                         style = text12,
                         color = SecondaryColor,
                         modifier = Modifier.paddingTop(10)
@@ -408,9 +410,9 @@ private fun OrderCards(
                     color = TextColor
                 )
                 Text(
-                    text = "طلبات جديدة",
+                    text = stringResource(id = R.string.new_orders),
                     style = text12,
-                    color =TextColor
+                    color = TextColor
                 )
             }
         }
@@ -438,7 +440,7 @@ private fun OrderCards(
                     color = Color.White
                 )
                 Text(
-                    text = "طلبات جارية",
+                    text = stringResource(id = R.string.ongoing_order),
                     style = text12,
                     color = Color.White
                 )
@@ -465,7 +467,7 @@ private fun OrderCards(
                     colorFilter = ColorFilter.tint(Color.White)
                 )
                 Text(
-                    text = "الأرشيف",
+                    text = stringResource(id = R.string.archive),
                     style = text12,
                     color = Color.White,
                     modifier = Modifier.paddingTop(10)
@@ -514,7 +516,7 @@ private fun WalletCard(
                     contentDescription = ""
                 )
                 Text(
-                    text = "رصيد المحفظة",
+                    text = stringResource(id = R.string.wallet_balance_1),
                     style = text13,
                     color = SecondaryColor,
                     modifier = Modifier.padding(start = 10.5.dp)
@@ -534,7 +536,7 @@ private fun WalletCard(
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 androidx.compose.material3.Text(
-                    text = "رس",
+                    text = stringResource(id = R.string.currency_1),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -584,7 +586,7 @@ private fun LogoutButton() {
                 colorFilter = ColorFilter.tint(SecondaryColor)
             )
             Text(
-                text = "تسجيل الخروج",
+                text = stringResource(id = R.string.logout),
                 style = text12,
                 color = Color.White,
                 modifier = Modifier.padding(start = 5.dp)

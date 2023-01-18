@@ -560,7 +560,7 @@ fun SearchBar(
         textStyle = text12,
         placeholder = {
             Text(
-                text = "بحث عن عنوان او تحديد عنوان سابق",
+                text = stringResource(id = R.string.search_on_address),
                 style = text12,
                 color = SecondaryColor
             )
@@ -608,7 +608,7 @@ fun SearchAddressBar(
         textStyle = text12,
         placeholder = {
             Text(
-                text = "بحث عن عنوان ",
+                text = stringResource(R.string.search_for_addreww),
                 style = text12,
                 color = SecondaryColor
             )
@@ -946,6 +946,7 @@ fun LanguageSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
 private fun LanguageItem(selectedItem: Int, onCheck: (Int) -> Unit) {
     Column(
         modifier = Modifier
+            .paddingTop(15)
             .fillMaxWidth()
     ) {
         repeat(2) {
@@ -1222,8 +1223,9 @@ private fun DateTimeView() {
 
 @Composable
 fun StepperView(
-    modifier: Modifier = Modifier.wrapContentWidth(),
-    currentStep: Int = 0,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+    ,    currentStep: Int = 0,
     isDetails: Boolean = false,
     items: List<String> = listOf(
         "استلام الطلب",
@@ -1238,7 +1240,7 @@ fun StepperView(
     ) {
         Divider(
             Modifier
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth(0.7f)
                 .padding(vertical = 10.dp)
                 .align(Alignment.TopCenter),
             thickness = 4.dp,
@@ -1246,7 +1248,7 @@ fun StepperView(
         )
         LazyRow(
             modifier = modifier,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.SpaceAround,
         ) {
             itemsIndexed(
                 items

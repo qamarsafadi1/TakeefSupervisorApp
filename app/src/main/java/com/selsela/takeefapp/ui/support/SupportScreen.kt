@@ -223,7 +223,7 @@ fun MeItem() {
                 .padding(horizontal = 18.dp, vertical = 24.dp)
         ) {
             Text(
-                text = "مرحبا بك في تطبيق ام جي \n يسعدنا الرد علي استفساراتكم واقتراحاتكم ",
+                text =  stringResource(id = R.string.welcome_to),
                 style = text12,
                 color = TextColor,
 
@@ -249,7 +249,7 @@ private fun MessageEditText() {
             message = it
         },
         textStyle = text12White,
-        hint = "كتابة نص الرسالة هنا",
+        hint = stringResource(id = R.string.write_message_here),
         cornerRaduis = 30.dp,
         fillMax = 0.85f,
         hintColor = SecondaryColor2.copy(0.67f)

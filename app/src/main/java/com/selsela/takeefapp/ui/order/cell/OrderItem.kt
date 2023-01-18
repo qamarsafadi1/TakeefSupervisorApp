@@ -76,9 +76,10 @@ fun OrderItem(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(Modifier.fillMaxWidth()
+                    .weight(1f)) {
                     Text(
-                        text = "رقم الطلب",
+                        text = stringResource(id = R.string.order_number),
                         style = text11,
                         color = SecondaryColor
                     )
@@ -90,14 +91,17 @@ fun OrderItem(
                     DateView()
 
                 }
-                Spacer(
-                    modifier = Modifier
+                StepperView(
+                    Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                )
-                StepperView()
+                        .weight(1.5f),
+                    items = listOf(
+                        stringResource(R.string.recived_order),
+                        stringResource(R.string.on_way),
+                        stringResource(R.string.on_progress),
+                        stringResource(R.string.done_order)
+                    ))
             }
-
             Column(
                 modifier = Modifier
                     .paddingTop(10)
@@ -120,7 +124,7 @@ fun OrderItem(
                             colorFilter = ColorFilter.tint(SecondaryColor)
                         )
                         Text(
-                            text = "موعد الزيارة",
+                            text = stringResource(id = R.string.visit_date_1),
                             style = text11,
                             color = SecondaryColor,
                             modifier = Modifier.padding(start = 6.4.dp)
@@ -140,7 +144,7 @@ fun OrderItem(
                         contentDescription = ""
                     )
                     Text(
-                        text = "التكلفة  : ",
+                        text =stringResource(id = R.string.cost_dot),
                         style = text11,
                         color = TextColor,
                         modifier = Modifier.padding(start = 9.dp)
@@ -154,7 +158,7 @@ fun OrderItem(
                             modifier = Modifier.padding(start = 4.dp)
                         )
                         Text(
-                            text = "ر.س",
+                            text = stringResource(id = R.string.currency_1),
                             style = text10,
                             color = TextColor,
                             modifier = Modifier.padding(start = 5.dp)
@@ -169,20 +173,22 @@ fun OrderItem(
                 horizontalArrangement = Arrangement.Center
             ) {
                 ElasticButton(
-                    onClick = { onRouteClick() }, title = "تكلفة اضافية",
+                    onClick = { onRouteClick() }, title = stringResource(id = R.string.extra_cost),
                     modifier = Modifier
                         .paddingTop(13)
                         .requiredHeight(36.dp)
-                        .width(137.dp),
+                        .fillMaxWidth()
+                        .weight(1f),
                     colorBg = Purple40
                 )
                 Spacer(modifier = Modifier.width(14.dp))
                 ElasticButton(
-                    onClick = { /*TODO*/ }, title = "انهاء الطلب",
+                    onClick = { /*TODO*/ }, title = stringResource(R.string.finish_order),
                     modifier = Modifier
                         .paddingTop(13)
                         .requiredHeight(36.dp)
-                        .width(137.dp),
+                        .fillMaxWidth()
+                        .weight(1f),
                     colorBg = TextColor
                 )
             }
@@ -225,9 +231,10 @@ fun NextOrderItem(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(Modifier.fillMaxWidth()
+                    .weight(1f)) {
                     Text(
-                        text = "رقم الطلب",
+                        text =stringResource(id = R.string.order_number),
                         style = text11,
                         color = SecondaryColor
                     )
@@ -239,12 +246,17 @@ fun NextOrderItem(
                     DateView()
 
                 }
-                Spacer(
-                    modifier = Modifier
+
+                StepperView(
+                    Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                )
-                StepperView()
+                        .weight(1.5f),
+                    items = listOf(
+                        stringResource(R.string.recived_order),
+                        stringResource(R.string.on_way),
+                        stringResource(R.string.on_progress),
+                        stringResource(R.string.done_order)
+                    ))
             }
 
             Column(
@@ -269,7 +281,7 @@ fun NextOrderItem(
                             colorFilter = ColorFilter.tint(SecondaryColor)
                         )
                         Text(
-                            text = "موعد الزيارة",
+                            text = stringResource(id = R.string.visit_date_1),
                             style = text11,
                             color = SecondaryColor,
                             modifier = Modifier.padding(start = 6.4.dp)
@@ -289,7 +301,7 @@ fun NextOrderItem(
                         contentDescription = ""
                     )
                     Text(
-                        text = "التكلفة  : ",
+                        text = stringResource(id = R.string.cost_dot),
                         style = text11,
                         color = TextColor,
                         modifier = Modifier.padding(start = 9.dp)
@@ -303,7 +315,7 @@ fun NextOrderItem(
                             modifier = Modifier.padding(start = 4.dp)
                         )
                         Text(
-                            text = "ر.س",
+                            text = stringResource(id = R.string.currency_1),
                             style = text10,
                             color = TextColor,
                             modifier = Modifier.padding(start = 5.dp)

@@ -31,6 +31,7 @@ import com.selsela.takeefapp.ui.theme.text16Medium
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import androidx.compose.runtime.*
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.ui.common.Countdown
@@ -83,7 +84,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "التكلفة الاضافية للصيانة",
+                    text =  stringResource(id = R.string.cost_added),
                     style = text16Medium,
                     color = Color.White
                 )
@@ -94,7 +95,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "المبلغ المطلوب",
+                        text = stringResource(R.string.required_cost),
                         style = text11,
                         color = SecondaryColor.copy(0.85f),
                         modifier = Modifier.padding(bottom = 14.dp)
@@ -110,7 +111,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                         inputType = KeyboardType.Decimal,
                         trailing = {
                             Text(
-                                text = "رس",
+                                text =  stringResource(id = R.string.currency_1),
                                 style = text14,
                                 color = SecondaryColor
                             )
@@ -128,7 +129,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
 
                             ElasticView(onClick = { /*TODO*/ }) {
                                 Text(
-                                    text = "اعادة ارسال",
+                                    text = stringResource(R.string.resend),
                                     style = text14,
                                     color = SecondaryColor,
                                     modifier = Modifier.paddingTop(12)
@@ -150,7 +151,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                         onClick = {
                             state = state.next
                         },
-                        title = "انتظار الدفع",
+                        title = stringResource(R.string.wait_for_payment),
                         colorBg = LightBlue.copy(0.10f),
                         modifier = Modifier
                             .paddingTop(22)
@@ -171,7 +172,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                         onClick = {
                             state = state.next
                             isSend = true
-                        }, title = "إرسال الطلب",
+                        }, title =  stringResource(id = R.string.send_order),
                         modifier = Modifier
                             .paddingTop(22)
                             .padding(horizontal = 24.dp)

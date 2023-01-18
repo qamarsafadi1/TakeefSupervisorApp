@@ -121,7 +121,7 @@ fun CompleteInfoScreen(
             ElasticButton(
                 onClick = {
                     goToPending()
-                }, title = "إرسال الطلب",
+                }, title = stringResource(id = R.string.send_order),
                 modifier = Modifier
                     .padding(bottom = 73.dp)
                     .padding(horizontal = 24.dp)
@@ -168,7 +168,7 @@ private fun CompleteInfoForm(
             .fillMaxWidth()
     ) {
         Text(
-            text = "اهلا وسهلا بك ",
+            text = stringResource(R.string.welcome),
             style = text12,
             color = Color.White,
             modifier = Modifier
@@ -178,7 +178,7 @@ private fun CompleteInfoForm(
         )
 
         Text(
-            text = "استكمال البيانات",
+            text = stringResource(R.string.complete_info),
             modifier = Modifier
                 .paddingTop(12)
                 .fillMaxWidth(),
@@ -241,43 +241,6 @@ private fun CompleteInfoForm(
             hint = stringResource(R.string.district),
             inputType = KeyboardType.Text,
             modifier = Modifier.padding(top = 16.dp)
-        )
-    }
-}
-
-@Composable
-fun SuccessSend() {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .requiredHeight(400.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Spacer(modifier = Modifier.height(137.dp))
-
-        Text(
-            text = "تم الإرسال", style = text18,
-            color = Color.White
-        )
-        Text(
-            text = "سيتم التواصل معك ومتابعة الطلب من قبل الادارة",
-            style = text16Line,
-            color = Color.White.copy(0.85f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.paddingTop(21)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-        ElasticButton(
-            onClick = { /*TODO*/ }, title = "إغلاق",
-            colorBg = ButtonBg,
-            textColor = Purple40,
-            modifier = Modifier
-                .padding(top = 45.dp)
-                .padding(horizontal = 37.dp)
-                .fillMaxWidth()
-                .requiredHeight(48.dp)
         )
     }
 }

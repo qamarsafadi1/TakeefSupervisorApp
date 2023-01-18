@@ -71,12 +71,6 @@ fun OrderDetailsView(
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
-    val coroutineScope = rememberCoroutineScope()
-    val paySheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
-        skipHalfExpanded = true
-    )
     val rateSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
@@ -141,7 +135,7 @@ fun OrderDetailsView(
                     ) {
                         Column {
                             Text(
-                                text = "رقم الطلب",
+                                text =  stringResource(id = R.string.order_number),
                                 style = text11,
                                 color = SecondaryColor
                             )
@@ -157,9 +151,14 @@ fun OrderDetailsView(
                     Spacer(modifier = Modifier.height(22.dp))
                     StepperView(
                         modifier = Modifier
-
                             .fillMaxWidth(),
                         isDetails = true,
+                        items = listOf(
+                            stringResource(R.string.recived_order),
+                            stringResource(R.string.on_way),
+                            stringResource(R.string.on_progress),
+                            stringResource(R.string.done_order)
+                        )
                     )
                     Divider(
                         thickness = 1.dp,
@@ -184,7 +183,7 @@ fun OrderDetailsView(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "تفاصيل الخدمة",
+                            text =  stringResource(id = R.string.service_details),
                             style = text14,
                         )
                     }
@@ -232,7 +231,7 @@ private fun ServiceItem() {
         ) {
             Row {
                 Text(
-                    text = "خدمة صيانة",
+                    text = stringResource(id = R.string.maintinance_serivce),
                     style = text12,
                     color = TextColor,
                 )
@@ -250,7 +249,7 @@ private fun ServiceItem() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "رس",
+                    text =  stringResource(id = R.string.currency_1),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -286,7 +285,7 @@ private fun ServiceItem() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "جهاز",
+                    text =  stringResource(id = R.string.device),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -319,7 +318,7 @@ private fun ServiceItem() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "جهاز",
+                    text = stringResource(id = R.string.device),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -376,7 +375,7 @@ private fun CostView() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "رس",
+                    text = stringResource(id = R.string.currency_1),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -418,7 +417,7 @@ private fun CostView() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "رس",
+                    text =  stringResource(id = R.string.currency_1),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -456,7 +455,7 @@ private fun CostView() {
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = "رس",
+                    text =  stringResource(id = R.string.currency_1),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -464,67 +463,6 @@ private fun CostView() {
             }
         }
 
-    }
-}
-
-@Composable
-private fun AcceptRejectButtons(onClick: (Int) -> Unit) {
-    Row(
-        Modifier
-            .padding(top = 11.dp)
-            .padding(horizontal = 21.dp)
-            .fillMaxWidth()
-    ) {
-
-        ElasticButton(
-            onClick = { onClick(REJECT) },
-            title = "رفض",
-            colorBg = Red,
-            modifier = Modifier
-                .weight(1f)
-                .requiredHeight(36.dp)
-        )
-        Spacer(modifier = Modifier.width(18.dp))
-        ElasticButton(
-            onClick = {
-                onClick(ACCEPT)
-            },
-            title = "قبول ودفع",
-            icon = R.drawable.pay,
-            modifier = Modifier
-                .weight(1f)
-                .requiredHeight(36.dp),
-            iconGravity = RIGHT
-        )
-    }
-}
-
-@Composable
-private fun MaintenanceCostWarning() {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 14.dp)
-            .padding(top = 12.dp)
-            .fillMaxWidth()
-            .requiredHeight(62.dp)
-            .background(
-                ColorAccent.copy(0.19f),
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(horizontal = 13.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.info),
-            contentDescription = ""
-        )
-
-        Text(
-            text = " يوجد تكلفة اضافية للصيانة في حال القبول\n والدفع",
-            style = text11NoLines,
-            color = TextColor,
-            modifier = Modifier.padding(start = 8.8.dp)
-        )
     }
 }
 
@@ -547,7 +485,7 @@ private fun VisitDateView() {
                 contentDescription = ""
             )
             androidx.compose.material3.Text(
-                text = "موعد الزيارة",
+                text =  stringResource(id = R.string.visit_date_1),
                 style = text12,
                 color = SecondaryColor,
                 modifier = Modifier.padding(start = 8.dp)
@@ -565,7 +503,7 @@ private fun VisitDateView() {
             ) {
                 Spacer(modifier = Modifier.width(5.dp))
                 androidx.compose.material3.Text(
-                    text = "فترة صباحية",
+                    text =  stringResource(id = R.string.am_lbl),
                     style = text14,
                     color = TextColor
                 )

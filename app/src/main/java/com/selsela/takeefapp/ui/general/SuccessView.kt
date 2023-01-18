@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,35 +57,38 @@ fun SuccessView(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(bottom = 51.dp)
-                .align(Alignment.Center)
-                .padding(horizontal = 24.dp)
-                .fillMaxWidth()
-                .animateContentSize(tween(500))
-                .background(TextColor, RoundedCornerShape(33.dp))
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+        Box(Modifier
+            .align(Alignment.Center),
+            contentAlignment = Alignment.TopCenter) {
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 51.dp,top = 44.dp)
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth()
+                    .animateContentSize(tween(500))
+                    .background(TextColor, RoundedCornerShape(33.dp))
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
 
-            SuccessSend(){
-                coroutineScope.launch {
-                    if (rateSheetState.isVisible)
-                        rateSheetState.hide()
-                    else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                SuccessSend(){
+                    coroutineScope.launch {
+                        if (rateSheetState.isVisible)
+                            rateSheetState.hide()
+                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
                 }
             }
+            LottieAnimationView(
+                raw = R.raw.send,
+                modifier = Modifier
+                    .size(126.dp)
+            )
         }
 
-        LottieAnimationView(
-            raw = R.raw.send,
-            modifier = Modifier
-                .paddingTop(132)
-                .size(126.dp)
-                .align(Alignment.TopCenter)
-        )
+
+
         RateSheet(rateSheetState) {
             coroutineScope.launch {
                 rateSheetState.hide()
@@ -107,11 +111,11 @@ fun SuccessSend(goToRate: () -> Unit) {
         Spacer(modifier = Modifier.height(137.dp))
 
         Text(
-            text = "تم الدفع بنجاح", style = text18,
+            text = stringResource(R.string.payed_successfully), style = text18,
             color = Color.White
         )
         Text(
-            text = "تم دفع ركلة الصينة بنجاح",
+            text = stringResource(R.string.pay_lbl_1),
             style = text16Line,
             color = Color.White.copy(0.85f),
             textAlign = TextAlign.Center,
@@ -120,7 +124,7 @@ fun SuccessSend(goToRate: () -> Unit) {
 
         Spacer(modifier = Modifier.height(20.dp))
         ElasticButton(
-            onClick = { goToRate() }, title = "تقييم",
+            onClick = { goToRate() }, title = stringResource(id = R.string.rate),
             icon = R.drawable.starfill,
             iconGravity = Constants.RIGHT,
             modifier = Modifier
