@@ -46,16 +46,19 @@ fun NavigationHost(
             }, goToMyAccount = {
                 navActions.navigateToMyAccount()
             },
-            goToDetails = {
-                navActions.navigateToOrderDetails()
-            }) {
+                goToDetails = {
+                    navActions.navigateToOrderDetails()
+                }) {
                 navActions.navigateToAddCostScreen()
             }
         }
         composable(Destinations.LOGIN_SCREEN) {
-            LoginView() {
-                navActions.navigateToVerify()
-            }
+            LoginView(
+                goToTerms = navActions::navigateToTermsScreen,
+                goToSupport = navActions::navigateToSupport,
+                goToHome = navActions::navigateToHome,
+                goToVerify = navActions::navigateToVerify
+            )
         }
         composable(Destinations.COMPLETE_INFO_SCREEN) {
             CompleteInfoScreen(
@@ -72,7 +75,7 @@ fun NavigationHost(
             }
         }
         composable(Destinations.SUCCESS) {
-            SuccessView(){
+            SuccessView() {
                 navActions.navigateToHome()
             }
         }
@@ -131,7 +134,7 @@ fun NavigationHost(
             TermsView()
         }
         composable(Destinations.TECHNICAL_SUPPORT) {
-            SupportScreen(){
+            SupportScreen() {
                 navController.navigateUp()
             }
         }
@@ -144,13 +147,13 @@ fun NavigationHost(
         composable(Destinations.WALLET_SCREEN) {
             WalletScreen()
         }
-        composable(Destinations.PENDING_ACCOUNT_SCREEN){
-            PendingAccountScreen(){
+        composable(Destinations.PENDING_ACCOUNT_SCREEN) {
+            PendingAccountScreen() {
                 navActions.navigateToHome()
             }
         }
-        composable(Destinations.ADD_COST_SCREEN){
-            AddCostScreen(){
+        composable(Destinations.ADD_COST_SCREEN) {
+            AddCostScreen() {
                 navActions.navigateToSuccess()
             }
         }

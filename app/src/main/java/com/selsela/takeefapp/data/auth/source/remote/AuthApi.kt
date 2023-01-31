@@ -21,7 +21,7 @@ import retrofit2.http.Part
 import retrofit2.http.PartMap
 
 interface AuthApi {
-    @POST("supervisor/auth_mobile_only")
+    @POST("supervisor/auth_mobile")
     @JvmSuppressWildcards
     @FormUrlEncoded
     suspend fun auth(
@@ -36,6 +36,7 @@ interface AuthApi {
         @FieldMap
         body: Map<String, Any>
     ): Response<AuthResponse>
+
    @POST("supervisor/resend_verify_code")
     @JvmSuppressWildcards
     @FormUrlEncoded

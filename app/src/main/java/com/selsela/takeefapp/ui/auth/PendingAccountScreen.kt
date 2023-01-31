@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.ui.auth.component.SupportBottomSection
 import com.selsela.takeefapp.ui.common.LottieAnimationView
 import com.selsela.takeefapp.ui.theme.CircleColor
 import com.selsela.takeefapp.ui.theme.Purple40
@@ -102,7 +103,9 @@ fun PendingAccountScreen(
                 .wrapContentSize()
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 43.dp)
-        )
+        ){
+
+        }
         LaunchedEffect(Unit) {
             delay(3000)
             onFinish()
