@@ -1,5 +1,6 @@
 package com.selsela.takeefapp.ui.splash
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,11 +21,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.AppLogoImage
 import com.selsela.takeefapp.ui.common.LottieAnimationView
@@ -35,15 +39,30 @@ import com.selsela.takeefapp.ui.theme.sloganStyle
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text17
 import com.selsela.takeefapp.ui.theme.textMeduim
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashView(
+    viewModel: ConfigViewModel = hiltViewModel(),
     onFinish: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarColor()
 
+    SplashContent(onFinish)
+    LaunchedEffect(Unit) {
+        /**
+         * Get fcm token
+         */
+        viewModel.getConfig()
+        receiveToken()
+    }
+}
+
+@Composable
+private fun SplashContent(onFinish: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -69,20 +88,10 @@ fun SplashView(
             )
         }
         LaunchedEffect(Unit) {
-            delay(3000)
+            delay(7000)
             onFinish()
         }
     }
-}
-
-@Composable
-fun ConditionAnimation() {
-    LottieAnimationView(
-        modifier = Modifier
-            .requiredHeight(184.dp)
-            .padding(top = 42.dp),
-        raw = R.raw.splashanimation
-    )
 }
 
 @Composable
@@ -118,4 +127,17 @@ fun Color.ChangeStatusBarOnlyColor(
         color = this,
         darkIcons = false
     )
+}
+
+private fun receiveToken() {
+    FirebaseMessaging.getInstance().token
+        .addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("Token =>", "getInstanceId failed", task.exception)
+                return@OnCompleteListener
+            }
+            val token = task.result
+            token.log("Token")
+            LocalData.fcmToken = token
+        })
 }

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "28561372434",
+    "project_id": "air-conditioner-supervisor",
+    "storage_bucket": "air-conditioner-supervisor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28561372434:android:608116945b9adf2984efcb",
+        "android_client_info": {
+          "package_name": "com.selsela.airconditionersupervisor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "28561372434-e7gu4ru7gncv8q552pdga280ab1ejids.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW1LzFU7y8wTu_A3N_szrDpdXLwc-2Iig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "28561372434-e7gu4ru7gncv8q552pdga280ab1ejids.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "28561372434-9sps3dh047fjif3d08jsu4ga4pbmh919.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.selsela.airconditionersupervisor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

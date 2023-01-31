@@ -195,5 +195,22 @@
     <string name="resend">اعادة ارسال</string>
     <string name="wait_for_payment">انتظار الدفع</string>
     <string name="user_lbl">المستخدم</string>
-
+    <string name="max_att_size">حجم الصورة كبير</string>
+    <string name="_msg_failed">فشلت العملية الرجاء اعادة المحاولة</string>
+    <string name="default_notification_channel_id">1</string>
+    <string name="valid_required">هذا الحقل مطلوب</string>
+    <string name="valid_required2">الرجاء ادخال </string>
+    <string name="valid_required3">الرجاء اختيار </string>
+    <string name="warning_email_pattern">الرجاء ادخال البريد الاكتروني</string>
+    <string name="warning_password_length">كلمةالمرور يجب ان تكون اكثر من 6 احرف<br> </br></string>
+    <string name="warning_password_weak">كلمة المرور ضعيفة، يجب ان تحتوي على احرف وارقام</string>
+    <string name="warning_password_not_match">كلمة المرور غير متطابقة <br> </br></string>
+    <string name="warning_phone_pattern">يجب ادخال ارقام فقط في حقل رقم الجوال</string>
+    <string name="warning_phone_length_pattern">رقم الهاتف يجب ان يحتوي على 8 ارقام فقط</string>
+    <string name="warning_phone_length_pattern_2">رقم الهاتف الصحيح لـ %2$s يتكون من : %1$s أرقام</string>
+    <string name="not_start_with_zero">لا يمكن للرقم ان يبدأ بصفر</string>
+    <string name="unvalid_code">رمز التفعيل غير صحيح</string>
+    <string name="logout_lbl">هل انت متأكد من رغبتك في تسجيل الخروج؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
 </resources>
