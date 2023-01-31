@@ -24,6 +24,8 @@ import com.selsela.takeefapp.ui.splash.SplashView
 import com.selsela.takeefapp.ui.support.SupportScreen
 import com.selsela.takeefapp.ui.terms.TermsView
 import com.selsela.takeefapp.ui.wallet.WalletScreen
+import com.selsela.takeefapp.utils.Constants.VERIFIED
+import com.selsela.takeefapp.utils.LocalData
 
 @Composable
 fun NavigationHost(
@@ -36,7 +38,13 @@ fun NavigationHost(
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Destinations.SPLASH_SCREEN) {
             SplashView() {
-                navActions.navigateToLogin()
+                if (LocalData.accessToken.isNullOrEmpty())
+                    navActions.navigateToLogin()
+                else {
+                    if (LocalData.user?.status == VERIFIED)
+                        navActions.navigateToHome()
+                    else navActions.navigateToCompleteInfo()
+                }
             }
         }
         composable(Destinations.HOME_SCREEN) {
@@ -63,7 +71,9 @@ fun NavigationHost(
         composable(Destinations.COMPLETE_INFO_SCREEN) {
             CompleteInfoScreen(
                 goToPending = {
-                    navActions.navigateToPendingAccount()
+                    if (LocalData.user?.status == VERIFIED)
+                        navActions.navigateToHome()
+                    else navActions.navigateToPendingAccount()
                 }
             ) {
                 navController.navigateUp()

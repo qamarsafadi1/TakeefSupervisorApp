@@ -8,6 +8,6 @@ data class AuthResponse(
     val responseMessage: String = "",
     @SerializedName("status")
     val status: Boolean = false,
-    @SerializedName("user")
+    @SerializedName("supervisor")
     val user: User = User()
 )

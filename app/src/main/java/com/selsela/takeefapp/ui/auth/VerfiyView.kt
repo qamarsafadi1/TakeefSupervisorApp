@@ -38,29 +38,78 @@ import com.selsela.takeefapp.ui.theme.TextFieldBg
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text18
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.selsela.takeefapp.ui.common.Countdown
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.OtpTextField
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Meduim
+import com.selsela.takeefapp.utils.Common
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
+import de.palm.composestateevents.EventEffect
 
 @Composable
 fun VerifyView(
-    goToAddress: () -> Unit
+    viewModel: AuthViewModel = hiltViewModel(),
+    onConfirm: () -> Unit
+) {
+    val viewState: AuthUiState by viewModel.uiState.collectAsStateLifecycleAware(AuthUiState())
+    val context = LocalContext.current
+
+    VerifyCodeContent(
+        uiState = viewState,
+        onConfirm = viewModel::verifyCode,
+        viewModel = viewModel,
+        resend = viewModel::resendCode
+    )
+
+    /**
+     * Handle Ui state from flow
+     */
+
+    EventEffect(
+        event = viewState.onSuccess,
+        onConsumed = viewModel::onSuccess
+    ) {
+        viewModel.updateFcm()
+        onConfirm()
+    }
+
+    EventEffect(
+        event = viewState.onFailure,
+        onConsumed = viewModel::onFailure
+    ) { error ->
+        Common.handleErrors(
+            error.responseMessage,
+            error.errors,
+            context
+        )
+    }
+}
+
+@Composable
+private fun VerifyCodeContent(
+    uiState: AuthUiState,
+    onConfirm: () -> Unit,
+    resend: () -> Unit,
+    viewModel: AuthViewModel
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(TextColor),
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
             Column(
-                modifier = Modifier.padding(top =151.dp),
+                modifier = Modifier.padding(top = 151.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Card(
@@ -71,7 +120,7 @@ fun VerifyView(
                         .padding(top = 0.dp)
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 350.dp)
+                        .defaultMinSize(minHeight = 360.dp)
 
                 ) {
                     Column(
@@ -92,22 +141,24 @@ fun VerifyView(
                             modifier = Modifier.paddingTop(20)
                         )
                         Text(
-                            text = "966591234567",
+                            text = viewModel.mobile.value,
                             style = text18,
                             color = Purple40,
                             modifier = Modifier.paddingTop(17)
 
                         )
-                        var otpValue by remember {
-                            mutableStateOf("")
-                        }
 
                         OtpTextField(
-                            otpText = otpValue,
+                            otpText = viewModel.code.value,
                             onOtpTextChange = { value, otpInputFilled ->
-                                otpValue = value
+                                viewModel.code.value = value
+                                if (value.isEmpty()) {
+                                    viewModel.isValid.value = true
+                                    viewModel.errorMessage.value = ""
+                                }
                             },
                             modifier = Modifier.paddingTop(25),
+                            viewModel = viewModel
                         )
 
                         Text(
@@ -119,19 +170,24 @@ fun VerifyView(
                         Countdown(
                             30,
                             modifier = Modifier.paddingTop(8)
-                        )
+                        ) {
+                            resend()
+                        }
                     }
 
                 }
 
                 ElasticButton(
                     onClick = {
-                        goToAddress()
-                    }, title = stringResource(R.string.confirm),
+                        onConfirm()
+                    },
+                    title = stringResource(R.string.confirm),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp)
-                        .requiredHeight(48.dp)
+                        .requiredHeight(48.dp),
+                    isLoading = uiState.isLoading
+
                 )
             }
 
@@ -167,8 +223,10 @@ fun VerifyView(
                     .requiredHeight(51.dp)
                     .background(LightBlue.copy(0.07f), shape = RoundedCornerShape(25.dp))
             ) {
-                Text(text = stringResource(R.string.facing_problem), style = text12,
-                    color = Color.White.copy(0.85f))
+                Text(
+                    text = stringResource(R.string.facing_problem), style = text12,
+                    color = Color.White.copy(0.85f)
+                )
                 Text(
                     text = stringResource(R.string.support_lbl),
                     style = text12Meduim,

@@ -223,8 +223,8 @@ fun ProfileScreen(
         }
         DeleteAccountSheet(sheetState = paySheetState) {
         }
-        ListedBottomSheet(sheetState = citySheetState)
-        ListedBottomSheet(sheetState = areaSheetState)
+//        ListedBottomSheet(sheetState = citySheetState)
+//        ListedBottomSheet(sheetState = areaSheetState)
 
 
     }

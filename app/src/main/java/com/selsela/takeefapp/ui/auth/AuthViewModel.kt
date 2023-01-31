@@ -15,8 +15,12 @@ import com.selsela.takeefapp.data.auth.model.support.ContactReplies
 import com.selsela.takeefapp.data.auth.model.support.contacts.Contact
 import com.selsela.takeefapp.data.auth.model.wallet.WalletResponse
 import com.selsela.takeefapp.data.auth.repository.AuthRepository
+import com.selsela.takeefapp.data.config.model.city.Area
+import com.selsela.takeefapp.data.config.model.city.Children
+import com.selsela.takeefapp.data.config.model.city.City
 import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.Red
+import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.retrofit.model.ErrorsData
@@ -76,14 +80,30 @@ class AuthViewModel @Inject constructor(
     /**
      * Validation Variables
      */
-    var mobile: MutableState<String> = mutableStateOf(LocalData.user?.mobile ?: "")
+    var mobile: MutableState<String> = mutableStateOf(
+        if (LocalData.user?.status != NOT_VERIFIED)
+            LocalData.user?.mobile ?: ""
+        else ""
+    )
     var name: MutableState<String> = mutableStateOf(LocalData.user?.name ?: "")
     var email: MutableState<String> = mutableStateOf(LocalData.user?.email ?: "")
+    var areaID: MutableState<Int> = mutableStateOf(-1)
+    var cityId: MutableState<Int> = mutableStateOf(-1)
+    var districtID: MutableState<Int> = mutableStateOf(-1)
     var code: MutableState<String> = mutableStateOf("")
     var errorMessage: MutableState<String> = mutableStateOf("")
     var errorMessageName: MutableState<String> = mutableStateOf("")
+    var errorMessageCity: MutableState<String> = mutableStateOf("")
+    var errorMessageArea: MutableState<String> = mutableStateOf("")
+    var selectedAreaName = mutableStateOf("")
+    var selectedCityName = mutableStateOf("")
+    var selectedDistrictName = mutableStateOf("")
+    var errorMessageDistrict: MutableState<String> = mutableStateOf("")
     var isValid: MutableState<Boolean> = mutableStateOf(true)
     var isNameValid: MutableState<Boolean> = mutableStateOf(true)
+    var isCityValid: MutableState<Boolean> = mutableStateOf(true)
+    var isAreaValid: MutableState<Boolean> = mutableStateOf(true)
+    var isDistrictValid: MutableState<Boolean> = mutableStateOf(true)
     var avatar: File? = null
     var isLoaded = false
     var message: MutableState<String> = mutableStateOf("")
@@ -160,41 +180,101 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun profileInfoIsValid(): Boolean {
-        code.value.log("code.value")
         val nameValidationMessage = name.value.validateRequired(
             application.applicationContext, application.getString(
                 R.string.name
             )
         )
-        val mobileValidationMessage = mobile.value.validateRequired(
+        val cityValidationMessage = cityId.value.validateRequired(
             application.applicationContext, application.getString(
-                R.string.mobile
+                R.string.city
             )
         )
-        if (nameValidationMessage == "" && mobileValidationMessage == "") {
+        val areaValidationMessage = areaID.value.validateRequired(
+            application.applicationContext, application.getString(
+                R.string.area
+            )
+        )
+        val districtValidationMessage = districtID.value.validateRequired(
+            application.applicationContext, application.getString(
+                R.string.district
+            )
+        )
+        if (nameValidationMessage == "" &&
+            cityValidationMessage == "" && areaValidationMessage == "" &&
+            districtValidationMessage == ""
+        ) {
             isNameValid.value = true
+            isCityValid.value = true
+            isAreaValid.value = true
+            isDistrictValid.value = true
             isValid.value = true
         } else {
-            if (nameValidationMessage != "" && mobileValidationMessage != "") {
+            if (nameValidationMessage != ""  &&
+                cityValidationMessage != "" && areaValidationMessage != "" &&
+                districtValidationMessage != ""
+            ) {
                 isValid.value = false
                 isNameValid.value = false
-                errorMessage.value = "${mobileValidationMessage}"
-                errorMessageName.value = "${nameValidationMessage}"
+                isCityValid.value = false
+                isAreaValid.value = false
+                isDistrictValid.value = false
+                errorMessageCity.value = cityValidationMessage
+                errorMessageArea.value = areaValidationMessage
+                errorMessageDistrict.value = districtValidationMessage
+                errorMessageName.value = nameValidationMessage
             } else {
                 if (nameValidationMessage != "") {
                     errorMessageName.value = nameValidationMessage
                     errorMessage.value = ""
+                    errorMessageCity.value = ""
+                    errorMessageArea.value = ""
+                    errorMessageDistrict.value = ""
                     isValid.value = true
+                    isAreaValid.value = true
+                    isCityValid.value = true
+                    isDistrictValid.value = true
                     isNameValid.value = false
-                } else {
-                    errorMessage.value = mobileValidationMessage
+                    return false
+                }
+                if (areaValidationMessage != "") {
+                    errorMessageArea.value = areaValidationMessage
                     errorMessageName.value = ""
-                    isValid.value = false
+                    errorMessageCity.value = ""
+                    errorMessageDistrict.value = ""
+                    isAreaValid.value = false
                     isNameValid.value = true
+                    isCityValid.value = true
+                    isDistrictValid.value = true
+                    isNameValid.value = true
+                    return false
+                }
+                if (cityValidationMessage != ""){
+                    errorMessageCity.value = cityValidationMessage
+                    errorMessageName.value = ""
+                    errorMessageArea.value = ""
+                    errorMessageDistrict.value = ""
+                    isAreaValid.value = true
+                    isNameValid.value = true
+                    isCityValid.value = false
+                    isDistrictValid.value = true
+                    isNameValid.value = true
+                    return false
+                }else{
+                    errorMessageCity.value = ""
+                    errorMessageName.value = ""
+                    errorMessageArea.value = ""
+                    errorMessageDistrict.value = districtValidationMessage
+                    isAreaValid.value = true
+                    isNameValid.value = true
+                    isCityValid.value = true
+                    isDistrictValid.value = false
+                    isNameValid.value = true
+                    return false
                 }
             }
         }
-        return isValid.value && isNameValid.value
+        return isNameValid.value && isCityValid.value && isAreaValid.value && isDistrictValid.value
     }
 
     fun validateBorderColor(): Color {
@@ -208,6 +288,65 @@ class AuthViewModel @Inject constructor(
             Red
         else BorderColor
     }
+    fun validateCityBorderColor(): Color {
+        return if (errorMessageCity.value.isNotEmpty() && isCityValid.value.not())
+            Red
+        else BorderColor
+    }
+    fun validateAreaBorderColor(): Color {
+        return if (errorMessageArea.value.isNotEmpty() && isAreaValid.value.not())
+            Red
+        else BorderColor
+    }
+    fun validateDisrtictBorderColor(): Color {
+        return if (errorMessageDistrict.value.isNotEmpty() && isDistrictValid.value.not())
+            Red
+        else BorderColor
+    }
+    fun setSelectedArea(area: String, areaId: Int) {
+        selectedAreaName.value = area
+        areaID.value = areaId
+    }
+
+    fun setSelectedCity(city: String, cityId: Int) {
+        selectedCityName.value = city
+        this.cityId.value = cityId
+    }
+
+    fun setSelectedDistrict(city: String, cityId: Int) {
+        selectedDistrictName.value = city
+        districtID.value = cityId
+    }
+
+
+
+    fun getCitiesOfAreas(): List<City> {
+        return LocalData.ciites?.find {
+            it.id == areaID.value
+        }?.cities ?: listOf()
+    }
+
+    fun getDistrictOfCities(): List<Children> {
+        return LocalData.ciites?.find {
+            it.id == areaID.value
+        }?.cities?.find { it.id == cityId.value }?.children ?: listOf()
+    }
+
+    fun <T> searchCities(query: String, list: List<T>?): MutableState<List<T>?> {
+        val cities = if (query == "")
+            list
+        else {
+            list?.filter {
+                when (it) {
+                    is Area -> it.name.contains(query)
+                    is City -> it.name.contains(query)
+                    else -> (it as Children).name.contains(query)
+                }
+            }
+        }
+        return mutableStateOf(cities)
+    }
+
 
     /////////////////////////////////////////  API REQUESTS  ///////////////////////////////////////
 
@@ -287,6 +426,7 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
     fun resendCode() {
         viewModelScope.launch {
             state = state.copy(
@@ -597,6 +737,10 @@ class AuthViewModel @Inject constructor(
                 supportState = supportUiState
             }
         }
+    }
+
+    fun completeProfileInfo(){
+        profileInfoIsValid()
     }
 
     /**

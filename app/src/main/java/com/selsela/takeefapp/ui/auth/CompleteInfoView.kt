@@ -1,5 +1,7 @@
 package com.selsela.takeefapp.ui.auth
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,7 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,33 +19,33 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.AppLogoImage
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.InputEditText
 import com.selsela.takeefapp.ui.common.ListedBottomSheet
+import com.selsela.takeefapp.ui.splash.ChangeNavigationBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.BorderColor
-import com.selsela.takeefapp.ui.theme.ButtonBg
-import com.selsela.takeefapp.ui.theme.Purple40
+import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -51,20 +53,25 @@ import com.selsela.takeefapp.ui.theme.TextFieldBg
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text14
-import com.selsela.takeefapp.ui.theme.text16Line
 import com.selsela.takeefapp.ui.theme.text16Medium
-import com.selsela.takeefapp.ui.theme.text18
+import com.selsela.takeefapp.utils.Extensions.Companion.showError
+import com.selsela.takeefapp.utils.Extensions.Companion.withDelay
+import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun CompleteInfoScreen(
+    vm: AuthViewModel = hiltViewModel(),
     goToPending: () -> Unit,
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarColor()
+    TextColor.ChangeNavigationBarColor()
+
     val coroutineScope = rememberCoroutineScope()
     val citySheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -76,6 +83,34 @@ fun CompleteInfoScreen(
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
         skipHalfExpanded = true
     )
+    val districtSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = true
+    )
+
+    CompleteInfoContent(
+        vm,
+        coroutineScope,
+        areaSheetState,
+        citySheetState,
+        districtSheetState,
+        vm::completeProfileInfo,
+        onBack
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+private fun CompleteInfoContent(
+    vm: AuthViewModel,
+    coroutineScope: CoroutineScope,
+    areaSheetState: ModalBottomSheetState,
+    citySheetState: ModalBottomSheetState,
+    districtSheetState: ModalBottomSheetState,
+    goToPending: () -> Unit,
+    onBack: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,6 +132,7 @@ fun CompleteInfoScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 CompleteInfoForm(
+                    vm,
                     onArea = {
                         coroutineScope.launch {
                             if (areaSheetState.isVisible)
@@ -104,19 +140,32 @@ fun CompleteInfoScreen(
                             else areaSheetState.animateTo(ModalBottomSheetValue.Expanded)
 
                         }
+                    },
+                    onCity = {
+                        coroutineScope.launch {
+                            if (citySheetState.isVisible) {
+                                citySheetState.hide()
+                            } else {
+                                citySheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        }
                     }
-                ){
+                ) {
                     coroutineScope.launch {
-                        if (citySheetState.isVisible)
-                            citySheetState.hide()
-                        else citySheetState.animateTo(ModalBottomSheetValue.Expanded)
-
+                        if (districtSheetState.isVisible) {
+                            districtSheetState.hide()
+                        } else {
+                            districtSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
                     }
                 }
             }
-            AppLogoImage(modifier = Modifier.paddingTop(85)
-                .width(139.dp)
-                .height(39.dp))
+            AppLogoImage(
+                modifier = Modifier
+                    .paddingTop(85)
+                    .width(139.dp)
+                    .height(39.dp)
+            )
 
             ElasticButton(
                 onClick = {
@@ -150,8 +199,50 @@ fun CompleteInfoScreen(
             }
         }
 
-        ListedBottomSheet(sheetState = citySheetState)
-        ListedBottomSheet(sheetState = areaSheetState)
+        ListedBottomSheet(
+            viewModel = vm,
+            sheetState = areaSheetState,
+            title = stringResource(id = R.string.area),
+            ciites = LocalData.ciites,
+            onSelectedItem = vm::setSelectedArea
+        ) {
+            coroutineScope.launch {
+                if (areaSheetState.isVisible)
+                    areaSheetState.hide()
+                else
+                    areaSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            }
+        }
+
+        ListedBottomSheet(
+            viewModel = vm,
+            sheetState = citySheetState,
+            title = stringResource(id = R.string.city),
+            ciites = vm.getCitiesOfAreas(),
+            onSelectedItem = vm::setSelectedCity
+        ) {
+            coroutineScope.launch {
+                if (citySheetState.isVisible)
+                    citySheetState.hide()
+                else
+                    citySheetState.animateTo(ModalBottomSheetValue.Expanded)
+            }
+        }
+        ListedBottomSheet(
+            viewModel = vm,
+            sheetState = districtSheetState,
+            title = stringResource(id = R.string.district),
+            ciites = vm.getDistrictOfCities(),
+            onSelectedItem = vm::setSelectedDistrict
+        ) {
+            coroutineScope.launch {
+                if (districtSheetState.isVisible)
+                    districtSheetState.hide()
+                else
+                    districtSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            }
+        }
+//        ListedBottomSheet(sheetState = districtSheetState)
 
 
     }
@@ -159,9 +250,12 @@ fun CompleteInfoScreen(
 
 @Composable
 private fun CompleteInfoForm(
+    vm: AuthViewModel,
     onArea: () -> Unit,
-    onCity: () -> Unit
+    onCity: () -> Unit,
+    onDistrict: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         Modifier
             .padding(bottom = 39.dp)
@@ -193,17 +287,22 @@ private fun CompleteInfoForm(
             color = SecondaryColor2.copy(0.85f),
             modifier = Modifier.padding(top = 29.dp)
         )
-        var name by remember {
-            mutableStateOf("")
-        }
         InputEditText(
             onValueChange = {
-                name = it
+                vm.name.value = it
+                if (it.isEmpty() || vm.isNameValid.value.not()) {
+                    vm.isNameValid.value = true
+                    vm.errorMessageName.value = ""
+                }
             },
-            text = name,
+            text = vm.name.value,
             hint = stringResource(R.string.full_name),
             inputType = KeyboardType.Text,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp),
+            isValid = vm.isNameValid.value,
+            validationMessage = vm.errorMessageName.value,
+            borderColor = vm.validateNameBorderColor()
+
         )
         Text(
             text = stringResource(R.string.area),
@@ -211,8 +310,17 @@ private fun CompleteInfoForm(
             color = SecondaryColor2.copy(0.85f),
             modifier = Modifier.padding(top = 16.dp)
         )
-        AreaView(){
+        AreaView(
+            title = vm.selectedAreaName.value,
+            isValid = vm.isAreaValid.value,
+            validationMessage = vm.errorMessageArea.value,
+            borderColor = vm.validateAreaBorderColor()
+        ) {
             onArea()
+            if (vm.isAreaValid.value.not()) {
+                vm.isAreaValid.value = true
+                vm.errorMessageCity.value = ""
+            }
         }
         Text(
             text = stringResource(R.string.city),
@@ -220,35 +328,47 @@ private fun CompleteInfoForm(
             color = SecondaryColor2.copy(0.85f),
             modifier = Modifier.padding(top = 16.dp)
         )
-        CityView(){
-            onCity()
+        CityView(
+            title = vm.selectedCityName.value,
+            isValid = vm.isCityValid.value,
+            validationMessage = vm.errorMessageCity.value,
+            borderColor = vm.validateCityBorderColor()
+        ) {
+            if (vm.areaID.value != -1)
+                onCity()
         }
 
-        var district by remember {
-            mutableStateOf("")
-        }
         Text(
             text = stringResource(R.string.district),
             style = text11,
             color = SecondaryColor2.copy(0.85f),
             modifier = Modifier.padding(top = 16.dp)
         )
-        InputEditText(
-            onValueChange = {
-                district = it
-            },
-            text = district,
-            hint = stringResource(R.string.district),
-            inputType = KeyboardType.Text,
-            modifier = Modifier.padding(top = 16.dp)
-        )
+        DistrictView(
+            title = vm.selectedDistrictName.value,
+            isValid = vm.isDistrictValid.value,
+            validationMessage = vm.errorMessageDistrict.value,
+            borderColor = vm.validateDisrtictBorderColor()
+        ) {
+            if (vm.getDistrictOfCities().isEmpty().not())
+                onDistrict()
+            else context.showError(context.getString(R.string.no_district))
+        }
+
     }
 }
 
 @Composable
 private fun CityView(
+    title: String,
+    borderColor: Color = BorderColor,
+    isValid: Boolean = true,
+    validationMessage: String = "",
     onCityClick: () -> Unit
 ) {
+    val color: Color by animateColorAsState(
+        borderColor
+    )
 
     Column(Modifier.fillMaxWidth()) {
         Box(
@@ -257,29 +377,49 @@ private fun CityView(
                 .fillMaxWidth()
                 .requiredHeight(46.dp)
                 .background(TextFieldBg, RoundedCornerShape(8.dp))
-                .border(1.dp, color = BorderColor, RoundedCornerShape(8.dp))
+                .border(1.dp, color = color, RoundedCornerShape(8.dp))
                 .clickable(onClick = {
                     onCityClick()
+
                 })
                 .padding(horizontal = 16.dp)
 
         ) {
             Text(
-                stringResource(id = R.string.city),
+                title.ifEmpty { stringResource(id = R.string.city) },
                 style = text14,
-                color = SecondaryColor.copy(0.39f),
+                color = if (title.isEmpty())
+                    SecondaryColor.copy(0.39f)
+                else Color.White,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
             )
         }
     }
+    Row(Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = isValid.not()) {
+            Text(
+                text = validationMessage,
+                style = text12,
+                color = Red,
+                modifier = Modifier.paddingTop(10)
+            )
+        }
+    }
+
 }
 
 @Composable
 private fun AreaView(
+    title: String,
+    borderColor: Color = BorderColor,
+    isValid: Boolean = true,
+    validationMessage: String = "",
     onArea: () -> Unit
 ) {
-
+    val color: Color by animateColorAsState(
+        borderColor
+    )
     Column(Modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
@@ -287,7 +427,7 @@ private fun AreaView(
                 .fillMaxWidth()
                 .requiredHeight(46.dp)
                 .background(TextFieldBg, RoundedCornerShape(8.dp))
-                .border(1.dp, color = BorderColor, RoundedCornerShape(8.dp))
+                .border(1.dp, color = color, RoundedCornerShape(8.dp))
                 .clickable(onClick = {
                     onArea()
                 })
@@ -295,12 +435,75 @@ private fun AreaView(
 
         ) {
             Text(
-                stringResource(id = R.string.area),
+                title.ifEmpty { stringResource(id = R.string.area) },
                 style = text14,
-                color = SecondaryColor.copy(0.39f),
+                color =
+                if (title.isEmpty())
+                    SecondaryColor.copy(0.39f)
+                else Color.White,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
             )
         }
     }
+    Row(Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = isValid.not()) {
+            Text(
+                text = validationMessage,
+                style = text12,
+                color = Red,
+                modifier = Modifier.paddingTop(10)
+            )
+        }
+    }
+
+}
+
+@Composable
+private fun DistrictView(
+    title: String,
+    borderColor: Color = BorderColor,
+    isValid: Boolean = true,
+    validationMessage: String = "",
+    onDistrict: () -> Unit
+) {
+    val color: Color by animateColorAsState(
+        borderColor
+    )
+    Column(Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth()
+                .requiredHeight(46.dp)
+                .background(TextFieldBg, RoundedCornerShape(8.dp))
+                .border(1.dp, color = color, RoundedCornerShape(8.dp))
+                .clickable(onClick = {
+                    onDistrict()
+                })
+                .padding(horizontal = 16.dp)
+
+        ) {
+            Text(
+                title.ifEmpty { stringResource(id = R.string.district) },
+                style = text14,
+                color = if (title.isEmpty())
+                    SecondaryColor.copy(0.39f)
+                else Color.White,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+            )
+        }
+    }
+    Row(Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = isValid.not()) {
+            Text(
+                text = validationMessage,
+                style = text12,
+                color = Red,
+                modifier = Modifier.paddingTop(10)
+            )
+        }
+    }
+
 }

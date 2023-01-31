@@ -125,7 +125,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                             Countdown(
                                 seconds = 120,
                                 modifier = Modifier.paddingTop(12)
-                            )
+                            ){}
 
                             ElasticView(onClick = { /*TODO*/ }) {
                                 Text(

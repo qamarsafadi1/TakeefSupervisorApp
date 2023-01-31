@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -75,11 +77,17 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.LocalMutableContext
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.config.model.city.Area
+import com.selsela.takeefapp.data.config.model.city.Children
+import com.selsela.takeefapp.data.config.model.city.City
+import com.selsela.takeefapp.ui.auth.AuthViewModel
 import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
+import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -88,6 +96,7 @@ import com.selsela.takeefapp.ui.theme.VerifiedBg
 import com.selsela.takeefapp.ui.theme.buttonText
 import com.selsela.takeefapp.ui.theme.text10
 import com.selsela.takeefapp.ui.theme.text11
+import com.selsela.takeefapp.ui.theme.text11Meduim
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Bold
 import com.selsela.takeefapp.ui.theme.text13
@@ -116,6 +125,7 @@ fun AppLogoImage(
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ElasticButton(
     onClick: () -> Unit,
@@ -124,7 +134,8 @@ fun ElasticButton(
         .width(167.dp)
         .requiredHeight(48.dp),
     colorBg: Color = Purple40,
-    textColor: Color = Color.White
+    textColor: Color = Color.White,
+    isLoading: Boolean = false
 ) {
     // ElasticView(onClick = { onClick() }) {
     Button(
@@ -139,10 +150,23 @@ fun ElasticButton(
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = colorBg)
     ) {
-        Text(
-            text = title, style = buttonText,
-            color = textColor
-        )
+        Row(
+            Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isLoading) {
+                LottieAnimationView(
+                    raw = R.raw.whiteloading,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = title, style = buttonText,
+                    color = textColor
+                )
+            }
+        }
     }
     // }
 }
@@ -385,8 +409,14 @@ fun InputEditText(
     cornerRaduis: Dp = 8.dp,
     fillMax: Float = 1f,
     hintColor: Color =  SecondaryColor.copy(0.39f),
+    borderColor: Color = BorderColor,
+    isValid: Boolean = true,
+    validationMessage: String = "",
     textStyle: androidx.compose.ui.text.TextStyle = text14White
 ) {
+    val color: Color by animateColorAsState(
+        borderColor
+    )
     BasicTextField(
         value = text,
         onValueChange = onValueChange,
@@ -398,7 +428,7 @@ fun InputEditText(
                     .fillMaxWidth(fillMax)
                     .requiredHeight(48.dp)
                     .background(TextFieldBg, shape = RoundedCornerShape(cornerRaduis))
-                    .border(1.dp, color = BorderColor, RoundedCornerShape(cornerRaduis))
+                    .border(1.dp, color = color, RoundedCornerShape(cornerRaduis))
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.CenterStart,
             ) {
@@ -424,6 +454,17 @@ fun InputEditText(
         keyboardActions = keyboardActions,
         cursorBrush = SolidColor(cursorColor)
     )
+    Row(Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = isValid.not()) {
+            Text(
+                text = validationMessage,
+                style = text12,
+                color = Red,
+                modifier = Modifier.paddingTop(10)
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -661,6 +702,7 @@ fun SearchAddressBar(
 fun OtpTextField(
     modifier: Modifier = Modifier,
     otpText: String,
+    viewModel: AuthViewModel,
     otpCount: Int = 4,
     onOtpTextChange: (String, Boolean) -> Unit
 ) {
@@ -685,26 +727,42 @@ fun OtpTextField(
                     OtpView(
                         index = index,
                         text = otpText,
-                        modifier = modifier
+                        modifier = modifier,
+                        borderColor = viewModel.validateBorderColor()
+
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
         },
     )
+    AnimatedVisibility(visible = viewModel.isValid.value.not()) {
+        Text(
+            text = viewModel.errorMessage.value,
+            style = text12,
+            color = Red,
+            modifier = Modifier.paddingTop(12)
+        )
+    }
 }
 
 @Composable
 private fun OtpView(
     index: Int,
     text: String,
+    borderColor: Color = BorderColor,
     modifier: Modifier = Modifier
 ) {
+    val color: Color by animateColorAsState(
+        borderColor
+    )
     val isFocused = text.length == index
     val char = when {
         index == text.length -> ""
         index > text.length -> ""
-        else -> text[index].toString()
+        else -> if (LocalData.appLocal == "ar")
+            text.reversed()[index].toString()
+        else text[index].toString()
     }
     Box(
         modifier = Modifier
@@ -713,8 +771,8 @@ private fun OtpView(
             .background(color = VerifiedBg, shape = RoundedCornerShape(11.dp))
             .border(
                 1.dp, when {
-                    isFocused -> BorderColor
-                    else -> BorderColor
+                    isFocused -> color
+                    else -> color
                 },
                 RoundedCornerShape(11.dp)
             )
@@ -738,11 +796,17 @@ private fun OtpView(
 }
 
 @Composable
-fun Countdown(seconds: Long, modifier: Modifier) {
+fun Countdown(seconds: Long, modifier: Modifier,
+              resend: () -> Unit
+) {
     val millisInFuture: Long = seconds * 1000
 
     var timeData by remember {
         mutableStateOf(millisInFuture)
+    }
+    var isFinish by remember {
+
+        mutableStateOf(false)
     }
 
     val countDownTimer =
@@ -753,6 +817,7 @@ fun Countdown(seconds: Long, modifier: Modifier) {
             }
 
             override fun onFinish() {
+                isFinish = true
 
             }
         }
@@ -779,6 +844,16 @@ fun Countdown(seconds: Long, modifier: Modifier) {
         color = Color.White,
         modifier = modifier
     )
+
+    if (isFinish) {
+        ElasticView(onClick = { resend() }) {
+            Text(
+                text = stringResource(id = R.string.resend),
+                style = text11Meduim,
+                color = Color.White,
+            )
+        }
+    }
 }
 
 @Composable
@@ -851,7 +926,13 @@ fun Spinner(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListedBottomSheet(sheetState: ModalBottomSheetState) {
+fun<T> ListedBottomSheet(
+                      viewModel: AuthViewModel,
+                      sheetState: ModalBottomSheetState,
+                      title: String? = stringResource(id = R.string.area_name),
+                      ciites: List<T>?,
+                      onSelectedItem: (String, Int) -> Unit,
+                      onClickItem: () -> Unit) {
     Box() {
         ModalBottomSheetLayout(
             sheetState = sheetState,
@@ -869,7 +950,7 @@ fun ListedBottomSheet(sheetState: ModalBottomSheetState) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(id = R.string.area_name),
+                        text = title ?: "",
                         style = text18,
                         color = Color.White
                     )
@@ -896,8 +977,32 @@ fun ListedBottomSheet(sheetState: ModalBottomSheetState) {
                             .paddingTop(42)
                             .fillMaxWidth()
                     ) {
-                        items(10) {
-                            AreaListItem()
+                        items(  viewModel.searchCities(query, ciites).value
+                            ?: listOf()) {
+                            AreaListItem<T>(
+                                it
+                            ) {
+                                when (it) {
+                                    is Area -> {
+                                        onSelectedItem(it.name, it.id)
+                                        query = ""
+                                        viewModel.searchCities(query, ciites)
+                                    }
+
+                                    is City -> {
+                                        onSelectedItem(it.name, it.id)
+                                        query = ""
+                                        viewModel.searchCities(query, ciites)
+                                    }
+
+                                    is Children -> {
+                                        onSelectedItem(it.name, it.id)
+                                        query = ""
+                                        viewModel.searchCities(query, ciites)
+                                    }
+                                }
+                                onClickItem()
+                            }
                         }
                     }
                 }
@@ -1016,11 +1121,17 @@ private fun LanguageItem(selectedItem: Int, onCheck: (Int) -> Unit) {
 }
 
 @Composable
-private fun AreaListItem() {
+private fun <T> AreaListItem(
+    item: T,
+    onClick: (T) -> Unit
+) {
     Row(
         modifier = Modifier
             .padding(bottom = 7.dp)
-            .requiredHeight(48.dp),
+            .requiredHeight(48.dp)
+            .clickable {
+                onClick(item)
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -1029,12 +1140,21 @@ private fun AreaListItem() {
         )
         Spacer(modifier = Modifier.width(13.6.dp))
         Text(
-            text = stringResource(id = R.string.area_name),
+            text = when (item) {
+                is Area -> {
+                    item.name
+                }
+
+                is City -> item.name
+                is Children -> item.name
+                else -> ""
+            },
             style = text14,
             color = Color.White
         )
     }
 }
+
 
 
 @Composable

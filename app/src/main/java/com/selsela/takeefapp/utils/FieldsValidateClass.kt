@@ -46,6 +46,14 @@ fun String.validateRequired(mContext: Context,fieldName: String): String {
     return message
 }
 
+fun Int.validateRequired(mContext: Context,fieldName: String): String {
+    var message = ""
+    if (this == -1) {
+        message = mContext.getString(R.string.valid_required3) + " " + fieldName
+    }
+    return message
+}
+
 fun TextView.validateRequired(mContext: Context): String {
     var message = ""
     if (this.text.toString() == "") {
