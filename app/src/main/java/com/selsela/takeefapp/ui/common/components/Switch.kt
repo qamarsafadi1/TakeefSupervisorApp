@@ -45,10 +45,12 @@ import com.selsela.takeefapp.ui.theme.SwitchStrokeColor
 import com.selsela.takeefapp.ui.theme.SwitchStrokeUnCheckedColor
 import com.selsela.takeefapp.ui.theme.SwitchUnCheckedColor
 import com.selsela.takeefapp.ui.theme.text12
+import com.selsela.takeefapp.utils.LocalData
 
 
 @Composable
 fun Switch(
+    onStatusChange: (String) -> Unit,
     modifier: Modifier,
     width: Dp = 44.dp,
     height: Dp = 21.dp,
@@ -69,7 +71,7 @@ fun Switch(
 
     // state of the switch
     var switchOn by remember {
-        mutableStateOf(true)
+        mutableStateOf(LocalData.user?.available_status == "enabled")
     }
 
     // for moving the thumb
@@ -101,6 +103,7 @@ fun Switch(
                     interactionSource = interactionSource
                 ) {
                     switchOn = !switchOn
+                    onStatusChange(if (switchOn) "enabled" else "disabled")
                 },
             contentAlignment = Alignment.Center
         ) {

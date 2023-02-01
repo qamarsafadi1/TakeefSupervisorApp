@@ -12,7 +12,6 @@ import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.auth.model.auth.User
 import com.selsela.takeefapp.data.auth.model.notifications.Notification
 import com.selsela.takeefapp.data.auth.model.support.ContactReplies
-import com.selsela.takeefapp.data.auth.model.support.contacts.Contact
 import com.selsela.takeefapp.data.auth.model.wallet.WalletResponse
 import com.selsela.takeefapp.data.auth.repository.AuthRepository
 import com.selsela.takeefapp.data.config.model.city.Area
@@ -514,6 +513,43 @@ class AuthViewModel @Inject constructor(
                 isLoading = true
             )
             repository.meRequest()
+                .collect { result ->
+                    val authUiState = when (result.status) {
+                        Status.SUCCESS -> {
+                            isLoaded = true
+                            AuthUiState(
+                                responseMessage = result.message ?: "",
+                                onSuccess = triggered(result.data?.status ?: ""),
+                                user = result.data
+                            )
+                        }
+
+                        Status.LOADING ->
+                            AuthUiState(
+                                isLoading = true
+                            )
+
+                        Status.ERROR -> AuthUiState(
+                            onFailure = triggered(
+                                ErrorsData(
+                                    result.errors,
+                                    result.message,
+                                )
+                            ),
+                            responseMessage = result.message ?: "",
+                        )
+                    }
+                    state = authUiState
+                }
+        }
+    }
+
+    fun changeAvailableStatus(status: String) {
+        viewModelScope.launch {
+            state = state.copy(
+                isLoading = true
+            )
+            repository.changeAvailableStatus(status)
                 .collect { result ->
                     val authUiState = when (result.status) {
                         Status.SUCCESS -> {

@@ -104,4 +104,10 @@ interface AuthApi {
     @GET("app/get_contacts")
     suspend fun getContacts(): Response<ContactsResponse>
 
+    @POST("supervisor/toggle_available_status")
+    @FormUrlEncoded
+    suspend fun changeAvailableStatus(
+        @Field("available_status") status: String
+    ): Response<AuthResponse>
+
 }

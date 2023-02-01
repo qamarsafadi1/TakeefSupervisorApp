@@ -25,8 +25,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.ui.auth.AuthViewModel
 import com.selsela.takeefapp.ui.auth.BlockedDialog
 import com.selsela.takeefapp.ui.common.components.Switch
 import com.selsela.takeefapp.ui.order.cell.NextOrderItem
@@ -42,11 +44,52 @@ import com.selsela.takeefapp.utils.LocalData
 
 @Composable
 fun HomeView(
+    vm: AuthViewModel = hiltViewModel(),
     goToRoute: () -> Unit,
     goToMyAccount: () -> Unit,
     goToDetails: () -> Unit,
     onPending: () -> Unit,
     goToCost: () -> Unit,
+) {
+    HomeContent(
+        vm::changeAvailableStatus,
+        goToMyAccount, goToRoute, goToCost, goToDetails,
+    )
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.UN_VERIFIED_MANAGEMENT,
+    ) {
+        onPending()
+    }
+    var isBlocked by remember {
+        mutableStateOf(LocalData.user?.isBlock == 1)
+    }
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.BLOCKED,
+    ) {
+        isBlocked = true
+        isBlocked.log("isBlocked")
+    }
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.UN_BLOCKED,
+    ) {
+        isBlocked = false
+        isBlocked.log("isBlockedUn")
+
+    }
+
+    BlockedDialog(isBlocked)
+}
+
+@Composable
+private fun HomeContent(
+    onStatusChanged: (String) -> Unit,
+    goToMyAccount: () -> Unit,
+    goToRoute: () -> Unit,
+    goToCost: () -> Unit,
+    goToDetails: () -> Unit
 ) {
     Color.White.ChangeStatusBarColor()
     // hide ripple effect
@@ -80,6 +123,7 @@ fun HomeView(
                         modifier = Modifier.align(Alignment.TopCenter)
                     )
                     Switch(
+                        onStatusChanged,
                         Modifier.align(Alignment.TopEnd)
                     )
                 }
@@ -121,32 +165,6 @@ fun HomeView(
 
         }
     }
-    Extensions.BroadcastReceiver(
-        context = LocalContext.current,
-        action = Constants.UN_VERIFIED_MANAGEMENT,
-    ) {
-        onPending()
-    }
-    var isBlocked by remember {
-        mutableStateOf(LocalData.user?.isBlock == 1)
-    }
-    Extensions.BroadcastReceiver(
-        context = LocalContext.current,
-        action = Constants.BLOCKED,
-    ) {
-        isBlocked = true
-        isBlocked.log("isBlocked")
-    }
-    Extensions.BroadcastReceiver(
-        context = LocalContext.current,
-        action = Constants.UN_BLOCKED,
-    ) {
-        isBlocked = false
-        isBlocked.log("isBlockedUn")
-
-    }
-
-    BlockedDialog(isBlocked)
 }
 
 
