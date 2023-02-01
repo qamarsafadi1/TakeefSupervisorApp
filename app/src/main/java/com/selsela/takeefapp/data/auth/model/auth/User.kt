@@ -29,9 +29,9 @@ data class User(
     @SerializedName("is_complete")
     val completed: Int = 0,
     @SerializedName("status")
-    val status: String = "",
+    var status: String = "",
     @SerializedName("verified_from_management")
-    val verifiedFromManagement: String = "",
+    var verifiedFromManagement: String = "",
     @SerializedName("balance")
     val balance: Double = 0.0,
     @SerializedName("specific_orders")
@@ -44,4 +44,6 @@ data class User(
     val archiveOrders: Int = 0,
     @SerializedName("new_notifications")
     val newNotifications: Int = 0,
+    var isBlock: Int = 0,
+    var available_status: String = "",
 )

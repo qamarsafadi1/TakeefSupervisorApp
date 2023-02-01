@@ -17,8 +17,13 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import com.selsela.takeefapp.MainActivity
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.utils.Constants.BLOCKED
+import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.ORDER_ADDITIONAL_COST
 import com.selsela.takeefapp.utils.Constants.ORDER_STATUS_CHANGED
+import com.selsela.takeefapp.utils.Constants.UN_BLOCKED
+import com.selsela.takeefapp.utils.Constants.UN_VERIFIED_MANAGEMENT
+import com.selsela.takeefapp.utils.Constants.VERIFIED_MANAGEMENT
 import com.selsela.takeefapp.utils.Constants.VERIFY_CODE
 import com.selsela.takeefapp.utils.Constants.WALLET_CHANGED
 import com.selsela.takeefapp.utils.Extensions.Companion.log
@@ -64,28 +69,59 @@ class Controller : FirebaseMessagingService() {
                         )
                     }
 
-                    ORDER_STATUS_CHANGED, ORDER_ADDITIONAL_COST -> {
-                        val orderId = json.getString("order_id")
-                        orderId.log("orderId")
-                        if (json.getString("action") == ORDER_ADDITIONAL_COST) {
-                            val localIntent = Intent(ORDER_ADDITIONAL_COST)
-                            localIntent.putExtra(
-                                "additional_cost",
-                                json.getString("additional_cost")
-                            )
-                            localIntent.putExtra("orderId", orderId)
-                            val manager = LocalBroadcastManager.getInstance(this)
-                            manager.sendBroadcast(localIntent)
-                        } else {
-                            val localIntent = Intent(ORDER_STATUS_CHANGED)
-                            val manager = LocalBroadcastManager.getInstance(this)
-                            manager.sendBroadcast(localIntent)
-                        }
+                    VERIFIED_MANAGEMENT -> {
+                        val user = LocalData.user
+                        user?.verifiedFromManagement = "verified_management"
+                        LocalData.user = user
+                        LocalData.user?.verifiedFromManagement?.log("Userr")
+                        val localIntent = Intent(VERIFIED_MANAGEMENT)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
                         sendNotification(
                             remoteMessage.notification?.title ?: "",
                             remoteMessage.notification?.body ?: "",
-                            MainActivity::class.java.simpleName,
-                            orderId
+                            "none"
+                        )
+                    }
+
+                    UN_VERIFIED_MANAGEMENT -> {
+                        val user = LocalData.user
+                        user?.verifiedFromManagement = NOT_VERIFIED
+                        LocalData.user = user
+                        val localIntent = Intent(UN_VERIFIED_MANAGEMENT)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            "none"
+                        )
+                    }
+
+                    BLOCKED -> {
+                        val user = LocalData.user
+                        user?.isBlock = 1
+                        LocalData.user = user
+                        val localIntent = Intent(BLOCKED)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            "none"
+                        )
+                    }
+                    UN_BLOCKED -> {
+                        val user = LocalData.user
+                        LocalData.user = user
+                        user?.isBlock = 0
+                        val localIntent = Intent(UN_BLOCKED)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            "none"
                         )
                     }
 

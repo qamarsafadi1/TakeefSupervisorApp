@@ -40,6 +40,10 @@ object Constants {
     const val ORDER_STATUS_CHANGED = "order_status_changed"
     const val WALLET_CHANGED = "wallet_changed"
     const val ORDER_ADDITIONAL_COST = "order_need_additional_cost"
+    const val VERIFIED_MANAGEMENT = "verified_management"
+    const val UN_VERIFIED_MANAGEMENT = "un_verified_management"
+    const val BLOCKED = "account_block"
+    const val UN_BLOCKED = "account_enabled"
 
     const val PLACEHOLDER = "http://airconditionars.selselatech.com/uploads/blank.png"
 }

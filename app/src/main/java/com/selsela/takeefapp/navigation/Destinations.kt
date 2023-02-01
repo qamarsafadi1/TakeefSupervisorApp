@@ -1,6 +1,7 @@
 package com.selsela.takeefapp.navigation
 
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.selsela.takeefapp.navigation.Navigation.navigateWithClearBackStack
 
 object Destinations {
@@ -34,6 +35,7 @@ class NavigationActions(private val navController: NavController) {
             navigateWithClearBackStack(navController)
         }
     }
+
     fun navigateToLogin() {
         navController.navigate(Destinations.LOGIN_SCREEN)
     }
@@ -45,6 +47,7 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToCompleteInfo() {
         navController.navigate(Destinations.COMPLETE_INFO_SCREEN)
     }
+
     fun navigateToSuccess() {
         navController.navigate(Destinations.SUCCESS)
     }
@@ -64,6 +67,7 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToOrderDetails() {
         navController.navigate(Destinations.ORDER_DETAILS)
     }
+
     fun navigateToNotification() {
         navController.navigate(Destinations.NOTIFICATION_SCREEN)
     }
@@ -79,6 +83,7 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToSupport() {
         navController.navigate(Destinations.TECHNICAL_SUPPORT)
     }
+
     fun navigateToProfile() {
         navController.navigate(Destinations.PROFILE_SCREEN)
     }
@@ -86,10 +91,14 @@ class NavigationActions(private val navController: NavController) {
     fun navigateToWallet() {
         navController.navigate(Destinations.WALLET_SCREEN)
     }
-    fun navigateToPendingAccount(){
-        navController.navigate(Destinations.PENDING_ACCOUNT_SCREEN)
+
+    fun navigateToPendingAccount() {
+        navController.navigate(Destinations.PENDING_ACCOUNT_SCREEN) {
+             navigateWithClearBackStack(navController)
+        }
     }
-    fun navigateToAddCostScreen(){
+
+    fun navigateToAddCostScreen() {
         navController.navigate(Destinations.ADD_COST_SCREEN)
     }
 }

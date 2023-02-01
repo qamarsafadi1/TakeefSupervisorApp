@@ -101,10 +101,22 @@ class AuthRepository @Inject constructor(
             if (response.isSuccessful) {
                 LocalData.accessToken = response.body()?.user?.accessToken ?: ""
                 LocalData.user = response.body()?.user
-                handleSuccess(
-                    response.body()?.user,
-                    response.body()?.responseMessage ?: response.message()
-                )
+                if (response.body()?.user?.completed == 1)
+                    if (me())
+                        handleSuccess(
+                            response.body()?.user,
+                            response.body()?.responseMessage ?: response.message()
+                        )
+                    else handleSuccess(
+                        response.body()?.user,
+                        response.body()?.responseMessage ?: response.message()
+                    )
+                else {
+                    handleSuccess(
+                        response.body()?.user,
+                        response.body()?.responseMessage ?: response.message()
+                    )
+                }
             } else {
                 val gson = Gson()
                 val errorBase =
@@ -147,7 +159,26 @@ class AuthRepository @Inject constructor(
         data
     }
 
-    suspend fun me(): Flow<Resource<User>> = withContext(Dispatchers.IO) {
+    suspend fun me(): Boolean {
+        val isDone: Boolean = try {
+            val response = api.me()
+            if (response.isSuccessful) {
+                LocalData.accessToken = response.body()?.user?.accessToken ?: ""
+                LocalData.user = response.body()?.user
+                true
+            } else {
+                val gson = Gson()
+                val errorBase = gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
+                errorBase.log("errorBase")
+                false
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+        return isDone
+    }
+    suspend fun meRequest(): Flow<Resource<User>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<User>> = try {
             val response = api.me()
             if (response.isSuccessful) {
@@ -170,6 +201,8 @@ class AuthRepository @Inject constructor(
         }
         data
     }
+
+
 
     suspend fun getWallet(): Flow<Resource<WalletResponse>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<WalletResponse>> = try {

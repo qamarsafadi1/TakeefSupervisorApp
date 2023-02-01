@@ -18,6 +18,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TakeefApp"
         tools:targetApi="31">
+        <service
+            android:name=".data.notification.Controller"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDD7WH1Qz2mvUUDuDvSSY6uUxQdOV2J3do" />

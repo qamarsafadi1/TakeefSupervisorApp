@@ -21,11 +21,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.ui.auth.BlockedDialog
 import com.selsela.takeefapp.ui.common.components.Switch
 import com.selsela.takeefapp.ui.order.cell.NextOrderItem
 import com.selsela.takeefapp.ui.order.cell.OrderItem
@@ -33,20 +35,19 @@ import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.NoRippleTheme
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.text12Meduim
+import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Extensions
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.LocalData
 
 @Composable
 fun HomeView(
     goToRoute: () -> Unit,
     goToMyAccount: () -> Unit,
     goToDetails: () -> Unit,
+    onPending: () -> Unit,
     goToCost: () -> Unit,
 ) {
-    var paddingTitle by remember {
-        mutableStateOf(27.3)
-    }
-    var paddingLabel by remember {
-        mutableStateOf(13)
-    }
     Color.White.ChangeStatusBarColor()
     // hide ripple effect
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
@@ -120,4 +121,32 @@ fun HomeView(
 
         }
     }
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.UN_VERIFIED_MANAGEMENT,
+    ) {
+        onPending()
+    }
+    var isBlocked by remember {
+        mutableStateOf(LocalData.user?.isBlock == 1)
+    }
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.BLOCKED,
+    ) {
+        isBlocked = true
+        isBlocked.log("isBlocked")
+    }
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action = Constants.UN_BLOCKED,
+    ) {
+        isBlocked = false
+        isBlocked.log("isBlockedUn")
+
+    }
+
+    BlockedDialog(isBlocked)
 }
+
+

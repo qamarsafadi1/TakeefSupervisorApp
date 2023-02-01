@@ -513,7 +513,7 @@ class AuthViewModel @Inject constructor(
             state = state.copy(
                 isLoading = true
             )
-            repository.me()
+            repository.meRequest()
                 .collect { result ->
                     val authUiState = when (result.status) {
                         Status.SUCCESS -> {

@@ -214,4 +214,7 @@
     <string name="yes">نعم</string>
     <string name="no">لا</string>
     <string name="no_district">لا يوجد احياء لهذه المدينة</string>
+    <string name="disabled_account">الحساب معطل</string>
+    <string name="disabled_account_lbl">الرجاء التواصل مع الدعم الفني</string>
+    <string name="disabled_account_lbl_1">تم ايقاف الحساب من قبل الادارة , لمزيد من التفاصيل \n</string>
 </resources>

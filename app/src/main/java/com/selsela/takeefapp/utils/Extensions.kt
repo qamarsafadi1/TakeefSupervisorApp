@@ -7,6 +7,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -47,17 +48,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
-import androidx.navigation.NavOptionsBuilder
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.muddzdev.styleabletoast.StyleableToast
 import com.selsela.takeefapp.R
-import com.selsela.takeefapp.navigation.Destinations
+import com.selsela.takeefapp.data.notification.NotificationReceiver
 import com.selsela.takeefapp.utils.retrofit.model.ErrorBase
 import com.selsela.takeefapp.utils.retrofit.model.Resource
 import kotlinx.coroutines.flow.Flow
@@ -565,6 +563,23 @@ class Extensions {
             val cost = totalPrice.times(discount!!)
             taxString = "${cost.div(100)}"
             return taxString
+        }
+
+
+        @Composable
+         fun BroadcastReceiver(
+            context: Context,
+            action: String,
+            onReceived: () -> Unit
+        ) {
+            val receiver: NotificationReceiver = object : NotificationReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    onReceived()
+                }
+            }
+            LocalBroadcastManager.getInstance(context).registerReceiver(
+                receiver, IntentFilter(action)
+            )
         }
 
         @Composable

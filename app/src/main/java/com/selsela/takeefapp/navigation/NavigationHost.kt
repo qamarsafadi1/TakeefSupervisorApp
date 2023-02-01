@@ -26,6 +26,7 @@ import com.selsela.takeefapp.ui.terms.TermsView
 import com.selsela.takeefapp.ui.wallet.WalletScreen
 import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.VERIFIED
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 
 @Composable
@@ -42,11 +43,20 @@ fun NavigationHost(
                 if (LocalData.accessToken.isNullOrEmpty())
                     navActions.navigateToLogin()
                 else {
+                    LocalData.user?.status?.log("status")
+                    LocalData.user?.completed?.log("status")
                     if (LocalData.user?.status == VERIFIED && LocalData.user?.completed == 1) {
+                        LocalData.user?.isBlock = 0
                         if (LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
                             navActions.navigateToHome()
                         else navActions.navigateToPendingAccount()
-                    } else navActions.navigateToCompleteInfo()
+                    } else {
+                        if (LocalData.user?.status != VERIFIED && LocalData.user?.completed == 1) {
+                            LocalData.user?.isBlock = 1
+                            navActions.navigateToHome()
+                        } else
+                            navActions.navigateToCompleteInfo()
+                    }
                 }
             }
         }
@@ -59,7 +69,9 @@ fun NavigationHost(
             },
                 goToDetails = {
                     navActions.navigateToOrderDetails()
-                }) {
+                },
+                onPending = navActions::navigateToPendingAccount
+            ) {
                 navActions.navigateToAddCostScreen()
             }
         }
@@ -84,7 +96,14 @@ fun NavigationHost(
         }
         composable(Destinations.VERIFY_SCREEN) {
             VerifyView() {
-                navActions.navigateToCompleteInfo()
+                if (LocalData.user?.status == VERIFIED && LocalData.user?.completed == 1) {
+                    LocalData.user?.isBlock = 0
+                    if (LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
+                        navActions.navigateToHome()
+                    else navActions.navigateToPendingAccount()
+                } else {
+                    navActions.navigateToCompleteInfo()
+                }
             }
         }
         composable(Destinations.SUCCESS) {
