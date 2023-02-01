@@ -56,6 +56,39 @@ class AuthRepository @Inject constructor(
         data
     }
 
+    suspend fun completeInfo(
+        name: String,
+        areaId: Int,
+        cityId: Int,
+        districtId: Int,
+    ): Flow<Resource<User>> = withContext(Dispatchers.IO) {
+        val data: Flow<Resource<User>> = try {
+            val body = HashMap<String, Any>()
+            body["name"] = name
+            body["area_id"] = areaId
+            body["city_id"] = cityId
+            body["district_id"] = districtId
+            val response = api.completeInfo(body)
+            if (response.isSuccessful) {
+                LocalData.accessToken = response.body()?.user?.accessToken
+                LocalData.user = response.body()?.user
+                handleSuccess(
+                    response.body()?.user,
+                    response.body()?.responseMessage ?: response.message()
+                )
+            } else {
+                val gson = Gson()
+                val errorBase =
+                    gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
+                handleExceptions(errorBase)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            handleExceptions(e)
+        }
+        data
+    }
+
     suspend fun verifyCode(
         code: String
     ): Flow<Resource<User>> = withContext(Dispatchers.IO) {
@@ -85,6 +118,7 @@ class AuthRepository @Inject constructor(
         }
         data
     }
+
     suspend fun resendCode(
     ): Flow<Resource<User>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<User>> = try {
@@ -235,30 +269,33 @@ class AuthRepository @Inject constructor(
         data
     }
 
-    suspend fun getNotification(): Flow<Resource<NotificationResponse>> = withContext(Dispatchers.IO) {
-        val data: Flow<Resource<NotificationResponse>> = try {
-            val response = api.getNotifications()
-            if (response.isSuccessful) {
-                 handleSuccess(
-                    response.body(),
-                    response.body()?.responseMessage ?: response.message()
-                )
-            } else {
-                val gson = Gson()
-                val errorBase = gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
-                handleExceptions(errorBase)
+    suspend fun getNotification(): Flow<Resource<NotificationResponse>> =
+        withContext(Dispatchers.IO) {
+            val data: Flow<Resource<NotificationResponse>> = try {
+                val response = api.getNotifications()
+                if (response.isSuccessful) {
+                    handleSuccess(
+                        response.body(),
+                        response.body()?.responseMessage ?: response.message()
+                    )
+                } else {
+                    val gson = Gson()
+                    val errorBase =
+                        gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
+                    handleExceptions(errorBase)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                handleExceptions(e)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            handleExceptions(e)
+            data
         }
-        data
-    }
+
     suspend fun getAddresses(): Flow<Resource<AddressResponse>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<AddressResponse>> = try {
             val response = api.getAddress()
             if (response.isSuccessful) {
-                 handleSuccess(
+                handleSuccess(
                     response.body(),
                     response.body()?.responseMessage ?: response.message()
                 )
@@ -273,13 +310,14 @@ class AuthRepository @Inject constructor(
         }
         data
     }
+
     suspend fun deleteNotification(
         id: Int
     ): Flow<Resource<NotificationResponse>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<NotificationResponse>> = try {
             val response = api.deleteNotification(id)
             if (response.isSuccessful) {
-                 handleSuccess(
+                handleSuccess(
                     response.body(),
                     response.body()?.responseMessage ?: response.message()
                 )
@@ -356,8 +394,8 @@ class AuthRepository @Inject constructor(
             val data: Flow<Resource<SupportResponse>> = try {
                 val body = HashMap<String, Any>()
                 if (LocalData.user?.name.isNullOrEmpty().not())
-                   body["name"] = LocalData.user?.name ?: "عميل"
-                else  body["name"] = "عميل"
+                    body["name"] = LocalData.user?.name ?: "عميل"
+                else body["name"] = "عميل"
                 body["mobile"] = LocalData.user?.mobile ?: ""
                 body["type"] = Constants.REPLY
                 body["message"] = text

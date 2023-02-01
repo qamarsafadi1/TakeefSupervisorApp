@@ -24,6 +24,7 @@ import com.selsela.takeefapp.ui.splash.SplashView
 import com.selsela.takeefapp.ui.support.SupportScreen
 import com.selsela.takeefapp.ui.terms.TermsView
 import com.selsela.takeefapp.ui.wallet.WalletScreen
+import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.VERIFIED
 import com.selsela.takeefapp.utils.LocalData
 
@@ -41,9 +42,11 @@ fun NavigationHost(
                 if (LocalData.accessToken.isNullOrEmpty())
                     navActions.navigateToLogin()
                 else {
-                    if (LocalData.user?.status == VERIFIED)
-                        navActions.navigateToHome()
-                    else navActions.navigateToCompleteInfo()
+                    if (LocalData.user?.status == VERIFIED && LocalData.user?.completed == 1) {
+                        if (LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
+                            navActions.navigateToHome()
+                        else navActions.navigateToPendingAccount()
+                    } else navActions.navigateToCompleteInfo()
                 }
             }
         }
@@ -71,7 +74,7 @@ fun NavigationHost(
         composable(Destinations.COMPLETE_INFO_SCREEN) {
             CompleteInfoScreen(
                 goToPending = {
-                    if (LocalData.user?.status == VERIFIED)
+                    if (LocalData.user?.status == VERIFIED && LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
                         navActions.navigateToHome()
                     else navActions.navigateToPendingAccount()
                 }

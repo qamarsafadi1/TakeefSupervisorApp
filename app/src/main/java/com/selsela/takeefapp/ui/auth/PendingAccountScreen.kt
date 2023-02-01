@@ -39,7 +39,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun PendingAccountScreen(
     onFinish: () -> Unit
-
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -105,10 +104,6 @@ fun PendingAccountScreen(
                 .padding(bottom = 43.dp)
         ){
 
-        }
-        LaunchedEffect(Unit) {
-            delay(3000)
-            onFinish()
         }
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.AppLogoImage
 import com.selsela.takeefapp.ui.common.ElasticButton
@@ -54,15 +55,16 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text16Medium
+import com.selsela.takeefapp.utils.Common
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
 import com.selsela.takeefapp.utils.Extensions.Companion.showError
-import com.selsela.takeefapp.utils.Extensions.Companion.withDelay
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
+import de.palm.composestateevents.EventEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
-@Preview
 @Composable
 fun CompleteInfoScreen(
     vm: AuthViewModel = hiltViewModel(),
@@ -71,6 +73,9 @@ fun CompleteInfoScreen(
 ) {
     Color.Transparent.ChangeStatusBarColor()
     TextColor.ChangeNavigationBarColor()
+
+    val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())
+    val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
     val citySheetState = rememberModalBottomSheetState(
@@ -91,19 +96,45 @@ fun CompleteInfoScreen(
 
     CompleteInfoContent(
         vm,
+        viewState,
         coroutineScope,
         areaSheetState,
         citySheetState,
         districtSheetState,
-        vm::completeProfileInfo,
+        vm::completeInfo,
         onBack
     )
+
+    /**
+     * Handle Ui state from flow
+     */
+
+    EventEffect(
+        event = viewState.onSuccess,
+        onConsumed = vm::onSuccess
+    ) { status ->
+        vm.updateFcm()
+        goToPending()
+    }
+
+    EventEffect(
+        event = viewState.onFailure,
+        onConsumed = vm::onFailure
+    ) { error ->
+        Common.handleErrors(
+            error.responseMessage,
+            error.errors,
+            context
+        )
+    }
+
 }
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 private fun CompleteInfoContent(
     vm: AuthViewModel,
+    viewState: AuthUiState,
     coroutineScope: CoroutineScope,
     areaSheetState: ModalBottomSheetState,
     citySheetState: ModalBottomSheetState,
@@ -176,7 +207,8 @@ private fun CompleteInfoContent(
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth()
                     .requiredHeight(48.dp)
-                    .align(Alignment.BottomCenter)
+                    .align(Alignment.BottomCenter),
+                isLoading = viewState.isLoading
             )
         }
 

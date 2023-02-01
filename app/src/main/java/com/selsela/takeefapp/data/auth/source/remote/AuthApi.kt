@@ -45,6 +45,14 @@ interface AuthApi {
         body: Map<String, Any>
     ): Response<AuthResponse>
 
+    @POST("supervisor/complete_information_register")
+    @JvmSuppressWildcards
+    @FormUrlEncoded
+    suspend fun completeInfo(
+        @FieldMap
+        body: Map<String, Any>
+    ): Response<AuthResponse>
+
     @GET("supervisor/me")
     suspend fun me(): Response<AuthResponse>
 

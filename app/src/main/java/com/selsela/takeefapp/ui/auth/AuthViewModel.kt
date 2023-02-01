@@ -210,7 +210,7 @@ class AuthViewModel @Inject constructor(
             isDistrictValid.value = true
             isValid.value = true
         } else {
-            if (nameValidationMessage != ""  &&
+            if (nameValidationMessage != "" &&
                 cityValidationMessage != "" && areaValidationMessage != "" &&
                 districtValidationMessage != ""
             ) {
@@ -249,7 +249,7 @@ class AuthViewModel @Inject constructor(
                     isNameValid.value = true
                     return false
                 }
-                if (cityValidationMessage != ""){
+                if (cityValidationMessage != "") {
                     errorMessageCity.value = cityValidationMessage
                     errorMessageName.value = ""
                     errorMessageArea.value = ""
@@ -260,7 +260,7 @@ class AuthViewModel @Inject constructor(
                     isDistrictValid.value = true
                     isNameValid.value = true
                     return false
-                }else{
+                } else {
                     errorMessageCity.value = ""
                     errorMessageName.value = ""
                     errorMessageArea.value = ""
@@ -288,21 +288,25 @@ class AuthViewModel @Inject constructor(
             Red
         else BorderColor
     }
+
     fun validateCityBorderColor(): Color {
         return if (errorMessageCity.value.isNotEmpty() && isCityValid.value.not())
             Red
         else BorderColor
     }
+
     fun validateAreaBorderColor(): Color {
         return if (errorMessageArea.value.isNotEmpty() && isAreaValid.value.not())
             Red
         else BorderColor
     }
+
     fun validateDisrtictBorderColor(): Color {
         return if (errorMessageDistrict.value.isNotEmpty() && isDistrictValid.value.not())
             Red
         else BorderColor
     }
+
     fun setSelectedArea(area: String, areaId: Int) {
         selectedAreaName.value = area
         areaID.value = areaId
@@ -317,7 +321,6 @@ class AuthViewModel @Inject constructor(
         selectedDistrictName.value = city
         districtID.value = cityId
     }
-
 
 
     fun getCitiesOfAreas(): List<City> {
@@ -461,6 +464,49 @@ class AuthViewModel @Inject constructor(
                 }
         }
     }
+
+    fun completeInfo() {
+        if (profileInfoIsValid()) {
+            viewModelScope.launch {
+                state = state.copy(
+                    isLoading = true
+                )
+                repository.completeInfo(
+                    name.value,
+                    areaID.value,
+                    cityId.value,
+                    districtID.value
+                )
+                    .collect { result ->
+                        val authUiState = when (result.status) {
+                            Status.SUCCESS -> {
+                                AuthUiState(
+                                    responseMessage = result.message ?: "",
+                                    onSuccess = triggered(result.data?.status ?: ""),
+                                )
+                            }
+
+                            Status.LOADING ->
+                                AuthUiState(
+                                    isLoading = true
+                                )
+
+                            Status.ERROR -> AuthUiState(
+                                onFailure = triggered(
+                                    ErrorsData(
+                                        result.errors,
+                                        result.message,
+                                    )
+                                ),
+                                responseMessage = result.message ?: "",
+                            )
+                        }
+                        state = authUiState
+                    }
+            }
+        }
+    }
+
 
     fun me() {
         viewModelScope.launch {
@@ -737,10 +783,6 @@ class AuthViewModel @Inject constructor(
                 supportState = supportUiState
             }
         }
-    }
-
-    fun completeProfileInfo(){
-        profileInfoIsValid()
     }
 
     /**

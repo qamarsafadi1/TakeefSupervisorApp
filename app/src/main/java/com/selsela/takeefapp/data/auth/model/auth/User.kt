@@ -26,8 +26,12 @@ data class User(
     val mobile: String = "",
     @SerializedName("name")
     val name: String = "عميل",
+    @SerializedName("is_complete")
+    val completed: Int = 0,
     @SerializedName("status")
     val status: String = "",
+    @SerializedName("verified_from_management")
+    val verifiedFromManagement: String = "",
     @SerializedName("balance")
     val balance: Double = 0.0,
     @SerializedName("specific_orders")
