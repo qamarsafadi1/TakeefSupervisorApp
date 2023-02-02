@@ -57,6 +57,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -189,7 +190,7 @@ fun ElasticLoadingButton(
     Button(
         onClick = {
             if (!isLoading)
-            onClick()
+                onClick()
         },
         modifier = modifier,
         elevation = ButtonDefaults.elevation(
@@ -204,9 +205,11 @@ fun ElasticLoadingButton(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isLoading){
-                LottieAnimationView(raw = R.raw.loading,
-                modifier = Modifier.size(38.dp))
+            if (isLoading) {
+                LottieAnimationView(
+                    raw = R.raw.loading,
+                    modifier = Modifier.size(38.dp)
+                )
             }
             Text(
                 text = title, style = buttonText,
@@ -353,6 +356,8 @@ fun EditText(
     singleLine: Boolean = true,
     modifier: Modifier = Modifier,
     textStyle: androidx.compose.ui.text.TextStyle = text13,
+    isValid: Boolean = true,
+    validationMessage: String = "",
     borderColor: Color = BorderColor,
     trailing: @Composable (() -> Unit)? = null
 ) {
@@ -393,6 +398,17 @@ fun EditText(
         },
         keyboardOptions = KeyboardOptions(keyboardType = inputType)
     )
+    Row(Modifier.fillMaxWidth()) {
+        AnimatedVisibility(visible = isValid.not()) {
+            Text(
+                text = validationMessage,
+                style = text12,
+                color = Red,
+                modifier = Modifier.paddingTop(10)
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -411,7 +427,7 @@ fun InputEditText(
     textAlign: TextAlign = TextAlign.Start,
     cornerRaduis: Dp = 8.dp,
     fillMax: Float = 1f,
-    hintColor: Color =  SecondaryColor.copy(0.39f),
+    hintColor: Color = SecondaryColor.copy(0.39f),
     borderColor: Color = BorderColor,
     isValid: Boolean = true,
     validationMessage: String = "",
@@ -799,10 +815,11 @@ private fun OtpView(
 }
 
 @Composable
-fun Countdown(seconds: Long, modifier: Modifier,
-              resend: () -> Unit
+fun Countdown(
+    seconds: Long, modifier: Modifier,
+    resend: () -> Unit
 ) {
-    val millisInFuture: Long = seconds * 1000
+    val millisInFuture: Long = seconds*1000
 
     var timeData by remember {
         mutableStateOf(millisInFuture)
@@ -832,11 +849,11 @@ fun Countdown(seconds: Long, modifier: Modifier,
         }
     }
     val secMilSec: Long = 1000
-    val minMilSec = 60 * secMilSec
-    val hourMilSec = 60 * minMilSec
-    val dayMilSec = 24 * hourMilSec
-    val minutes = (timeData % dayMilSec % hourMilSec / minMilSec).toInt()
-    val seconds = (timeData % dayMilSec % hourMilSec % minMilSec / secMilSec).toInt()
+    val minMilSec = 60*secMilSec
+    val hourMilSec = 60*minMilSec
+    val dayMilSec = 24*hourMilSec
+    val minutes = (timeData%dayMilSec%hourMilSec/minMilSec).toInt()
+    val seconds = (timeData%dayMilSec%hourMilSec%minMilSec/secMilSec).toInt()
 
     Text(
         text = String.format(
@@ -929,13 +946,14 @@ fun Spinner(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun<T> ListedBottomSheet(
-                      viewModel: AuthViewModel,
-                      sheetState: ModalBottomSheetState,
-                      title: String? = stringResource(id = R.string.area_name),
-                      ciites: List<T>?,
-                      onSelectedItem: (String, Int) -> Unit,
-                      onClickItem: () -> Unit) {
+fun <T> ListedBottomSheet(
+    viewModel: AuthViewModel,
+    sheetState: ModalBottomSheetState,
+    title: String? = stringResource(id = R.string.area_name),
+    ciites: List<T>?,
+    onSelectedItem: (String, Int) -> Unit,
+    onClickItem: () -> Unit
+) {
     Box() {
         ModalBottomSheetLayout(
             sheetState = sheetState,
@@ -980,8 +998,10 @@ fun<T> ListedBottomSheet(
                             .paddingTop(42)
                             .fillMaxWidth()
                     ) {
-                        items(  viewModel.searchCities(query, ciites).value
-                            ?: listOf()) {
+                        items(
+                            viewModel.searchCities(query, ciites).value
+                                ?: listOf()
+                        ) {
                             AreaListItem<T>(
                                 it
                             ) {
@@ -1017,11 +1037,13 @@ fun<T> ListedBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LanguageSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
+fun LanguageSheet(
+    sheetState: ModalBottomSheetState,
+    onConfirm: () -> Unit,
+) {
     Box() {
         val context = LocalContext.current
-        val configuration = LocalConfiguration.current
-        val mutableContext = LocalMutableContext.current
+
         var check by remember {
             if (LocalData.appLocal == "ar")
                 mutableStateOf(0)
@@ -1035,7 +1057,7 @@ fun LanguageSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.4f)
+                        .fillMaxHeight(0.45f)
                         .padding(
                             horizontal = 24.dp,
                             vertical = 46.dp
@@ -1050,6 +1072,8 @@ fun LanguageSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
 
                     LanguageItem(check) {
                         check = it
+                        LocalData.appLocal = if (check == 0) "ar" else "end"
+                        // viewModel.getConfig()
                     }
 
                     Spacer(modifier = Modifier.height(35.dp))
@@ -1060,9 +1084,6 @@ fun LanguageSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
                             } else {
                                 context.setLocale("en")
                             }
-                            val locale = Locale(LocalData.appLocal)
-                            configuration.setLocale(locale)
-                            mutableContext.value = context.createConfigurationContext(configuration)
                             onConfirm()
                         },
                         title = stringResource(R.string.confirm_lbl),
@@ -1158,158 +1179,6 @@ private fun <T> AreaListItem(
     }
 }
 
-
-
-@Composable
-private fun OrderItem() {
-    Card(
-        modifier = Modifier
-            .padding(bottom = 11.dp, top = 11.dp)
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 191.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 15.dp
-        )
-    ) {
-
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 191.dp)
-                .padding(
-                    horizontal = 10.dp,
-                    vertical = 21.dp
-                )
-        ) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "رقم الطلب",
-                        style = text11,
-                        color = SecondaryColor
-                    )
-                    Text(
-                        text = "#12342",
-                        style = text16Bold,
-                        color = TextColor
-                    )
-                    DateView()
-
-                }
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
-               // StepperView()
-            }
-
-            Column(
-                modifier = Modifier
-                    .paddingTop(10)
-                    .fillMaxWidth()
-                    .requiredHeight(63.dp)
-                    .background(
-                        LightBlue.copy(0.10f),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 6.3.dp, vertical = 11.dp)
-            ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(id = R.drawable.date_line),
-                            contentDescription = "",
-                            colorFilter = ColorFilter.tint(SecondaryColor)
-                        )
-                        Text(
-                            text = "موعد الزيارة",
-                            style = text11,
-                            color = SecondaryColor,
-                            modifier = Modifier.padding(start = 6.4.dp)
-                        )
-
-                    }
-                    DateTimeView()
-                }
-
-                Row(
-                    Modifier
-                        .paddingTop(10)
-                        .fillMaxWidth(),
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.moneyicon),
-                        contentDescription = ""
-                    )
-                    Text(
-                        text = "التكلفة  : ",
-                        style = text11,
-                        color = TextColor,
-                        modifier = Modifier.padding(start = 9.dp)
-                    )
-
-                    Row {
-                        Text(
-                            text = "300",
-                            style = text12Bold,
-                            color = TextColor,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                        Text(
-                            text = "ر.س",
-                            style = text10,
-                            color = TextColor,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-
-                    }
-
-                }
-            }
-
-          //  SelectedServicesView()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                ElasticButton(
-                    onClick = { /*TODO*/ }, title = "متابعة المسار",
-                    icon = R.drawable.map,
-                    iconGravity = RIGHT,
-                    modifier = Modifier
-                        .paddingTop(13)
-                        .requiredHeight(36.dp)
-                        .width(137.dp),
-                    buttonBg = LightBlue
-                )
-                AnimatedVisibility(visible = false) {
-                    ElasticButton(
-                        onClick = { /*TODO*/ }, title = "تقييم",
-                        icon = R.drawable.star,
-                        iconGravity = RIGHT,
-                        modifier = Modifier
-                            .paddingTop(13)
-                            .requiredHeight(36.dp)
-                            .width(137.dp),
-                        buttonBg = TextColor
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 private fun DateView() {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1373,8 +1242,8 @@ private fun DateTimeView() {
 @Composable
 fun StepperView(
     modifier: Modifier = Modifier
-        .fillMaxWidth()
-    ,    currentStep: Int = 0,
+        .fillMaxWidth(),
+    currentStep: Int = 0,
     isDetails: Boolean = false,
     items: List<Case>?
 
@@ -1405,9 +1274,7 @@ fun StepperView(
                     isDetails = isDetails
                 )
             }
-
         }
-
     }
 }
 
@@ -1425,7 +1292,6 @@ private fun Step(
             if (isCompleted)
                 R.drawable.checked
             else R.drawable.uncomplete
-
         },
         animationSpec = tween(
             durationMillis = 1000,
@@ -1464,6 +1330,7 @@ private fun Step(
         )
     }
 }
+
 @Composable
 fun SelectedServicesView(orderServices: List<OrderService>) {
     Row(

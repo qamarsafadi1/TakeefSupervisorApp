@@ -42,12 +42,13 @@ import com.selsela.takeefapp.ui.common.components.Switch
 import com.selsela.takeefapp.ui.order.cell.NextOrderItem
 import com.selsela.takeefapp.ui.order.cell.OrderItem
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
-import com.selsela.takeefapp.ui.theme.Bg
 import com.selsela.takeefapp.ui.theme.NoRippleTheme
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.text12Meduim
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 
 @Composable
@@ -68,6 +69,9 @@ fun HomeView(
         }
     }
     val orders = orderVm.orderList
+    val viewState: OrderUiState by orderVm.uiState.collectAsStateLifecycleAware(
+        OrderUiState()
+    )
 
     // get orders from api
     LaunchedEffect(Unit) {
@@ -81,15 +85,23 @@ fun HomeView(
     }
 
     HomeContent(
+        viewState,
         orderVm,
         orders,
         vm::changeAvailableStatus,
+        orderVm::updateOrderStatus,
         goToMyAccount,
-        goToRoute,
         goToCost,
         goToDetails,
     )
+
     HandleNotification(onPending)
+    Extensions.BroadcastReceiver(
+        context = LocalContext.current,
+        action ="new_order",
+    ) {
+        orderVm.onRefresh()
+    }
 
 
 }
@@ -122,11 +134,12 @@ private fun HandleNotification(onPending: () -> Unit) {
 
 @Composable
 private fun HomeContent(
+    viewState: OrderUiState,
     viewModel: OrderViewModel,
     orders: SnapshotStateList<Order>,
     onStatusChanged: (String) -> Unit,
+    updateOrderStatus: (Int, String?) -> Unit,
     goToMyAccount: () -> Unit,
-    goToRoute: () -> Unit,
     goToCost: () -> Unit,
     goToDetails: () -> Unit
 ) {
@@ -174,7 +187,21 @@ private fun HomeContent(
                 // Order list
                 when (viewModel.listState) {
                     OrderState.IDLE, OrderState.PAGINATING -> {
-                        OrdersList(currentOrder, goToRoute, goToCost, orders, goToDetails)
+                        if (orders.isEmpty() && currentOrder == null)
+                            EmptyView(
+                                stringResource(R.string.no_orders),
+                                stringResource(R.string.no_orders_lbl),
+                                backgroundColor = Color.White
+                            )
+                        else OrdersList(
+                            viewState,
+                            currentOrder,
+                            updateOrderStatus,
+                            goToCost,
+                            orders,
+                            goToDetails
+                        )
+
                     }
 
                     OrderState.LOADING -> {
@@ -189,8 +216,9 @@ private fun HomeContent(
 
 @Composable
 private fun OrdersList(
+    viewState: OrderUiState,
     currentOrder: Order?,
-    goToRoute: () -> Unit,
+    updateOrderStatus: (Int, String?) -> Unit,
     goToCost: () -> Unit,
     orders: SnapshotStateList<Order>,
     goToDetails: () -> Unit
@@ -204,42 +232,37 @@ private fun OrdersList(
                     color = SecondaryColor
                 )
                 OrderItem(
+                    viewState,
                     currentOrder,
                     onClick = {
-                        goToRoute()
-                    }) {
-                    goToCost()
+                        goToDetails()
+                    },
+                    addAdditionalCost = goToCost
+                ) { id, codAmount ->
+                    updateOrderStatus(id, codAmount)
                 }
             }
         }
-        item {
-            Text(
-                text = stringResource(R.string.upcoming_orders),
-                style = text12Meduim,
-                color = SecondaryColor
-            )
-        }
-        if (orders.isNotEmpty()) {
+        if (orders.isEmpty().not()) {
+            item {
+                Text(
+                    text = stringResource(R.string.upcoming_orders),
+                    style = text12Meduim,
+                    color = SecondaryColor
+                )
+            }
             items(orders) {
                 NextOrderItem(
+                    viewState,
                     currentOrder,
                     it,
                     onClick = {
                         goToDetails()
-                    }) {
-
+                    }) { id, codAmount ->
+                    updateOrderStatus(id, codAmount)
                 }
             }
-        } else {
-            item {
-                EmptyView(
-                    stringResource(R.string.no_orders),
-                    stringResource(R.string.no_orders_lbl),
-                    backgroundColor = Color.White
-                )
-            }
         }
-
     }
 }
 

@@ -2,6 +2,7 @@ package com.selsela.takeefapp.ui.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import com.selsela.takeefapp.ui.auth.component.EditTextView
 import com.selsela.takeefapp.ui.auth.component.SupportBottomSection
 import com.selsela.takeefapp.ui.common.LottieAnimationView
 import com.selsela.takeefapp.ui.common.NextPageButton
+import com.selsela.takeefapp.ui.splash.ConfigViewModel
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text11
@@ -47,6 +49,7 @@ import com.selsela.takeefapp.ui.theme.text18Meduim
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.LocalUtils.setLocale
 import de.palm.composestateevents.EventEffect
 
 @Composable
@@ -61,9 +64,11 @@ fun LoginView(
     val context = LocalContext.current
 
     LoginContent(
-        viewModel, viewState,
+        viewModel = viewModel,
+        uiState = viewState,
         onClick = viewModel::auth,
-        goToTerms, goToSupport
+        goToTerms = goToTerms,
+        goToSupport = goToSupport
     )
 
     /**
@@ -95,6 +100,7 @@ fun LoginView(
 
 @Composable
 private fun LoginContent(
+    viewModelConfig: ConfigViewModel = hiltViewModel(),
     viewModel: AuthViewModel,
     uiState: AuthUiState,
     onClick: () -> Unit,
@@ -221,11 +227,16 @@ private fun LoginContent(
             }
         }
 
+        val context = LocalContext.current
         Image(
             painter = painterResource(id = R.drawable.en),
             contentDescription = "en",
             modifier = Modifier
                 .padding(top = 54.dp, start = 24.dp, end = 24.dp)
+                .clickable {
+                    context.setLocale("en")
+                    viewModelConfig.getConfig()
+                }
                 .align(Alignment.TopEnd),
             colorFilter = ColorFilter.tint(TextColor)
         )

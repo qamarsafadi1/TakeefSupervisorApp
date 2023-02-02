@@ -6,17 +6,17 @@ import com.selsela.takeefapp.utils.DateHelper
 
 data class Order(
     @SerializedName("case")
-    val case: Case = Case(),
+    val case: com.selsela.takeefapp.data.config.model.Case = com.selsela.takeefapp.data.config.model.Case(),
     @SerializedName("created_at")
     val createdAt: String = "",
     @SerializedName("grand_total")
-    val grandTotal: Double = 0.0,
+    var grandTotal: Double = 0.0,
     @SerializedName("id")
     var id: Int = 0,
     @SerializedName("address")
     val address: Address = Address(),
     @SerializedName("logs")
-    val logs: List<Log> = listOf(),
+    var logs: List<Log> = listOf(),
     @SerializedName("number")
     val number: String = "",
     @SerializedName("order_date")

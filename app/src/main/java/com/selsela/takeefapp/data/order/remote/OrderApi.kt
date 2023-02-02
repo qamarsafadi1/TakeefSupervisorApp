@@ -16,6 +16,20 @@ interface OrderApi {
         @Query("page") page: Int = 1,
     ): Response<OrderResponse>
 
+    @POST("supervisor/order/increase_order_status")
+    @FormUrlEncoded
+    suspend fun updateOrderStatus(
+        @Field("order_id") orderId: Int,
+        @Field("amount_paid_cash") amount: String? = null,
+    ): Response<OrderResponse>
+
+    @POST("supervisor/order/add_additional_cost")
+    @FormUrlEncoded
+    suspend fun addAdditionalCost(
+        @Field("order_id") orderId: Int,
+        @Field("additional_cost") amount: String,
+    ): Response<OrderResponse>
+
     @GET("user/order/order_details")
     suspend fun getOrderDetails(
         @Query("order_id") orderId: Int

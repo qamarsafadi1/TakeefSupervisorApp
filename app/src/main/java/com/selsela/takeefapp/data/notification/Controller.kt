@@ -18,6 +18,7 @@ import com.google.gson.Gson
 import com.selsela.takeefapp.MainActivity
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.utils.Constants.BLOCKED
+import com.selsela.takeefapp.utils.Constants.NEW_ORDER
 import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.ORDER_ADDITIONAL_COST
 import com.selsela.takeefapp.utils.Constants.ORDER_STATUS_CHANGED
@@ -127,6 +128,16 @@ class Controller : FirebaseMessagingService() {
 
                     WALLET_CHANGED -> {
                         val localIntent = Intent(WALLET_CHANGED)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            MainActivity::class.java.simpleName,
+                        )
+                    }
+                    "new_order" -> {
+                        val localIntent = Intent("new_order")
                         val manager = LocalBroadcastManager.getInstance(this)
                         manager.sendBroadcast(localIntent)
                         sendNotification(

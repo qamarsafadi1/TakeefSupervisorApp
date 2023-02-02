@@ -84,6 +84,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation "com.google.accompanist:accompanist-flowlayout:0.20.0"
     implementation 'com.github.leonard-palm:compose-state-events:1.2.3'
+    def appcompat_version = "1.6.0"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    // For loading and tinting drawables on older versions of the platform
+    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
 
     // hilt
     def hilt_version = "2.44"

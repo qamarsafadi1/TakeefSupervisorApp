@@ -49,7 +49,11 @@ class NavigationActions(private val navController: NavController) {
     }
 
     fun navigateToSuccess() {
-        navController.navigate(Destinations.SUCCESS)
+        navController.navigate(Destinations.SUCCESS){
+            popUpTo(Destinations.HOME_SCREEN ) {
+                inclusive = false
+            }
+        }
     }
 
     fun navigateToMyAccount() {

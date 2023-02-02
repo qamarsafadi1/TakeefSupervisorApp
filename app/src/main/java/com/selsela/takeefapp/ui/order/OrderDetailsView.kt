@@ -194,9 +194,9 @@ fun OrderDetailsView(
         }
 
     }
-    RateSheet(rateSheetState) {
-
-    }
+//    RateSheet(rateSheetState) {
+//
+//    }
 }
 
 @Composable

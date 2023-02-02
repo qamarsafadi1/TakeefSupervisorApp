@@ -39,6 +39,62 @@ class OrderRepository @Inject constructor(
             data
         }
 
+    suspend fun updateOrderStatus(
+        orderId: Int,
+        amount: String? = null,
+    ): Flow<Resource<OrderResponse>> =
+        withContext(Dispatchers.IO) {
+            val data: Flow<Resource<OrderResponse>> = try {
+                val response = api.updateOrderStatus(
+                    orderId,
+                    amount
+                )
+                if (response.isSuccessful) {
+                    Extensions.handleSuccess(
+                        response.body(),
+                        response.body()?.responseMessage ?: response.message()
+                    )
+                } else {
+                    val gson = Gson()
+                    val errorBase =
+                        gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
+                    Extensions.handleExceptions(errorBase)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Extensions.handleExceptions(e)
+            }
+            data
+        }
+
+    suspend fun addAdditionalCost(
+        orderId: Int,
+        amount: String,
+    ): Flow<Resource<OrderResponse>> =
+        withContext(Dispatchers.IO) {
+            val data: Flow<Resource<OrderResponse>> = try {
+                val response = api.addAdditionalCost(
+                    orderId,
+                    amount
+                )
+                if (response.isSuccessful) {
+                    Extensions.handleSuccess(
+                        response.body(),
+                        response.body()?.responseMessage ?: response.message()
+                    )
+                } else {
+                    val gson = Gson()
+                    val errorBase =
+                        gson.fromJson(response.errorBody()?.string(), ErrorBase::class.java)
+                    Extensions.handleExceptions(errorBase)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Extensions.handleExceptions(e)
+            }
+            data
+        }
+
     suspend fun getOrderDetails(orderId: Int): Flow<Resource<OrderResponse>> =
         withContext(Dispatchers.IO) {
             val data: Flow<Resource<OrderResponse>> = try {
@@ -113,6 +169,7 @@ class OrderRepository @Inject constructor(
             }
             data
         }
+
     suspend fun rejectAdditionalCost(
         orderId: Int
     ): Flow<Resource<OrderResponse>> =
@@ -152,7 +209,7 @@ class OrderRepository @Inject constructor(
                 body["additional_cost_status"] = "accepted"
                 body["use_wallet"] = useWallet
                 if (paymentId != -1)
-                body["payment_type_id"] = paymentId
+                    body["payment_type_id"] = paymentId
                 val response = api.changeAdditionalCostStatus(body)
                 if (response.isSuccessful) {
                     if (paymentId == -1 || paymentId == WALLET || paymentId == COD) {

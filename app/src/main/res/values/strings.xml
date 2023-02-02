@@ -222,4 +222,5 @@
     <string name="go_now">توجه الان</string>
     <string name="start_order">بدء التنفيذ</string>
     <string name="sorry_you_have_an_order">"عـذرًا،لديك طلب جاري حالياً "</string>
+    <string name="additional_cost">التكلفة الاضافية</string>
 </resources>

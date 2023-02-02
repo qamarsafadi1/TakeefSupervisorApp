@@ -30,30 +30,89 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text16Medium
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import androidx.compose.runtime.*
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.qamar.elasticview.ElasticView
+import com.selsela.takeefapp.ui.auth.AuthUiState
 import com.selsela.takeefapp.ui.common.Countdown
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.ElasticLoadingButton
+import com.selsela.takeefapp.ui.common.State
 import com.selsela.takeefapp.ui.common.components.CardFace
 import com.selsela.takeefapp.ui.common.components.FlipButton
+import com.selsela.takeefapp.ui.home.OrderUiState
+import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.text14
+import com.selsela.takeefapp.utils.Common
+import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.getCurrency
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import de.palm.composestateevents.EventEffect
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddCostScreen(onFinish: () -> Unit) {
+fun AddCostScreen(
+    vm: OrderViewModel = hiltViewModel(),
+    onFinish: () -> Unit
+) {
+    val viewState: OrderUiState by vm.uiState.collectAsStateLifecycleAware(OrderUiState())
+    val context = LocalContext.current
+
+    AddCostContent(
+        uiState = viewState,
+        vm
+    ) {
+        vm.addAdditionalCost(293)
+    }
+
+
+    /**
+     * Handle Ui state from flow
+     */
+
+    viewState.onSuccess?.let {
+        EventEffect(
+            event = it,
+            onConsumed = vm::onSuccess
+        ) {
+            onFinish()
+        }
+    }
+
+    EventEffect(
+        event = viewState.onFailure,
+        onConsumed = vm::onFailure
+    ) { error ->
+        Common.handleErrors(
+            error.responseMessage,
+            error.errors,
+            context
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+private fun AddCostContent(
+    uiState: OrderUiState,
+    vm: OrderViewModel, onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        var isSend by remember {
-            mutableStateOf(false)
+        var state by remember {
+            mutableStateOf(CardFace.Front)
+
         }
+        if (uiState.state == State.LOADING)
+            state.next
+        else state = CardFace.Front
         Column(
             Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -84,7 +143,7 @@ fun AddCostScreen(onFinish: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text =  stringResource(id = R.string.cost_added),
+                    text = stringResource(id = R.string.cost_added),
                     style = text16Medium,
                     color = Color.White
                 )
@@ -101,50 +160,43 @@ fun AddCostScreen(onFinish: () -> Unit) {
                         modifier = Modifier.padding(bottom = 14.dp)
                     )
 
-                    var cost by remember {
-                        mutableStateOf("")
-                    }
-                    EditText(onValueChange = {
-                        cost = it
-                    }, text = cost,
+                    EditText(
+                        onValueChange = {
+                            vm.additionalCost = it
+                            if (!vm.isValid.value){
+                                vm.isValid.value = true
+                                vm.errorMessage.value = ""
+                            }
+                        }, text = vm.additionalCost,
                         hint = "00.00",
                         inputType = KeyboardType.Decimal,
                         trailing = {
                             Text(
-                                text =  stringResource(id = R.string.currency_1),
+                                text = stringResource(id = R.string.currency_1, getCurrency()),
                                 style = text14,
                                 color = SecondaryColor
                             )
-                        })
-                    AnimatedVisibility(visible = isSend) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Countdown(
-                                seconds = 120,
-                                modifier = Modifier.paddingTop(12)
-                            ){}
+                        },
+                        isValid = vm.isValid.value,
+                        validationMessage = vm.errorMessage.value,
+                        borderColor = vm.validateBorderColor()
+                    )
 
-                            ElasticView(onClick = { /*TODO*/ }) {
-                                Text(
-                                    text = stringResource(R.string.resend),
-                                    style = text14,
-                                    color = SecondaryColor,
-                                    modifier = Modifier.paddingTop(12)
-                                )
-                            }
-                        }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Countdown(
+                            seconds = 120,
+                            modifier = Modifier.paddingTop(12)
+                        ) {}
                     }
 
-
                 }
+            }
 
-            }
-            var state by remember {
-                mutableStateOf(CardFace.Front)
-            }
+
             FlipButton(cardFace = state,
                 back = {
                     ElasticLoadingButton(
@@ -160,19 +212,15 @@ fun AddCostScreen(onFinish: () -> Unit) {
                             .requiredHeight(48.dp),
                         textColor = LightBlue
                     )
-
-                    LaunchedEffect(Unit) {
-                        delay(3000)
-                        onFinish()
-                    }
-
                 },
                 front = {
                     ElasticButton(
                         onClick = {
-                            state = state.next
-                            isSend = true
-                        }, title =  stringResource(id = R.string.send_order),
+                            if (vm.isValid.value) {
+                                state = state.next
+                            }
+                            onClick()
+                        }, title = stringResource(id = R.string.send_order),
                         modifier = Modifier
                             .paddingTop(22)
                             .padding(horizontal = 24.dp)

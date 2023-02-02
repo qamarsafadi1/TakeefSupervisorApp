@@ -33,7 +33,9 @@ import com.selsela.takeefapp.data.order.model.order.Order
 import com.selsela.takeefapp.data.order.model.order.WorkPeriod
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.SelectedServicesView
+import com.selsela.takeefapp.ui.common.State
 import com.selsela.takeefapp.ui.common.StepperView
+import com.selsela.takeefapp.ui.home.OrderUiState
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.Red
@@ -44,6 +46,7 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Bold
 import com.selsela.takeefapp.ui.theme.text16Bold
+import com.selsela.takeefapp.utils.Constants.COD
 import com.selsela.takeefapp.utils.Constants.NEW_ORDER
 import com.selsela.takeefapp.utils.Constants.ON_WAY
 import com.selsela.takeefapp.utils.Constants.UNDER_PROGRESS
@@ -55,9 +58,11 @@ import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 
 @Composable
 fun OrderItem(
+    uiState: OrderUiState,
     currentOrder: Order,
     onClick: () -> Unit,
-    onRouteClick: () -> Unit
+    addAdditionalCost: () -> Unit,
+    updateOrderStatus: (Int,String?) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -106,6 +111,7 @@ fun OrderItem(
                     DateView(currentOrder)
 
                 }
+
                 StepperView(
                     Modifier
                         .fillMaxWidth()
@@ -164,7 +170,7 @@ fun OrderItem(
 
                     Row {
                         Text(
-                            text = "${currentOrder.price.grandTotal}",
+                            text = "${currentOrder.grandTotal}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)
@@ -188,25 +194,34 @@ fun OrderItem(
                 ) {
                     if (currentOrder.hasMaintenance == 1) {
                         ElasticButton(
-                            onClick = { onRouteClick() },
+                            onClick = { addAdditionalCost() },
                             title = stringResource(id = R.string.extra_cost),
                             modifier = Modifier
                                 .paddingTop(13)
                                 .requiredHeight(36.dp)
                                 .fillMaxWidth()
                                 .weight(1f),
-                            colorBg = Purple40
+                            colorBg = Purple40,
+                            isLoading = uiState.state == State.LOADING
                         )
                         Spacer(modifier = Modifier.width(14.dp))
                     }
                     ElasticButton(
-                        onClick = { /*TODO*/ }, title = stringResource(R.string.finish_order),
+                        onClick = {  updateOrderStatus(
+                            currentOrder.id,
+                            if (currentOrder.payment.id == COD)
+                                currentOrder.price.paidCash.toString()
+                            else null
+                        ) },
+                        title = stringResource(R.string.finish_order),
                         modifier = Modifier
                             .paddingTop(13)
                             .requiredHeight(36.dp)
                             .fillMaxWidth()
                             .weight(1f),
-                        colorBg = TextColor
+                        colorBg = TextColor,
+                        isLoading = uiState.state == State.LOADING
+
                     )
                 }
             } else {
@@ -228,13 +243,19 @@ fun OrderItem(
                         }
                     }
                     ElasticButton(
-                        onClick = { onRouteClick() },
+                        onClick = {updateOrderStatus(
+                            currentOrder.id,
+                            if (currentOrder.payment.id == COD)
+                                currentOrder.price.paidCash.toString()
+                            else null
+                        )  },
                         title = title,
                         modifier = Modifier
                             .paddingTop(13)
                             .width(137.dp)
                             .requiredHeight(36.dp),
-                        colorBg = color
+                        colorBg = color,
+                        isLoading = uiState.state == State.LOADING
                     )
                 }
             }
@@ -245,10 +266,11 @@ fun OrderItem(
 
 @Composable
 fun NextOrderItem(
+    viewState: OrderUiState,
     currentOrder: Order?,
     order: Order,
     onClick: () -> Unit,
-    onRouteClick: () -> Unit
+    updateOrderStatus: (Int, String?) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -290,7 +312,7 @@ fun NextOrderItem(
                         color = SecondaryColor
                     )
                     Text(
-                        text = "#12342",
+                        text = "#${order.number}",
                         style = text16Bold,
                         color = TextColor
                     )
@@ -357,7 +379,7 @@ fun NextOrderItem(
 
                     Row {
                         Text(
-                            text = "300",
+                            text = "${order.grandTotal}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)
@@ -385,7 +407,14 @@ fun NextOrderItem(
                 ) {
                     if (order.hasMaintenance == 1) {
                         ElasticButton(
-                            onClick = { onRouteClick() },
+                            onClick = {
+                                updateOrderStatus(
+                                    order.id,
+                                    if (order.payment.id == COD)
+                                        order.price.paidCash.toString()
+                                    else null
+                                )
+                            },
                             title = stringResource(id = R.string.extra_cost),
                             modifier = Modifier
                                 .paddingTop(13)
@@ -400,14 +429,21 @@ fun NextOrderItem(
                         onClick = {
                             if (currentOrder != null)
                                 context.showError(context.getString(R.string.sorry_you_have_an_order))
-                            /*TODO*/
-                        }, title = stringResource(R.string.finish_order),
+                            updateOrderStatus(
+                                order.id,
+                                if (order.payment.id == COD)
+                                    order.price.paidCash.toString()
+                                else null
+                            )
+                        },
+                        title = stringResource(R.string.finish_order),
                         modifier = Modifier
                             .paddingTop(13)
                             .requiredHeight(36.dp)
                             .fillMaxWidth()
                             .weight(1f),
-                        colorBg = TextColor
+                        colorBg = TextColor,
+                        isLoading = viewState.state == State.LOADING
                     )
                 }
             } else {
@@ -432,14 +468,21 @@ fun NextOrderItem(
                         onClick = {
                             if (currentOrder != null)
                                 context.showError(context.getString(R.string.sorry_you_have_an_order))
-                            else onRouteClick()
-                                  },
+                            else updateOrderStatus(
+                                order.id,
+                                if (order.payment.id == COD)
+                                    order.price.paidCash.toString()
+                                else null
+                            )
+
+                        },
                         title = title,
                         modifier = Modifier
                             .paddingTop(13)
                             .width(137.dp)
                             .requiredHeight(36.dp),
-                        colorBg = color
+                        colorBg = color,
+                        isLoading = viewState.state == State.LOADING
                     )
                 }
             }

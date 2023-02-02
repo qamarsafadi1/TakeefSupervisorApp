@@ -36,11 +36,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.common.LanguageSheet
 import com.selsela.takeefapp.ui.splash.ChangeNavigationBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
+import com.selsela.takeefapp.ui.splash.ConfigViewModel
 import com.selsela.takeefapp.ui.theme.ColorAccent
 import com.selsela.takeefapp.ui.theme.Gray3
 import com.selsela.takeefapp.ui.theme.LightBlue
@@ -62,14 +64,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MyAccountView(
-    onBack: () -> Unit,
+    configViewModel: ConfigViewModel = hiltViewModel(),
+            onBack: () -> Unit,
     goToAboutApp: () -> Unit,
     goToNotification: () -> Unit,
     goToTerms: () -> Unit,
     goToSupport: () -> Unit,
     goToProfile: () -> Unit,
     goToWallet: () -> Unit,
-    goToOrder: () -> Unit
+    goToOrder: () -> Unit,
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
     TextColor.ChangeNavigationBarColor()
@@ -267,6 +270,8 @@ fun MyAccountView(
             }
         }
         LanguageSheet(languageSheet) {
+            configViewModel.getConfig()
+
             coroutineScope.launch {
                 if (languageSheet.isVisible)
                     languageSheet.hide()
