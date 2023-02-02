@@ -11,10 +11,9 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface OrderApi {
-    @GET("user/order/user_orders")
-    suspend fun getOrder(
+    @GET("supervisor/order/supervisor_orders")
+    suspend fun getOrders(
         @Query("page") page: Int = 1,
-        @Query("case_id") caseId: Int = 1
     ): Response<OrderResponse>
 
     @GET("user/order/order_details")

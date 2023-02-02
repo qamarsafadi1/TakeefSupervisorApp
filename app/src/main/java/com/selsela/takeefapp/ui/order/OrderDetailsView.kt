@@ -26,7 +26,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,22 +35,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
-import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.StepperView
 import com.selsela.takeefapp.ui.order.cell.DateView
 import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
-import com.selsela.takeefapp.ui.theme.ColorAccent
 import com.selsela.takeefapp.ui.theme.DividerColor
 import com.selsela.takeefapp.ui.theme.DividerColorBlue
 import com.selsela.takeefapp.ui.theme.LightBlue
-import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text11
-import com.selsela.takeefapp.ui.theme.text11NoLines
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Meduim
 import com.selsela.takeefapp.ui.theme.text13
@@ -59,11 +54,7 @@ import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.ui.theme.text16Bold
 import com.selsela.takeefapp.ui.theme.text16Medium
-import com.selsela.takeefapp.utils.Constants.ACCEPT
-import com.selsela.takeefapp.utils.Constants.REJECT
-import com.selsela.takeefapp.utils.Constants.RIGHT
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -145,21 +136,21 @@ fun OrderDetailsView(
                                 color = TextColor
                             )
                         }
-                        DateView()
+                       // DateView(currentOrder)
 
                     }
                     Spacer(modifier = Modifier.height(22.dp))
-                    StepperView(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        isDetails = true,
-                        items = listOf(
-                            stringResource(R.string.recived_order),
-                            stringResource(R.string.on_way),
-                            stringResource(R.string.on_progress),
-                            stringResource(R.string.done_order)
-                        )
-                    )
+//                    StepperView(
+//                        modifier = Modifier
+//                            .fillMaxWidth(),
+//                        isDetails = true,
+//                        items = listOf(
+//                            stringResource(R.string.recived_order),
+//                            stringResource(R.string.on_way),
+//                            stringResource(R.string.on_progress),
+//                            stringResource(R.string.done_order)
+//                        )
+//                    )
                     Divider(
                         thickness = 1.dp,
                         color = DividerColor,

@@ -2,7 +2,7 @@ package com.selsela.takeefapp.data.order.model.order
 
 
 import com.google.gson.annotations.SerializedName
-import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.DateHelper
 
 data class Order(
     @SerializedName("case")
@@ -35,6 +35,8 @@ data class Order(
     val isPaid: Int = 0,
     @SerializedName("is_rated")
     val isRated: Int = 0,
+    @SerializedName("has_service_maintenance")
+    val hasMaintenance: Int = 0,
     @SerializedName("need_additional_cost")
     val needAdditionalCost: Int = 0,
     @SerializedName("additional_cost_status")
@@ -43,4 +45,22 @@ data class Order(
     val price: Price = Price(),
     @SerializedName("payment")
     val payment: Payment = Payment(),
-)
+    //  "${orderDate[0]}-${orderDate[1]}-${orderDate[2]}"
+    //                "${orderDate[3]}:${orderDate[4]}"
+    //                orderDate.last()
+) {
+    fun getOrderDateOnly(): String {
+        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+        return "${dateOrder[0]}-${dateOrder[1]}-${dateOrder[2]}"
+    }
+   fun getOrderTimeOnly(): String {
+        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+        return "${dateOrder[3]}:${dateOrder[4]}"
+    }
+
+    fun getOrderPmAm(): String{
+        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+        return dateOrder[5]
+    }
+
+}

@@ -606,7 +606,13 @@ class Extensions {
                     .toString()
             }
         }
-
+        fun getCurrency(): Any {
+            return (if (LocalData.appLocal == "ar")
+                LocalData.configurations?.currencyAr
+            else LocalData.configurations?.currencyEn)!!
+        }
     }
+
+
 
 }

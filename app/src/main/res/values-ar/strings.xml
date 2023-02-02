@@ -94,7 +94,7 @@
     <string name="search">بحث</string>
     <string name="visit_date_1">موعد الزيارة</string>
     <string name="cost_dot">"التكلفة  : "</string>
-    <string name="currency_1">ر.س</string>
+    <string name="currency_1">%1$s</string>
     <string name="follow_route">متابعة المسار</string>
     <string name="rate">تقييم</string>
     <string name="maintinance_dot">"صيانة : "</string>
@@ -215,6 +215,11 @@
     <string name="no">لا</string>
     <string name="no_district">لا يوجد احياء لهذه المدينة</string>
     <string name="disabled_account">الحساب معطل</string>
+    <string name="no_orders">لا يوجد طلبات </string>
+    <string name="no_orders_lbl">لا يوجد طلبات حاليًا </string>
     <string name="disabled_account_lbl">الرجاء التواصل مع الدعم الفني</string>
     <string name="disabled_account_lbl_1">تم ايقاف الحساب من قبل الادارة , لمزيد من التفاصيل \n</string>
+    <string name="go_now">توجه الان</string>
+    <string name="start_order">بدء التنفيذ</string>
+    <string name="sorry_you_have_an_order">"عـذرًا،لديك طلب جاري حالياً "</string>
 </resources>

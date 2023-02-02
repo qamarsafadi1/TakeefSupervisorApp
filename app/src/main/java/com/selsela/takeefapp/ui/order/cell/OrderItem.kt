@@ -1,10 +1,10 @@
 package com.selsela.takeefapp.ui.order.cell
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -20,18 +22,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.order.model.order.Order
+import com.selsela.takeefapp.data.order.model.order.WorkPeriod
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.SelectedServicesView
 import com.selsela.takeefapp.ui.common.StepperView
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
+import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text10
@@ -39,11 +44,18 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Bold
 import com.selsela.takeefapp.ui.theme.text16Bold
-import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Constants.NEW_ORDER
+import com.selsela.takeefapp.utils.Constants.ON_WAY
+import com.selsela.takeefapp.utils.Constants.UNDER_PROGRESS
+import com.selsela.takeefapp.utils.Extensions.Companion.getCurrency
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.showError
+import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 
 @Composable
 fun OrderItem(
+    currentOrder: Order,
     onClick: () -> Unit,
     onRouteClick: () -> Unit
 ) {
@@ -76,31 +88,31 @@ fun OrderItem(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(Modifier.fillMaxWidth()
-                    .weight(1f)) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
                     Text(
                         text = stringResource(id = R.string.order_number),
                         style = text11,
                         color = SecondaryColor
                     )
                     Text(
-                        text = "#12342",
+                        text = "#${currentOrder.number}",
                         style = text16Bold,
                         color = TextColor
                     )
-                    DateView()
+                    DateView(currentOrder)
 
                 }
                 StepperView(
                     Modifier
                         .fillMaxWidth()
                         .weight(1.5f),
-                    items = listOf(
-                        stringResource(R.string.recived_order),
-                        stringResource(R.string.on_way),
-                        stringResource(R.string.on_progress),
-                        stringResource(R.string.done_order)
-                    ))
+                    items = LocalData.cases?.filter { it.id != 6 },
+                    currentStep = currentOrder.logs.distinctBy { it.case.id }.lastIndex
+                )
             }
             Column(
                 modifier = Modifier
@@ -131,7 +143,7 @@ fun OrderItem(
                         )
 
                     }
-                    DateTimeView()
+                    DateTimeView(currentOrder.orderDate, currentOrder.workPeriod)
                 }
 
                 Row(
@@ -144,7 +156,7 @@ fun OrderItem(
                         contentDescription = ""
                     )
                     Text(
-                        text =stringResource(id = R.string.cost_dot),
+                        text = stringResource(id = R.string.cost_dot),
                         style = text11,
                         color = TextColor,
                         modifier = Modifier.padding(start = 9.dp)
@@ -152,13 +164,13 @@ fun OrderItem(
 
                     Row {
                         Text(
-                            text = "300",
+                            text = "${currentOrder.price.grandTotal}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)
                         )
                         Text(
-                            text = stringResource(id = R.string.currency_1),
+                            text = stringResource(id = R.string.currency_1, getCurrency()),
                             style = text10,
                             color = TextColor,
                             modifier = Modifier.padding(start = 5.dp)
@@ -167,30 +179,64 @@ fun OrderItem(
                 }
             }
 
-            SelectedServicesView()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                ElasticButton(
-                    onClick = { onRouteClick() }, title = stringResource(id = R.string.extra_cost),
-                    modifier = Modifier
-                        .paddingTop(13)
-                        .requiredHeight(36.dp)
-                        .fillMaxWidth()
-                        .weight(1f),
-                    colorBg = Purple40
-                )
-                Spacer(modifier = Modifier.width(14.dp))
-                ElasticButton(
-                    onClick = { /*TODO*/ }, title = stringResource(R.string.finish_order),
-                    modifier = Modifier
-                        .paddingTop(13)
-                        .requiredHeight(36.dp)
-                        .fillMaxWidth()
-                        .weight(1f),
-                    colorBg = TextColor
-                )
+            SelectedServicesView(orderServices = currentOrder.orderService)
+
+            if (currentOrder.case.id == UNDER_PROGRESS) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (currentOrder.hasMaintenance == 1) {
+                        ElasticButton(
+                            onClick = { onRouteClick() },
+                            title = stringResource(id = R.string.extra_cost),
+                            modifier = Modifier
+                                .paddingTop(13)
+                                .requiredHeight(36.dp)
+                                .fillMaxWidth()
+                                .weight(1f),
+                            colorBg = Purple40
+                        )
+                        Spacer(modifier = Modifier.width(14.dp))
+                    }
+                    ElasticButton(
+                        onClick = { /*TODO*/ }, title = stringResource(R.string.finish_order),
+                        modifier = Modifier
+                            .paddingTop(13)
+                            .requiredHeight(36.dp)
+                            .fillMaxWidth()
+                            .weight(1f),
+                        colorBg = TextColor
+                    )
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    var title = stringResource(id = R.string.go_now)
+                    var color = Purple40
+                    when (currentOrder.case.id) {
+                        NEW_ORDER -> {
+                            title = stringResource(id = R.string.go_now)
+                            color = Purple40
+                        }
+
+                        ON_WAY -> {
+                            title = stringResource(id = R.string.start_order)
+                            color = LightBlue
+                        }
+                    }
+                    ElasticButton(
+                        onClick = { onRouteClick() },
+                        title = title,
+                        modifier = Modifier
+                            .paddingTop(13)
+                            .width(137.dp)
+                            .requiredHeight(36.dp),
+                        colorBg = color
+                    )
+                }
             }
         }
     }
@@ -199,6 +245,8 @@ fun OrderItem(
 
 @Composable
 fun NextOrderItem(
+    currentOrder: Order?,
+    order: Order,
     onClick: () -> Unit,
     onRouteClick: () -> Unit
 ) {
@@ -231,10 +279,13 @@ fun NextOrderItem(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(Modifier.fillMaxWidth()
-                    .weight(1f)) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
                     Text(
-                        text =stringResource(id = R.string.order_number),
+                        text = stringResource(id = R.string.order_number),
                         style = text11,
                         color = SecondaryColor
                     )
@@ -243,7 +294,7 @@ fun NextOrderItem(
                         style = text16Bold,
                         color = TextColor
                     )
-                    DateView()
+                    DateView(order)
 
                 }
 
@@ -251,12 +302,9 @@ fun NextOrderItem(
                     Modifier
                         .fillMaxWidth()
                         .weight(1.5f),
-                    items = listOf(
-                        stringResource(R.string.recived_order),
-                        stringResource(R.string.on_way),
-                        stringResource(R.string.on_progress),
-                        stringResource(R.string.done_order)
-                    ))
+                    items = LocalData.cases?.filter { it.id != 6 },
+                    currentStep = order.logs.distinctBy { it.case.id }.lastIndex
+                )
             }
 
             Column(
@@ -288,7 +336,7 @@ fun NextOrderItem(
                         )
 
                     }
-                    DateTimeView()
+                    DateTimeView(orderDate = order.orderDate, order.workPeriod)
                 }
 
                 Row(
@@ -315,7 +363,7 @@ fun NextOrderItem(
                             modifier = Modifier.padding(start = 4.dp)
                         )
                         Text(
-                            text = stringResource(id = R.string.currency_1),
+                            text = stringResource(id = R.string.currency_1, getCurrency()),
                             style = text10,
                             color = TextColor,
                             modifier = Modifier.padding(start = 5.dp)
@@ -326,22 +374,90 @@ fun NextOrderItem(
                 }
             }
 
-            SelectedServicesView()
+
+            SelectedServicesView(orderServices = order.orderService)
+
+            val context = LocalContext.current
+            if (order.case.id == UNDER_PROGRESS) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (order.hasMaintenance == 1) {
+                        ElasticButton(
+                            onClick = { onRouteClick() },
+                            title = stringResource(id = R.string.extra_cost),
+                            modifier = Modifier
+                                .paddingTop(13)
+                                .requiredHeight(36.dp)
+                                .fillMaxWidth()
+                                .weight(1f),
+                            colorBg = Purple40
+                        )
+                        Spacer(modifier = Modifier.width(14.dp))
+                    }
+                    ElasticButton(
+                        onClick = {
+                            if (currentOrder != null)
+                                context.showError(context.getString(R.string.sorry_you_have_an_order))
+                            /*TODO*/
+                        }, title = stringResource(R.string.finish_order),
+                        modifier = Modifier
+                            .paddingTop(13)
+                            .requiredHeight(36.dp)
+                            .fillMaxWidth()
+                            .weight(1f),
+                        colorBg = TextColor
+                    )
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    var title = stringResource(id = R.string.go_now)
+                    var color = Purple40
+                    when (order.case.id) {
+                        NEW_ORDER -> {
+                            title = stringResource(id = R.string.go_now)
+                            color = Purple40
+                        }
+
+                        ON_WAY -> {
+                            title = stringResource(id = R.string.start_order)
+                            color = LightBlue
+                        }
+                    }
+                    ElasticButton(
+                        onClick = {
+                            if (currentOrder != null)
+                                context.showError(context.getString(R.string.sorry_you_have_an_order))
+                            else onRouteClick()
+                                  },
+                        title = title,
+                        modifier = Modifier
+                            .paddingTop(13)
+                            .width(137.dp)
+                            .requiredHeight(36.dp),
+                        colorBg = color
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun DateView() {
+fun DateView(currentOrder: Order) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "AM",
+            text = currentOrder.getOrderPmAm(),
             style = text11,
             color = SecondaryColor
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = "08:30",
+            text = currentOrder.getOrderTimeOnly(),
             style = text11,
             color = SecondaryColor
         )
@@ -354,7 +470,7 @@ fun DateView() {
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = "29-11-2022",
+            text = currentOrder.getOrderDateOnly(),
             style = text11,
             color = SecondaryColor
         )
@@ -362,11 +478,11 @@ fun DateView() {
 }
 
 @Composable
-private fun DateTimeView() {
+private fun DateTimeView(orderDate: String, fromTo: WorkPeriod) {
     Row(verticalAlignment = Alignment.CenterVertically) {
 
         Text(
-            text = stringResource(id = R.string._08_00_am_12_00_pm),
+            text = "${fromTo.getTimeFromFormatted()} - ${fromTo.getTimeToFormatted()}",
             style = text12,
             color = TextColor
         )
@@ -379,7 +495,7 @@ private fun DateTimeView() {
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = "29-11-2022",
+            text = orderDate,
             style = text12,
             color = TextColor
         )

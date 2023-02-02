@@ -29,8 +29,9 @@ object Constants {
     const val NEW_ORDER = 1
     const val UPCOMING_ORDERS = 2
     const val ON_WAY = 3
-    const val RECEIVED = 1
+    const val UNDER_PROGRESS = 4
     const val FINISHED = 5
+    const val RECEIVED = 1
     const val WALLET = 5
     const val COD = 4
 

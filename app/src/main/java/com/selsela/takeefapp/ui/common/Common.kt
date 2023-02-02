@@ -80,9 +80,11 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.LocalMutableContext
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.config.model.Case
 import com.selsela.takeefapp.data.config.model.city.Area
 import com.selsela.takeefapp.data.config.model.city.Children
 import com.selsela.takeefapp.data.config.model.city.City
+import com.selsela.takeefapp.data.order.model.order.OrderService
 import com.selsela.takeefapp.ui.auth.AuthViewModel
 import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.LightBlue
@@ -109,6 +111,7 @@ import com.selsela.takeefapp.ui.theme.text18
 import com.selsela.takeefapp.ui.theme.text8
 import com.selsela.takeefapp.utils.Constants.LEFT
 import com.selsela.takeefapp.utils.Constants.RIGHT
+import com.selsela.takeefapp.utils.Extensions.Companion.convertToDecimalPatter
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.LocalUtils.setLocale
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
@@ -1205,7 +1208,7 @@ private fun OrderItem() {
                         .fillMaxWidth()
                         .weight(1f)
                 )
-                StepperView()
+               // StepperView()
             }
 
             Column(
@@ -1275,7 +1278,7 @@ private fun OrderItem() {
                 }
             }
 
-            SelectedServicesView()
+          //  SelectedServicesView()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -1373,12 +1376,8 @@ fun StepperView(
         .fillMaxWidth()
     ,    currentStep: Int = 0,
     isDetails: Boolean = false,
-    items: List<String> = listOf(
-        "استلام الطلب",
-        "متوجه لك",
-        "جاري التنفيذ",
-        "انتهاء الطلب"
-    )
+    items: List<Case>?
+
 ) {
     Box(
         modifier = modifier,
@@ -1397,10 +1396,10 @@ fun StepperView(
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
             itemsIndexed(
-                items
+                items ?: listOf()
             ) { index, step ->
                 Step(
-                    step = step,
+                    step = step.name,
                     isCurrent = currentStep == index,
                     isCompleted = index < currentStep,
                     isDetails = isDetails
@@ -1465,40 +1464,34 @@ private fun Step(
         )
     }
 }
-
 @Composable
-fun SelectedServicesView() {
+fun SelectedServicesView(orderServices: List<OrderService>) {
     Row(
         modifier = Modifier
             .paddingTop(11)
+            .padding(horizontal = 34.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Start
     ) {
-        Row {
-            Text(
-                text = "صيانة : ", style = text11,
-                color = SecondaryColor
-            )
-            Text(text = "00", style = text12, color = TextColor)
+        repeat(orderServices.size) {
+            Row {
+                Text(
+                    text = "${orderServices[it].service.name} : ", style = text11,
+                    color = SecondaryColor
+                )
+                Text(
+                    text = orderServices[it].acType.sumOf {
+                        it.count
+                    }.convertToDecimalPatter(),
+                    style = text12,
+                    color = TextColor
+                )
+            }
+            Spacer(modifier = Modifier.width(41.1.dp))
         }
-        Spacer(modifier = Modifier.width(51.1.dp))
-        Row {
-            Text(
-                text = "تنظيف : ", style = text11,
-                color = SecondaryColor
-            )
-            Text(text = "00", style = text12, color = TextColor)
-        }
-        Spacer(modifier = Modifier.width(51.1.dp))
-        Row {
-            Text(
-                text = "تركيب : ", style = text11,
-                color = SecondaryColor
-            )
-            Text(text = "00", style = text12, color = TextColor)
-        }
-        Spacer(modifier = Modifier.width(14.1.dp))
+
     }
 }
+
 
 
