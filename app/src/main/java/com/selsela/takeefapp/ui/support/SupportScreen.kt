@@ -130,29 +130,12 @@ fun SupportScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 androidx.compose.material.Text(
-                    text = stringResource(id = R.string.supervisor),
-                    textAlign = TextAlign.Center,
-                    style = text12,
-                    color = SecondaryColor
-                )
-                androidx.compose.material.Text(
-                    text = stringResource(id = R.string.temp_user),
+                    text = stringResource(id = R.string.tech_support),
                     textAlign = TextAlign.Center,
                     style = text14,
                     color = TextColor
                 )
             }
-
-            Image(
-                painter = painterResource(id = R.drawable.placeholder2),
-                contentDescription = "",
-                modifier = Modifier
-                    .padding(end = 23.dp)
-                    .align(Alignment.CenterEnd)
-                    .clip(CircleShape)
-                    .size(28.dp)
-            )
-
         }
     }
 

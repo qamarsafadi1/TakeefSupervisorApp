@@ -225,4 +225,8 @@
     <string name="additional_cost">التكلفة الاضافية</string>
     <string name="canceled">ملغي</string>
     <string name="please_enter_note">الرجاء كتابة ملاحظة</string>
+    <string name="no_transaction">لا يوجد عمليات</string>
+    <string name="no_transaction_lbl">لا يوجد عمليات حاليًا</string>
+    <string name="no_notifications">لا يوجد اشعارات</string>
+    <string name="no_notifications_lbl">لا توجد اشعارات حالياً</string>
 </resources>
