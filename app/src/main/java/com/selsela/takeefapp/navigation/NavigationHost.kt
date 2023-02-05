@@ -2,6 +2,7 @@ package com.selsela.takeefapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -32,6 +33,7 @@ import com.selsela.takeefapp.ui.wallet.WalletScreen
 import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.VERIFIED
 import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.whatsappContact
 import com.selsela.takeefapp.utils.LocalData
 
 @Composable
@@ -117,6 +119,7 @@ fun NavigationHost(
             }
         }
         composable(Destinations.MY_ACCOUNT) {
+            val context = LocalContext.current
             MyAccountView(
                 onBack = {
                     navController.navigateUp()
@@ -131,7 +134,11 @@ fun NavigationHost(
                     navActions.navigateToTermsScreen()
                 },
                 goToSupport = {
-                    navActions.navigateToSupport()
+                    if (LocalData.accessToken.isNullOrEmpty().not())
+                        navActions.navigateToSupport()
+                    else {
+                        context.whatsappContact(LocalData.configurations?.whatsapp ?: "")
+                    }
                 },
                 goToProfile = {
                     navActions.navigateToProfile()
@@ -197,9 +204,7 @@ fun NavigationHost(
             TermsView()
         }
         composable(Destinations.TECHNICAL_SUPPORT) {
-            SupportScreen() {
-                navController.navigateUp()
-            }
+            SupportScreen()
         }
 
         composable(Destinations.PROFILE_SCREEN) {

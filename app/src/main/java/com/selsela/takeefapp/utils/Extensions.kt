@@ -611,6 +611,12 @@ class Extensions {
                 LocalData.configurations?.currencyAr
             else LocalData.configurations?.currencyEn)!!
         }
+        fun Context.whatsappContact(phone: String) {
+            val url = "https://api.whatsapp.com/send?phone=${phone}"
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(url)
+            this.startActivity(i)
+        }
     }
 
 
