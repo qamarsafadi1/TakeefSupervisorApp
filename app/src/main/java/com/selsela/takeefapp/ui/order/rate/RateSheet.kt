@@ -34,30 +34,43 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import com.selsela.takeefapp.data.order.model.order.Order
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.InputEditText
 import com.selsela.takeefapp.ui.theme.UnselectedColor
 import com.selsela.takeefapp.ui.theme.YellowColor
 import com.selsela.takeefapp.ui.common.components.RatingBar
+import com.selsela.takeefapp.ui.general.Rate
+import com.selsela.takeefapp.ui.home.OrderUiState
+import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.rate.RateSheetContent
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text14
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RateSheet(sheetState: ModalBottomSheetState, onConfirm: () -> Unit) {
+fun RateSheet(
+    sheetState: ModalBottomSheetState,
+    viewModel: OrderViewModel,
+    viewState: OrderUiState,
+    onConfirm: (Int, List<List<Rate>>, String?) -> Unit
+) {
     Box() {
+
         ModalBottomSheetLayout(
             sheetState = sheetState,
             sheetShape = RoundedCornerShape(topEnd = 42.dp, topStart = 42.dp),
             sheetBackgroundColor = TextColor,
             sheetContent = {
-                RateSheetContent(){
-                    onConfirm()
-                }
+                RateSheetContent(
+                    viewModel,
+                    viewState,
+                    onConfirm
+                )
             }) {
         }
     }

@@ -109,8 +109,10 @@ fun NavigationHost(
                 }
             }
         }
-        composable(Destinations.SUCCESS) {
-            SuccessView() {
+        composable(Destinations.SUCCESS_ARGS) {
+            val id = it.arguments?.getString("id") ?: ""
+
+            SuccessView(id.toInt()) {
                 navActions.navigateToHome()
             }
         }
@@ -136,19 +138,23 @@ fun NavigationHost(
                 },
                 goToWallet = {
                     navActions.navigateToWallet()
-                }
+                },
+                goToCurrentOrArchive = navActions::navigateToOrders
             )
             {
-                navActions.navigateToOrders()
+                navActions.navigateToHome()
             }
         }
-        composable(Destinations.ORDERS_SCREEN) {
+        composable(Destinations.ORDERS_SCREEN_ARGS) {
+            val caseID = it.arguments?.getString("case") ?: ""
             OrdersView(
+                caseID.toInt(),
                 goToDetails = {
-                    //navActions.navigateToOrderDetails()
-                }
+                    navActions.navigateToOrderDetails(it)
+                },
+                goToCost = navActions::navigateToAddCostScreen
             ) {
-                navActions.navigateToOrderRoute()
+                navController.navigateUp()
             }
         }
         composable(Destinations.ORDER_ROUTE_SCREEN) {
@@ -159,11 +165,16 @@ fun NavigationHost(
             arguments = listOf(navArgument("id") { type = NavType.StringType }),
             deepLinks = listOf(navDeepLink { uriPattern = "$uri/id={id}" })
         ) {
+            navController.previousBackStackEntry?.destination?.route?.log("navController")
             val parentEntry = remember(it) {
-                navController.getBackStackEntry(Destinations.HOME_SCREEN)
+                when (navController.previousBackStackEntry?.destination?.route) {
+                    Destinations.ORDERS_SCREEN_ARGS -> navController.getBackStackEntry(navController.previousBackStackEntry?.destination?.route!!)
+                    else -> navController.getBackStackEntry(Destinations.HOME_SCREEN)
+                }
             }
-            val parentViewModel = hiltViewModel<OrderViewModel>(parentEntry)
 
+            val parentViewModel = hiltViewModel<OrderViewModel>(parentEntry)
+            parentViewModel.uiState.log("parentViewModel")
             val id = it.arguments?.getString("id") ?: ""
             OrderDetailsView(id.toInt(),
                 viewModel = parentViewModel,
@@ -203,9 +214,8 @@ fun NavigationHost(
         }
         composable(Destinations.ADD_COST_SCREEN_ARGS) {
             val id = it.arguments?.getString("id") ?: ""
-
             AddCostScreen(id.toInt()) {
-                navActions.navigateToSuccess()
+                navActions.navigateToSuccess(id)
             }
         }
     }

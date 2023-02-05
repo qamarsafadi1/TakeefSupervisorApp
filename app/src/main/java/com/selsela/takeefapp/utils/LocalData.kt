@@ -7,6 +7,7 @@ import com.selsela.takeefapp.data.config.model.AcType
 import com.selsela.takeefapp.data.config.model.Case
 import com.selsela.takeefapp.data.config.model.Configurations
 import com.selsela.takeefapp.data.config.model.RateProperitiesSupervisor
+import com.selsela.takeefapp.data.config.model.RateProperitiesUser
 import com.selsela.takeefapp.data.config.model.Service
 import com.selsela.takeefapp.data.config.model.WorkPeriod
 import com.selsela.takeefapp.data.config.model.city.Area
@@ -103,7 +104,7 @@ open class LocalData {
                 Hawk.put("workPeriods", value)
             }
 
-        var rateItems: List<RateProperitiesSupervisor>? = Hawk.get("rateItems")
+        var rateItems: List<RateProperitiesUser>? = Hawk.get("rateItems")
             set(value) {
                 field = value
                 Hawk.put("rateItems", value)

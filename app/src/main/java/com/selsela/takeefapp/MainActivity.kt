@@ -103,8 +103,9 @@ class MainActivity : AppCompatActivity() {
                                             && currentRoute.value?.destination?.route != Destinations.LOGIN_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.COMPLETE_INFO_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.PENDING_ACCOUNT_SCREEN
-                                            && currentRoute.value?.destination?.route != Destinations.SUCCESS
+                                            && currentRoute.value?.destination?.route != Destinations.SUCCESS_ARGS
                                             && currentRoute.value?.destination?.route != Destinations.TECHNICAL_SUPPORT
+                                            && currentRoute.value?.destination?.route != Destinations.ORDERS_SCREEN_ARGS
                                         ) {
                                             if (currentRoute.value?.destination?.route != Destinations.VERIFY_SCREEN)
                                                 Color.White.ChangeStatusBarColor()
@@ -196,7 +197,8 @@ class MainActivity : AppCompatActivity() {
             || currentRoute.value?.destination?.route == Destinations.ORDER_DETAILS_ARGS
             || currentRoute.value?.destination?.route == Destinations.COMPLETE_INFO_SCREEN
             || currentRoute.value?.destination?.route == Destinations.PROFILE_SCREEN
-            || currentRoute.value?.destination?.route == Destinations.SUCCESS
+            || currentRoute.value?.destination?.route == Destinations.SUCCESS_ARGS
+            || currentRoute.value?.destination?.route == Destinations.ORDERS_SCREEN_ARGS
         ) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
         } else {

@@ -50,17 +50,24 @@ data class Order(
     //                orderDate.last()
 ) {
     fun getOrderDateOnly(): String {
-        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
-        return "${dateOrder[0]}-${dateOrder[1]}-${dateOrder[2]}"
-    }
-   fun getOrderTimeOnly(): String {
-        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
-        return "${dateOrder[3]}:${dateOrder[4]}"
+        return if (createdAt!= "") {
+            val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+            "${dateOrder[0]}-${dateOrder[1]}-${dateOrder[2]}"
+        }else ""
     }
 
-    fun getOrderPmAm(): String{
-        val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
-        return dateOrder[5]
+    fun getOrderTimeOnly(): String {
+        return if (createdAt != "") {
+            val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+            "${dateOrder[3]}:${dateOrder[4]}"
+        }else ""
+    }
+
+    fun getOrderPmAm(): String {
+        return if (createdAt.isEmpty().not()) {
+            val dateOrder = DateHelper.getOrderDate(createdAt = createdAt)
+            dateOrder[5]
+        } else ""
     }
 
 }

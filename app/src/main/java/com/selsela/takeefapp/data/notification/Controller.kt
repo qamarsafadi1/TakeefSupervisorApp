@@ -137,6 +137,7 @@ class Controller : FirebaseMessagingService() {
                         )
                     }
                     "new_order" -> {
+                        val orderId = json.getString("order_id")
                         val localIntent = Intent("new_order")
                         val manager = LocalBroadcastManager.getInstance(this)
                         manager.sendBroadcast(localIntent)
@@ -144,6 +145,7 @@ class Controller : FirebaseMessagingService() {
                             remoteMessage.notification?.title ?: "",
                             remoteMessage.notification?.body ?: "",
                             MainActivity::class.java.simpleName,
+                            orderId
                         )
                     }
 

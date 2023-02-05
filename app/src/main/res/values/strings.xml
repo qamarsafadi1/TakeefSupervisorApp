@@ -224,4 +224,5 @@
     <string name="sorry_you_have_an_order">"عـذرًا،لديك طلب جاري حالياً "</string>
     <string name="additional_cost">التكلفة الاضافية</string>
     <string name="canceled">ملغي</string>
+    <string name="please_enter_note">الرجاء كتابة ملاحظة</string>
 </resources>

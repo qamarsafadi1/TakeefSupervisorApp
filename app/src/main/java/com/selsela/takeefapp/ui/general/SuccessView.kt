@@ -19,23 +19,34 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.order.model.order.Order
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.LottieAnimationView
+import com.selsela.takeefapp.ui.common.State
+import com.selsela.takeefapp.ui.home.OrderUiState
+import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text16Line
 import com.selsela.takeefapp.ui.theme.text18
 import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.showSuccess
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import kotlinx.coroutines.launch
 
@@ -43,10 +54,17 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun SuccessView(
+    orderID: Int,
+    viewModel: OrderViewModel = hiltViewModel(),
     goToRate: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarColor()
     val coroutineScope = rememberCoroutineScope()
+    val viewState: OrderUiState by viewModel.uiState.collectAsStateLifecycleAware(
+        OrderUiState()
+    )
+    viewState.log("viewState")
+    viewState.order = Order(id = orderID)
     val rateSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
@@ -87,14 +105,30 @@ fun SuccessView(
             )
         }
 
+        RateSheet(rateSheetState,
+            viewModel,
+            viewState,
+            onConfirm = viewModel::rateOrder)
+    }
 
-
-        RateSheet(rateSheetState) {
-            coroutineScope.launch {
-                rateSheetState.hide()
+    when (viewState.state) {
+        State.SUCCESS -> {
+            if (viewState.responseMessage.isNullOrEmpty().not()) {
+                LocalContext.current.showSuccess(
+                    viewState.responseMessage ?: ""
+                )
+                LaunchedEffect(key1 = Unit){
+                    coroutineScope.launch {
+                        if (rateSheetState.isVisible)
+                            rateSheetState.hide()
+                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
+                }
+                viewState.responseMessage = ""
+                goToRate()
             }
-            goToRate()
         }
+        else -> {}
     }
 }
 

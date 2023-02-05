@@ -29,6 +29,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +55,7 @@ import com.selsela.takeefapp.ui.common.components.LoadingView
 import com.selsela.takeefapp.ui.home.OrderUiState
 import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.cell.DateView
+import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
 import com.selsela.takeefapp.ui.theme.DividerColor
@@ -80,35 +82,51 @@ import com.selsela.takeefapp.utils.Constants.FINISHED
 import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
 import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.showError
+import com.selsela.takeefapp.utils.Extensions.Companion.showSuccess
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import de.palm.composestateevents.EventEffect
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrderDetailsView(
     id: Int,
-    viewModel: OrderViewModel,
+    viewModel: OrderViewModel = hiltViewModel(),
     goToCost: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val viewState: OrderUiState by viewModel.uiState.collectAsStateLifecycleAware(
         OrderUiState()
     )
-    //  viewModel.isLoaded = false
-
+    val rateSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = true
+    )
     when (viewState.state) {
         State.SUCCESS -> {
             viewState.order?.let {
                 OrderDetailsContent(
+                    viewModel,
                     it,
                     uiState = viewState,
                     goToCost,
                     viewModel::updateOrderStatus,
                     onBack
-                )
+                ){
+
+                    viewModel.getRateItem()
+                    coroutineScope.launch {
+                        if (rateSheetState.isVisible)
+                            rateSheetState.hide()
+                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
+                }
             }
         }
 
@@ -118,12 +136,20 @@ fun OrderDetailsView(
             else {
                 viewState.order?.let {
                     OrderDetailsContent(
+                        viewModel = viewModel,
                         it,
                         uiState = viewState,
                         goToCost,
                         viewModel::updateOrderStatus,
                         onBack
-                    )
+                    ){
+                        viewState.order = Order(id = it)
+                        coroutineScope.launch {
+                            if (rateSheetState.isVisible)
+                                rateSheetState.hide()
+                            else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
+                    }
                 }
             }
         }
@@ -156,19 +182,44 @@ fun OrderDetailsView(
 //    ) {
 //    }
 
+    RateSheet(
+        rateSheetState,
+        viewModel,
+        viewState,
+        onConfirm = viewModel::rateOrder
+    )
 
-//    RateSheet(rateSheetState) {
-//
-//    }
+    when (viewState.state) {
+        State.SUCCESS -> {
+            if (viewState.responseMessage.isNullOrEmpty().not()) {
+                LocalContext.current.showSuccess(
+                    viewState.responseMessage ?: ""
+                )
+                LaunchedEffect(key1 = Unit) {
+                    coroutineScope.launch {
+                        if (rateSheetState.isVisible)
+                            rateSheetState.hide()
+                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                    }
+                }
+                viewState.responseMessage = ""
+                viewModel.getOrderDetails(id)
+            }
+        }
+
+        else -> {}
+    }
 }
 
 @Composable
 private fun OrderDetailsContent(
+    viewModel: OrderViewModel,
     order: Order,
     uiState: OrderUiState,
     addAdditionalCost: (Int) -> Unit,
     updateOrderStatus: (Int, String?) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRateClick: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -311,14 +362,19 @@ private fun OrderDetailsContent(
                                             color = LightBlue
                                         }
                                     }
+                                    val context = LocalContext.current
                                     ElasticButton(
                                         onClick = {
-                                            updateOrderStatus(
-                                                order.id,
-                                                if (order.payment.id == Constants.COD)
-                                                    order.price.paidCash.toString()
-                                                else null
-                                            )
+                                            if (viewModel.currentOrder.value == null || viewModel.currentOrder.value?.id == order.id) {
+                                                updateOrderStatus(
+                                                    order.id,
+                                                    if (order.payment.id == Constants.COD)
+                                                        order.price.paidCash.toString()
+                                                    else null
+                                                )
+                                            } else {
+                                                context.showError(context.getString(R.string.sorry_you_have_an_order))
+                                            }
                                         },
                                         title = title,
                                         modifier = Modifier
@@ -330,6 +386,26 @@ private fun OrderDetailsContent(
                                     )
                                 }
                             }
+                        }else{
+                            if (order.case.canRate == 1 && order.isRated == 0) {
+                                Row(
+                                    Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .fillMaxWidth()) {
+                                    ElasticButton(
+                                        onClick = { onRateClick(order.id) },
+                                        title = stringResource(id = R.string.rate),
+                                        icon = R.drawable.star,
+                                        iconGravity = Constants.RIGHT,
+                                        modifier = Modifier
+                                            .paddingTop(13)
+                                            .requiredHeight(36.dp)
+                                            .fillMaxWidth(),
+                                        buttonBg = TextColor
+                                    )
+                                }
+                            }
+
                         }
                     } else {
                         Row(

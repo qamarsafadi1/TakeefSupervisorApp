@@ -15,10 +15,12 @@ object Destinations {
     const val ADD_COST_SCREEN_ARGS = "add_cost_screen/{id}"
     const val ADDRESS_SCREEN = "address"
     const val SUCCESS = "success"
+    const val SUCCESS_ARGS = "success/{id}"
     const val ERROR = "error"
     const val SPECIAL_ORDER = "special_order"
     const val MY_ACCOUNT = "my_account"
     const val ORDERS_SCREEN = "orders"
+    const val ORDERS_SCREEN_ARGS = "orders/{case}"
     const val ORDER_ROUTE_SCREEN = "order_route_screen"
     const val ORDER_DETAILS = "order_details/"
     const val ORDER_DETAILS_ARGS = "order_details/{id}"
@@ -49,8 +51,8 @@ class NavigationActions(private val navController: NavController) {
         navController.navigate(Destinations.COMPLETE_INFO_SCREEN)
     }
 
-    fun navigateToSuccess() {
-        navController.navigate(Destinations.SUCCESS) {
+    fun navigateToSuccess(id: String) {
+        navController.navigate("${Destinations.SUCCESS}/${id}") {
             popUpTo(Destinations.HOME_SCREEN) {
                 inclusive = false
             }
@@ -61,10 +63,10 @@ class NavigationActions(private val navController: NavController) {
         navController.navigate(Destinations.MY_ACCOUNT)
     }
 
-    fun navigateToOrders() {
-        navController.navigate(Destinations.ORDERS_SCREEN)
+    fun navigateToOrders(case: Int) {
+        navController.navigate("${Destinations.ORDERS_SCREEN}/${case}") {
+        }
     }
-
     fun navigateToOrderRoute() {
         navController.navigate(Destinations.ORDER_ROUTE_SCREEN)
     }

@@ -16,10 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +42,7 @@ import com.selsela.takeefapp.ui.common.SelectedServicesView
 import com.selsela.takeefapp.ui.common.State
 import com.selsela.takeefapp.ui.common.StepperView
 import com.selsela.takeefapp.ui.home.OrderUiState
+import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.Red
@@ -46,15 +53,19 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Bold
 import com.selsela.takeefapp.ui.theme.text16Bold
+import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Constants.COD
+import com.selsela.takeefapp.utils.Constants.FINISHED
 import com.selsela.takeefapp.utils.Constants.NEW_ORDER
 import com.selsela.takeefapp.utils.Constants.ON_WAY
 import com.selsela.takeefapp.utils.Constants.UNDER_PROGRESS
 import com.selsela.takeefapp.utils.Extensions.Companion.getCurrency
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.Extensions.Companion.showError
+import com.selsela.takeefapp.utils.Extensions.Companion.showSuccess
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrderItem(
@@ -62,7 +73,7 @@ fun OrderItem(
     currentOrder: Order,
     onClick: () -> Unit,
     addAdditionalCost: (Int) -> Unit,
-    updateOrderStatus: (Int,String?) -> Unit
+    updateOrderStatus: (Int, String?) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -111,11 +122,29 @@ fun OrderItem(
 
                 }
 
-                StepperView(
-                    Modifier.fillMaxWidth(),
-                    items = LocalData.cases?.filter { it.id != 6 },
-                    currentStep = currentOrder.logs.distinctBy { it.case.id }.lastIndex
-                )
+
+                if (currentOrder.case.id != 6) {
+                    StepperView(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1.5f),
+                        items = LocalData.cases?.filter { it.id != 6 },
+                        currentStep = currentOrder.logs.distinctBy { it.case.id }.lastIndex
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 80.dp, height = 32.dp)
+                            .background(Red.copy(.10f), RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.canceled),
+                            style = text12,
+                            color = Red
+                        )
+                    }
+                }
             }
 
             Column(
@@ -185,80 +214,344 @@ fun OrderItem(
 
             SelectedServicesView(orderServices = currentOrder.orderService)
 
-            if (currentOrder.case.id == UNDER_PROGRESS) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    if (currentOrder.hasMaintenance == 1) {
-                        ElasticButton(
-                            onClick = { addAdditionalCost(currentOrder.id) },
-                            title = stringResource(id = R.string.extra_cost),
-                            modifier = Modifier
-                                .paddingTop(13)
-                                .requiredHeight(36.dp)
-                                .fillMaxWidth()
-                                .weight(1f),
-                            colorBg = Purple40,
-                            isLoading = uiState.state == State.LOADING
-                        )
-                        Spacer(modifier = Modifier.width(14.dp))
-                    }
-                    ElasticButton(
-                        onClick = {  updateOrderStatus(
-                            currentOrder.id,
-                            if (currentOrder.payment.id == COD)
-                                currentOrder.price.paidCash.toString()
-                            else null
-                        ) },
-                        title = stringResource(R.string.finish_order),
-                        modifier = Modifier
-                            .paddingTop(13)
-                            .requiredHeight(36.dp)
-                            .fillMaxWidth()
-                            .weight(1f),
-                        colorBg = TextColor,
-                        isLoading = uiState.state == State.LOADING
+            if (currentOrder.case.id != 6) {
+                if (currentOrder.case.id != FINISHED) {
+                    if (currentOrder.case.id == UNDER_PROGRESS) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            if (currentOrder.hasMaintenance == 1 && currentOrder.price.additionalCost == 0.0) {
+                                ElasticButton(
+                                    onClick = { addAdditionalCost(currentOrder.id) },
+                                    title = stringResource(id = R.string.extra_cost),
+                                    modifier = Modifier
+                                        .paddingTop(13)
+                                        .requiredHeight(36.dp)
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    colorBg = Purple40,
+                                    isLoading = uiState.state == State.LOADING
+                                )
+                                Spacer(modifier = Modifier.width(14.dp))
+                            }
+                            ElasticButton(
+                                onClick = {
+                                    updateOrderStatus(
+                                        currentOrder.id,
+                                        if (currentOrder.payment.id == COD)
+                                            currentOrder.price.paidCash.toString()
+                                        else null
+                                    )
+                                },
+                                title = stringResource(R.string.finish_order),
+                                modifier = Modifier
+                                    .paddingTop(13)
+                                    .requiredHeight(36.dp)
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                colorBg = TextColor,
+                                isLoading = uiState.state == State.LOADING
 
-                    )
-                }
-            } else {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    var title = stringResource(id = R.string.go_now)
-                    var color = Purple40
-                    when (currentOrder.case.id) {
-                        NEW_ORDER -> {
-                            title = stringResource(id = R.string.go_now)
-                            color = Purple40
+                            )
                         }
+                    } else {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            var title = stringResource(id = R.string.go_now)
+                            var color = Purple40
+                            when (currentOrder.case.id) {
+                                NEW_ORDER -> {
+                                    title = stringResource(id = R.string.go_now)
+                                    color = Purple40
+                                }
 
-                        ON_WAY -> {
-                            title = stringResource(id = R.string.start_order)
-                            color = LightBlue
+                                ON_WAY -> {
+                                    title = stringResource(id = R.string.start_order)
+                                    color = LightBlue
+                                }
+                            }
+                            ElasticButton(
+                                onClick = {
+                                    updateOrderStatus(
+                                        currentOrder.id,
+                                        if (currentOrder.payment.id == COD)
+                                            currentOrder.price.paidCash.toString()
+                                        else null
+                                    )
+                                },
+                                title = title,
+                                modifier = Modifier
+                                    .paddingTop(13)
+                                    .width(137.dp)
+                                    .requiredHeight(36.dp),
+                                colorBg = color,
+                                isLoading = uiState.state == State.LOADING
+                            )
                         }
                     }
-                    ElasticButton(
-                        onClick = {updateOrderStatus(
-                            currentOrder.id,
-                            if (currentOrder.payment.id == COD)
-                                currentOrder.price.paidCash.toString()
-                            else null
-                        )  },
-                        title = title,
-                        modifier = Modifier
-                            .paddingTop(13)
-                            .width(137.dp)
-                            .requiredHeight(36.dp),
-                        colorBg = color,
-                        isLoading = uiState.state == State.LOADING
-                    )
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun OrderItem(
+    uiState: OrderUiState,
+    currentOrder: Order,
+    onClick: (Int) -> Unit,
+    onRateClick: (Int) -> Unit,
+    addAdditionalCost: (Int) -> Unit,
+    updateOrderStatus: (Int, String?) -> Unit
+) {
+    val rateSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = true
+    )
+    Card(
+        modifier = Modifier
+            .padding(bottom = 11.dp, top = 11.dp)
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 191.dp)
+            .clickable {
+                onClick(currentOrder.id)
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp
+        )
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 191.dp)
+                .padding(
+                    horizontal = 10.dp,
+                    vertical = 21.dp
+                )
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    Modifier
+                        .wrapContentWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.order_number),
+                        style = text11,
+                        color = SecondaryColor
+                    )
+                    Text(
+                        text = "#${currentOrder.number}",
+                        style = text16Bold,
+                        color = TextColor
+                    )
+                    DateView(currentOrder)
+
+                }
+
+
+                if (currentOrder.case.id != 6) {
+                    StepperView(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1.5f),
+                        items = LocalData.cases?.filter { it.id != 6 },
+                        currentStep = currentOrder.logs.distinctBy { it.case.id }.lastIndex
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 80.dp, height = 32.dp)
+                            .background(Red.copy(.10f), RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.canceled),
+                            style = text12,
+                            color = Red
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .paddingTop(10)
+                    .fillMaxWidth()
+                    .requiredHeight(63.dp)
+                    .background(
+                        LightBlue.copy(0.10f),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 6.3.dp, vertical = 11.dp)
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.date_line),
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(SecondaryColor)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.visit_date_1),
+                            style = text11,
+                            color = SecondaryColor,
+                            modifier = Modifier.padding(start = 6.4.dp)
+                        )
+
+                    }
+                    DateTimeView(currentOrder.orderDate, currentOrder.workPeriod)
+                }
+
+                Row(
+                    Modifier
+                        .paddingTop(10)
+                        .fillMaxWidth(),
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.moneyicon),
+                        contentDescription = ""
+                    )
+                    Text(
+                        text = stringResource(id = R.string.cost_dot),
+                        style = text11,
+                        color = TextColor,
+                        modifier = Modifier.padding(start = 9.dp)
+                    )
+
+                    Row {
+                        Text(
+                            text = "${currentOrder.grandTotal}",
+                            style = text12Bold,
+                            color = TextColor,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.currency_1, getCurrency()),
+                            style = text10,
+                            color = TextColor,
+                            modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+            }
+
+            SelectedServicesView(orderServices = currentOrder.orderService)
+
+            if (currentOrder.case.id != 6) {
+                if (currentOrder.case.id != FINISHED) {
+                    if (currentOrder.case.id == UNDER_PROGRESS) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            if (currentOrder.hasMaintenance == 1 && currentOrder.price.additionalCost == 0.0) {
+                                ElasticButton(
+                                    onClick = { addAdditionalCost(currentOrder.id) },
+                                    title = stringResource(id = R.string.extra_cost),
+                                    modifier = Modifier
+                                        .paddingTop(13)
+                                        .requiredHeight(36.dp)
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    colorBg = Purple40,
+                                    isLoading = uiState.state == State.LOADING
+                                )
+                                Spacer(modifier = Modifier.width(14.dp))
+                            }
+                            ElasticButton(
+                                onClick = {
+                                    updateOrderStatus(
+                                        currentOrder.id,
+                                        if (currentOrder.payment.id == COD)
+                                            currentOrder.price.paidCash.toString()
+                                        else null
+                                    )
+                                },
+                                title = stringResource(R.string.finish_order),
+                                modifier = Modifier
+                                    .paddingTop(13)
+                                    .requiredHeight(36.dp)
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                colorBg = TextColor,
+                                isLoading = uiState.state == State.LOADING
+
+                            )
+                        }
+                    } else {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            var title = stringResource(id = R.string.go_now)
+                            var color = Purple40
+                            when (currentOrder.case.id) {
+                                NEW_ORDER -> {
+                                    title = stringResource(id = R.string.go_now)
+                                    color = Purple40
+                                }
+
+                                ON_WAY -> {
+                                    title = stringResource(id = R.string.start_order)
+                                    color = LightBlue
+                                }
+                            }
+                            ElasticButton(
+                                onClick = {
+                                    updateOrderStatus(
+                                        currentOrder.id,
+                                        if (currentOrder.payment.id == COD)
+                                            currentOrder.price.paidCash.toString()
+                                        else null
+                                    )
+                                },
+                                title = title,
+                                modifier = Modifier
+                                    .paddingTop(13)
+                                    .width(137.dp)
+                                    .requiredHeight(36.dp),
+                                colorBg = color,
+                                isLoading = uiState.state == State.LOADING
+                            )
+                        }
+                    }
+                } else {
+                    if (currentOrder.case.canRate == 1 && currentOrder.isRated == 0) {
+                        Row(Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End) {
+                            ElasticButton(
+                                onClick = { onRateClick(currentOrder.id) },
+                                title = stringResource(id = R.string.rate),
+                                icon = R.drawable.star,
+                                iconGravity = Constants.RIGHT,
+                                modifier = Modifier
+                                    .paddingTop(13)
+                                    .requiredHeight(36.dp)
+                                    .width(137.dp),
+                                buttonBg = TextColor
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 

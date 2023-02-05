@@ -7,6 +7,7 @@ import com.selsela.takeefapp.data.order.remote.OrderApi
 import com.selsela.takeefapp.utils.Constants.COD
 import com.selsela.takeefapp.utils.Constants.WALLET
 import com.selsela.takeefapp.utils.Extensions
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.retrofit.model.ErrorBase
 import com.selsela.takeefapp.utils.retrofit.model.Resource
 import kotlinx.coroutines.Dispatchers
@@ -147,6 +148,7 @@ class OrderRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val data: Flow<Resource<OrderResponse>> = try {
                 val body = HashMap<String, Any>()
+                rateList.log("rateList")
                 body["order_id"] = orderId
                 body["rate_properities"] = rateList
                 if (note.isNullOrEmpty().not())

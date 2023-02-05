@@ -57,6 +57,8 @@ import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.ui.theme.text16Bold
 import com.selsela.takeefapp.ui.theme.text16Medium
+import com.selsela.takeefapp.utils.Constants.FINISHED
+import com.selsela.takeefapp.utils.Constants.UNDER_PROGRESS
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import kotlinx.coroutines.launch
@@ -72,6 +74,7 @@ fun MyAccountView(
     goToSupport: () -> Unit,
     goToProfile: () -> Unit,
     goToWallet: () -> Unit,
+    goToCurrentOrArchive: (Int) -> Unit,
     goToOrder: () -> Unit,
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
@@ -148,8 +151,8 @@ fun MyAccountView(
                 WalletCard() {
                     goToWallet()
                 }
-                OrderCards(goToSpecialOrder = {
-                    goToOrder()
+                OrderCards(goToCurrent = {
+                    goToCurrentOrArchive(it)
                 }) {
                     goToOrder()
                 }
@@ -383,7 +386,7 @@ private fun SettingsCards(
 
 @Composable
 private fun OrderCards(
-    goToSpecialOrder: () -> Unit,
+    goToCurrent: (Int) -> Unit,
     goToOrder: () -> Unit
 ) {
     Row(
@@ -428,7 +431,7 @@ private fun OrderCards(
                 .weight(1f)
                 .requiredHeight(88.dp)
                 .clickable {
-                    goToSpecialOrder()
+                    goToCurrent(UNDER_PROGRESS)
                 },
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
@@ -456,7 +459,10 @@ private fun OrderCards(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .requiredHeight(88.dp),
+                .requiredHeight(88.dp)
+                .clickable {
+                    goToCurrent(FINISHED)
+                },
             shape = RoundedCornerShape(13.dp),
             elevation = 20.dp,
             backgroundColor = Purple40

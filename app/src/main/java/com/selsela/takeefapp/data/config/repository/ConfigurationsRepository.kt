@@ -36,7 +36,7 @@ class ConfigurationsRepository @Inject constructor(
                 LocalData.acTypes = response.body()?.acTypes
                 LocalData.services = response.body()?.services
                 LocalData.workPeriods = response.body()?.workPeriod
-                LocalData.rateItems = response.body()?.rateProperitiesSupervisor
+                LocalData.rateItems = response.body()?.rateProperitiesUser
               "${response.body()?.services}".log("Services")
                 handleSuccess(
                     response.body()?.configurations,

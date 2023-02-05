@@ -28,8 +28,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.config.model.RateProperitiesUser
+import com.selsela.takeefapp.ui.general.Rate
 import com.selsela.takeefapp.ui.theme.BorderColor
 import com.selsela.takeefapp.ui.theme.Red
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.LocalData
 import de.palm.composestateevents.StateEvent
 
 
@@ -63,12 +67,17 @@ class OrderViewModel @Inject constructor(
      */
 
     val orderList = mutableStateListOf<Order>()
+    val archiveOrderList = mutableStateListOf<Order>()
     var currentOrder = mutableStateOf<Order?>(null)
+    var rateArray = mutableStateListOf<List<Rate>>()
+    var rateItemArray = mutableStateOf(listOf<RateProperitiesUser>())
+    var sheetOpened = mutableStateOf(false)
     var isLoaded = false
     var isDetailsLoaded = false
     private var page by mutableStateOf(1)
     var canPaginate by mutableStateOf(false)
     var additionalCost by mutableStateOf("")
+    var note by mutableStateOf("")
     var listState by mutableStateOf(OrderState.IDLE)
     var errorMessage: MutableState<String> = mutableStateOf("")
     var isValid: MutableState<Boolean> = mutableStateOf(true)
@@ -130,6 +139,44 @@ class OrderViewModel @Inject constructor(
                             result.data?.orders?.let { orderList.addAll(it) }
                         } else {
                             result.data?.orders?.let { orderList.addAll(it) }
+                        }
+                        listState = OrderState.IDLE
+                        if (canPaginate)
+                            page++
+
+                    }
+
+                    Status.LOADING ->
+                        listState = OrderState.LOADING
+
+
+                    Status.ERROR -> {
+                        OrderUiState(
+                            onFailure = triggered(
+                                ErrorsData(
+                                    result.errors,
+                                    result.message,
+                                ),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
+    fun getArchiveOrders() = viewModelScope.launch {
+        if (page == 1 || (page != 1 && canPaginate) && listState == OrderState.IDLE) {
+            listState = if (page == 1) OrderState.LOADING else OrderState.PAGINATING
+            repository.getOrders(page).collect { result ->
+                when (result.status) {
+                    Status.SUCCESS -> {
+                        canPaginate = result.data?.hasMoreArchivePage ?: false
+                        currentOrder.value = result.data?.processingOrder
+                        if (page == 1) {
+                            archiveOrderList.clear()
+                            result.data?.archiveOrders?.let { archiveOrderList.addAll(it) }
+                        } else {
+                            result.data?.archiveOrders?.let { archiveOrderList.addAll(it) }
                         }
                         listState = OrderState.IDLE
                         if (canPaginate)
@@ -324,6 +371,65 @@ class OrderViewModel @Inject constructor(
         }
     }
 
+    fun rateOrder(orderId: Int, rateList: List<List<Rate>>, note: String?) {
+        val ratedList = mutableListOf<Any>()
+        rateList.map {
+            it.map {
+                it.id to it.rate
+            }
+        }.forEach {
+            it.forEach {
+                ratedList.add(
+                    listOf(it.first, it.second)
+                )
+            }
+        }
+        ratedList.log("ratedList")
+        if (note.isNullOrEmpty().not()) {
+            viewModelScope.launch {
+                state = state.copy(
+                    state = State.LOADING
+                )
+                repository.rateOrder(
+                    orderId, ratedList, note
+                )
+                    .collect { result ->
+                        val orderStateUi = when (result.status) {
+                            Status.SUCCESS -> {
+                                onRefreshArchive()
+                                OrderUiState(
+                                    order = result.data?.order,
+                                    state = State.SUCCESS,
+                                    responseMessage = result.data?.responseMessage ?: result.message
+                                )
+                            }
+
+                            Status.LOADING ->
+                                OrderUiState(
+                                    state = State.LOADING
+                                )
+
+                            Status.ERROR -> OrderUiState(
+                                onFailure = triggered(
+                                    ErrorsData(
+                                        result.errors,
+                                        result.message,
+                                    )
+                                ),
+                            )
+                        }
+                        state = orderStateUi
+                    }
+            }
+        }
+
+
+    }
+
+    fun getRateItem(){
+        rateItemArray.value = LocalData.rateItems!!
+    }
+
     override fun onCleared() {
         page = 1
         listState = OrderState.IDLE
@@ -331,17 +437,21 @@ class OrderViewModel @Inject constructor(
         super.onCleared()
     }
 
-
     fun onRefresh() {
         page = 1
         listState = OrderState.IDLE
         canPaginate = false
         getOrders()
     }
+    fun onRefreshArchive() {
+        page = 1
+        listState = OrderState.IDLE
+        canPaginate = false
+        getArchiveOrders()
+    }
 
     fun onSuccess() {
         state = state.copy(onSuccess = consumed)
-       // isLoaded = false
     }
 
     fun onFailure() {
