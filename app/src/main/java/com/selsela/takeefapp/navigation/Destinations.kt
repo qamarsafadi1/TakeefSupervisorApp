@@ -40,7 +40,9 @@ class NavigationActions(private val navController: NavController) {
     }
 
     fun navigateToLogin() {
-        navController.navigate(Destinations.LOGIN_SCREEN)
+        navController.navigate(Destinations.LOGIN_SCREEN){
+            navigateWithClearBackStack(navController)
+        }
     }
 
     fun navigateToVerify() {

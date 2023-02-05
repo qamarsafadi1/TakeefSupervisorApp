@@ -139,7 +139,10 @@ fun NavigationHost(
                 goToWallet = {
                     navActions.navigateToWallet()
                 },
-                goToCurrentOrArchive = navActions::navigateToOrders
+                goToCurrentOrArchive = navActions::navigateToOrders,
+                goToLogin = {
+                    navActions.navigateToLogin()
+                }
             )
             {
                 navActions.navigateToHome()
