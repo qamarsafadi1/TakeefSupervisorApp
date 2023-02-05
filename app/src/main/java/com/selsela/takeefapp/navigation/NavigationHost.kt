@@ -2,10 +2,14 @@ package com.selsela.takeefapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.selsela.takeefapp.ui.aboutapp.AboutAppView
 import com.selsela.takeefapp.ui.account.MyAccountView
 import com.selsela.takeefapp.ui.auth.CompleteInfoScreen
@@ -14,6 +18,7 @@ import com.selsela.takeefapp.ui.auth.PendingAccountScreen
 import com.selsela.takeefapp.ui.auth.VerifyView
 import com.selsela.takeefapp.ui.general.SuccessView
 import com.selsela.takeefapp.ui.home.HomeView
+import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.notification.NotificationView
 import com.selsela.takeefapp.ui.order.AddCostScreen
 import com.selsela.takeefapp.ui.order.OrderDetailsView
@@ -37,6 +42,8 @@ fun NavigationHost(
         NavigationActions(navController)
     },
 ) {
+    val uri = "https://airconditionersupervisor.com"
+
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Destinations.SPLASH_SCREEN) {
             SplashView() {
@@ -61,18 +68,14 @@ fun NavigationHost(
             }
         }
         composable(Destinations.HOME_SCREEN) {
-            HomeView(goToRoute = {
-                navActions.navigateToOrderRoute()
-
-            }, goToMyAccount = {
+            HomeView(goToMyAccount = {
                 navActions.navigateToMyAccount()
+            }, goToDetails = {
+                navActions.navigateToOrderDetails(it)
             },
-                goToDetails = {
-                    navActions.navigateToOrderDetails()
-                },
                 onPending = navActions::navigateToPendingAccount
             ) {
-                navActions.navigateToAddCostScreen()
+                navActions.navigateToAddCostScreen(it)
             }
         }
         composable(Destinations.LOGIN_SCREEN) {
@@ -142,7 +145,7 @@ fun NavigationHost(
         composable(Destinations.ORDERS_SCREEN) {
             OrdersView(
                 goToDetails = {
-                    navActions.navigateToOrderDetails()
+                    //navActions.navigateToOrderDetails()
                 }
             ) {
                 navActions.navigateToOrderRoute()
@@ -151,8 +154,22 @@ fun NavigationHost(
         composable(Destinations.ORDER_ROUTE_SCREEN) {
             OrderRouteView()
         }
-        composable(Destinations.ORDER_DETAILS) {
-            OrderDetailsView() {
+        composable(
+            Destinations.ORDER_DETAILS_ARGS,
+            arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            deepLinks = listOf(navDeepLink { uriPattern = "$uri/id={id}" })
+        ) {
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Destinations.HOME_SCREEN)
+            }
+            val parentViewModel = hiltViewModel<OrderViewModel>(parentEntry)
+
+            val id = it.arguments?.getString("id") ?: ""
+            OrderDetailsView(id.toInt(),
+                viewModel = parentViewModel,
+                goToCost = {
+                    navActions.navigateToAddCostScreen(it)
+                }) {
                 navController.navigateUp()
             }
         }
@@ -184,8 +201,10 @@ fun NavigationHost(
                 navActions.navigateToHome()
             }
         }
-        composable(Destinations.ADD_COST_SCREEN) {
-            AddCostScreen() {
+        composable(Destinations.ADD_COST_SCREEN_ARGS) {
+            val id = it.arguments?.getString("id") ?: ""
+
+            AddCostScreen(id.toInt()) {
                 navActions.navigateToSuccess()
             }
         }

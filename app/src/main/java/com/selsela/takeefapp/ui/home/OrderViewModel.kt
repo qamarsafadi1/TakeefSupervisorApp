@@ -65,6 +65,7 @@ class OrderViewModel @Inject constructor(
     val orderList = mutableStateListOf<Order>()
     var currentOrder = mutableStateOf<Order?>(null)
     var isLoaded = false
+    var isDetailsLoaded = false
     private var page by mutableStateOf(1)
     var canPaginate by mutableStateOf(false)
     var additionalCost by mutableStateOf("")
@@ -122,7 +123,6 @@ class OrderViewModel @Inject constructor(
             repository.getOrders(page).collect { result ->
                 when (result.status) {
                     Status.SUCCESS -> {
-                        isLoaded = true
                         canPaginate = result.data?.hasMorePage ?: false
                         currentOrder.value = result.data?.processingOrder
                         if (page == 1) {
@@ -286,6 +286,43 @@ class OrderViewModel @Inject constructor(
         }
     }
 
+    fun getOrderDetails(id: Int) {
+        isDetailsLoaded = false
+        viewModelScope.launch {
+            state =  OrderUiState(
+                state = State.LOADING
+            )
+            repository.getOrderDetails(id)
+                .collect { result ->
+                    val orderStateUi = when (result.status) {
+                        Status.SUCCESS -> {
+                            isDetailsLoaded = true
+                            isLoaded = true
+                            OrderUiState(
+                                order = result.data?.order,
+                                state = State.SUCCESS,
+                                onSuccess = triggered
+                            )
+                        }
+
+                        Status.LOADING ->
+                            OrderUiState(
+                                state = State.LOADING
+                            )
+
+                        Status.ERROR -> OrderUiState(
+                            onFailure = triggered(
+                                ErrorsData(
+                                    result.errors,
+                                    result.message,
+                                )
+                            ),
+                        )
+                    }
+                    state = orderStateUi
+                }
+        }
+    }
 
     override fun onCleared() {
         page = 1
@@ -304,6 +341,7 @@ class OrderViewModel @Inject constructor(
 
     fun onSuccess() {
         state = state.copy(onSuccess = consumed)
+       // isLoaded = false
     }
 
     fun onFailure() {

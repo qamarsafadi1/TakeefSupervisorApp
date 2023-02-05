@@ -6,6 +6,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
 // Set of Material typography styles to start with
@@ -146,7 +147,7 @@ val text11NoLines = TextStyle(
         trim = LineHeightStyle.Trim.Both
     )
 )
-val text10NoLines= TextStyle(
+val text10NoLines = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.SemiBold,
     fontSize = 10.sp,
@@ -158,14 +159,14 @@ val text10NoLines= TextStyle(
         trim = LineHeightStyle.Trim.Both
     )
 )
-val text10= TextStyle(
+val text10 = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.SemiBold,
     fontSize = 10.sp,
     color = Color.White.copy(0.85f),
 )
 
-val text8= TextStyle(
+val text8 = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.Medium,
     fontSize = 8.sp,
@@ -222,7 +223,7 @@ val text12 = TextStyle(
         trim = LineHeightStyle.Trim.Both
     )
 )
-val text12White= TextStyle(
+val text12White = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.SemiBold,
     fontSize = 12.sp,
@@ -314,3 +315,16 @@ val text22Book = TextStyle(
     fontWeight = FontWeight.SemiBold,
     fontSize = 22.sp
 )
+
+val text16MediumStrike = TextStyle(
+    fontFamily = fonts,
+    fontWeight = FontWeight.Medium,
+    fontSize = 16.sp,
+    textDecoration = TextDecoration.LineThrough,
+    )
+val text13Strike = TextStyle(
+    fontFamily = fonts,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 13.sp,
+    textDecoration = TextDecoration.LineThrough,
+    )

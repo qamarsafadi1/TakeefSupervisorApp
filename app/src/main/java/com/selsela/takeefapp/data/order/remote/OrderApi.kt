@@ -30,7 +30,7 @@ interface OrderApi {
         @Field("additional_cost") amount: String,
     ): Response<OrderResponse>
 
-    @GET("user/order/order_details")
+    @GET("supervisor/order/order_details")
     suspend fun getOrderDetails(
         @Query("order_id") orderId: Int
     ): Response<OrderResponse>

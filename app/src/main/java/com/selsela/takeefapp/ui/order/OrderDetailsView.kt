@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,23 +27,40 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.data.order.model.order.Address
+import com.selsela.takeefapp.data.order.model.order.Order
+import com.selsela.takeefapp.data.order.model.order.OrderService
+import com.selsela.takeefapp.data.order.model.order.Payment
+import com.selsela.takeefapp.data.order.model.order.Price
+import com.selsela.takeefapp.data.order.model.order.WorkPeriod
+import com.selsela.takeefapp.ui.common.AsyncImage
+import com.selsela.takeefapp.ui.common.ElasticButton
+import com.selsela.takeefapp.ui.common.State
 import com.selsela.takeefapp.ui.common.StepperView
+import com.selsela.takeefapp.ui.common.components.LoadingView
+import com.selsela.takeefapp.ui.home.OrderUiState
+import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.cell.DateView
-import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
 import com.selsela.takeefapp.ui.theme.DividerColor
 import com.selsela.takeefapp.ui.theme.DividerColorBlue
 import com.selsela.takeefapp.ui.theme.LightBlue
+import com.selsela.takeefapp.ui.theme.Purple40
+import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.SecondaryColor2
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -50,23 +68,108 @@ import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Meduim
 import com.selsela.takeefapp.ui.theme.text13
+import com.selsela.takeefapp.ui.theme.text13Strike
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.ui.theme.text16Bold
 import com.selsela.takeefapp.ui.theme.text16Medium
+import com.selsela.takeefapp.ui.theme.text16MediumStrike
+import com.selsela.takeefapp.utils.Common
+import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Constants.FINISHED
+import com.selsela.takeefapp.utils.Extensions
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
+import de.palm.composestateevents.EventEffect
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrderDetailsView(
+    id: Int,
+    viewModel: OrderViewModel,
+    goToCost: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
-    val rateSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
-        skipHalfExpanded = true
+    val context = LocalContext.current
+    val viewState: OrderUiState by viewModel.uiState.collectAsStateLifecycleAware(
+        OrderUiState()
     )
+    //  viewModel.isLoaded = false
+
+    when (viewState.state) {
+        State.SUCCESS -> {
+            viewState.order?.let {
+                OrderDetailsContent(
+                    it,
+                    uiState = viewState,
+                    goToCost,
+                    viewModel::updateOrderStatus,
+                    onBack
+                )
+            }
+        }
+
+        State.LOADING -> {
+            if (!viewModel.isDetailsLoaded)
+                LoadingView()
+            else {
+                viewState.order?.let {
+                    OrderDetailsContent(
+                        it,
+                        uiState = viewState,
+                        goToCost,
+                        viewModel::updateOrderStatus,
+                        onBack
+                    )
+                }
+            }
+        }
+
+        else -> {}
+    }
+
+
+    /**
+     * Handle Ui state from flow
+     */
+
+    LaunchedEffect(Unit) {
+        viewModel.getOrderDetails(id)
+    }
+
+    EventEffect(
+        event = viewState.onFailure,
+        onConsumed = viewModel::onFailure
+    ) { error ->
+        Common.handleErrors(
+            error.responseMessage,
+            error.errors,
+            context
+        )
+    }
+//    EventEffect(
+//        event = viewState.onSuccess!!,
+//        onConsumed = viewModel::onSuccess
+//    ) {
+//    }
+
+
+//    RateSheet(rateSheetState) {
+//
+//    }
+}
+
+@Composable
+private fun OrderDetailsContent(
+    order: Order,
+    uiState: OrderUiState,
+    addAdditionalCost: (Int) -> Unit,
+    updateOrderStatus: (Int, String?) -> Unit,
+    onBack: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -126,44 +229,143 @@ fun OrderDetailsView(
                     ) {
                         Column {
                             Text(
-                                text =  stringResource(id = R.string.order_number),
+                                text = stringResource(id = R.string.order_number),
                                 style = text11,
                                 color = SecondaryColor
                             )
                             Text(
-                                text = "#12342",
+                                text = "#${order.number}",
                                 style = text16Bold,
                                 color = TextColor
                             )
                         }
-                       // DateView(currentOrder)
+                        DateView(order)
 
                     }
-                    Spacer(modifier = Modifier.height(22.dp))
-//                    StepperView(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        isDetails = true,
-//                        items = listOf(
-//                            stringResource(R.string.recived_order),
-//                            stringResource(R.string.on_way),
-//                            stringResource(R.string.on_progress),
-//                            stringResource(R.string.done_order)
-//                        )
-//                    )
+                    if (order.case.id != 6) {
+                        Spacer(modifier = Modifier.height(22.dp))
+                        StepperView(
+                            Modifier
+                                .fillMaxWidth(),
+                            items = LocalData.cases?.filter { it.id != 6 },
+                            currentStep = order.logs.distinctBy { it.case.id }.lastIndex
+                        )
+                        if (order.case.id != FINISHED) {
+                            if (order.case.id == Constants.UNDER_PROGRESS) {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    if (order.hasMaintenance == 1) {
+                                        ElasticButton(
+                                            onClick = { addAdditionalCost(order.id) },
+                                            title = stringResource(id = R.string.extra_cost),
+                                            modifier = Modifier
+                                                .paddingTop(13)
+                                                .requiredHeight(36.dp)
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                            colorBg = Purple40,
+                                            isLoading = uiState.state == State.LOADING
+                                        )
+                                        Spacer(modifier = Modifier.width(14.dp))
+                                    }
+                                    ElasticButton(
+                                        onClick = {
+                                            updateOrderStatus(
+                                                order.id,
+                                                if (order.payment.id == Constants.COD)
+                                                    order.price.paidCash.toString()
+                                                else null
+                                            )
+                                        },
+                                        title = stringResource(R.string.finish_order),
+                                        modifier = Modifier
+                                            .paddingTop(13)
+                                            .requiredHeight(36.dp)
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        colorBg = TextColor,
+                                        isLoading = uiState.state == State.LOADING
+
+                                    )
+                                }
+                            } else {
+                                Row(
+                                    Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .fillMaxWidth(),
+                                ) {
+                                    var title = stringResource(id = R.string.go_now)
+                                    var color = Purple40
+                                    when (order.case.id) {
+                                        Constants.NEW_ORDER -> {
+                                            title = stringResource(id = R.string.go_now)
+                                            color = Purple40
+                                        }
+
+                                        Constants.ON_WAY -> {
+                                            title = stringResource(id = R.string.start_order)
+                                            color = LightBlue
+                                        }
+                                    }
+                                    ElasticButton(
+                                        onClick = {
+                                            updateOrderStatus(
+                                                order.id,
+                                                if (order.payment.id == Constants.COD)
+                                                    order.price.paidCash.toString()
+                                                else null
+                                            )
+                                        },
+                                        title = title,
+                                        modifier = Modifier
+                                            .paddingTop(13)
+                                            .fillMaxWidth()
+                                            .requiredHeight(36.dp),
+                                        colorBg = color,
+                                        isLoading = uiState.state == State.LOADING
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Row(
+                            Modifier
+                                .padding(horizontal = 20.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 80.dp, height = 32.dp)
+                                    .background(Red.copy(.10f), RoundedCornerShape(16.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.canceled),
+                                    style = text12,
+                                    color = Red
+                                )
+                            }
+                        }
+
+                    }
                     Divider(
                         thickness = 1.dp,
                         color = DividerColor,
                         modifier = Modifier.padding(top = 27.6.dp)
                     )
-                    VisitDateView()
+                    VisitDateView(order.workPeriod)
                     Divider(
                         thickness = 1.dp,
                         color = DividerColor,
                         modifier = Modifier.padding(top = 8.6.dp)
                     )
-                    SelectedAddressView()
-                    CostView()
+                    SelectedAddressView(order.address)
+                    CostView(order.price, order.payment, order.useWallet)
                     Box(
                         modifier = Modifier
                             .padding(top = 11.2.dp)
@@ -174,7 +376,7 @@ fun OrderDetailsView(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text =  stringResource(id = R.string.service_details),
+                            text = stringResource(id = R.string.service_details),
                             style = text14,
                         )
                     }
@@ -185,8 +387,9 @@ fun OrderDetailsView(
                             .fillMaxWidth()
                             .padding(bottom = 20.dp)
                     ) {
-                        repeat(2) {
-                            ServiceItem()
+
+                        repeat(order.orderService.size) {
+                            ServiceItem(order.orderService[it])
                         }
                     }
                 }
@@ -194,13 +397,10 @@ fun OrderDetailsView(
         }
 
     }
-//    RateSheet(rateSheetState) {
-//
-//    }
 }
 
 @Composable
-private fun ServiceItem() {
+fun ServiceItem(orderService: OrderService) {
     Column(
         Modifier
             .paddingTop(11)
@@ -222,7 +422,7 @@ private fun ServiceItem() {
         ) {
             Row {
                 Text(
-                    text = stringResource(id = R.string.maintinance_serivce),
+                    text = stringResource(R.string.maintinance_serivce, orderService.service.name),
                     style = text12,
                     color = TextColor,
                 )
@@ -234,100 +434,66 @@ private fun ServiceItem() {
                 horizontalArrangement = Arrangement.End
             ) {
                 androidx.compose.material3.Text(
-                    text = "100",
-                    style = text16Medium,
+                    text = "${orderService.totalServicePrice}",
+                    style = if (orderService.isCalculatedInTotal == 1) text16Medium else text16MediumStrike,
                     color = TextColor
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text =  stringResource(id = R.string.currency_1),
-                    style = text13,
+                    text = stringResource(id = R.string.currency_1, Extensions.getCurrency()),
+                    style = if (orderService.isCalculatedInTotal == 1) text13 else text13Strike,
                     color = SecondaryColor
                 )
 
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 15.dp)
-                .padding(horizontal = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row {
-                Text(
-                    text = "مكيف شباك",
-                    style = text12,
-                    color = SecondaryColor,
-                )
-
-            }
-
+        repeat(orderService.acType.size) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp)
+                    .padding(horizontal = 15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                androidx.compose.material3.Text(
-                    text = "2",
-                    style = text16Medium,
-                    color = TextColor
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                androidx.compose.material3.Text(
-                    text =  stringResource(id = R.string.device),
-                    style = text13,
-                    color = SecondaryColor
-                )
+                Row {
+                    Text(
+                        text = orderService.acType[it].acType.name,
+                        style = text12,
+                        color = SecondaryColor,
+                    )
 
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material3.Text(
+                        text = "${orderService.acType[it].count}",
+                        style = text16Medium,
+                        color = TextColor
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    androidx.compose.material3.Text(
+                        text = stringResource(R.string.device),
+                        style = text13,
+                        color = SecondaryColor
+                    )
+                }
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 14.dp)
-                .padding(horizontal = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row {
-                Text(
-                    text = "مكيف سبليت",
-                    style = text12,
-                    color = SecondaryColor,
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-            ) {
-                androidx.compose.material3.Text(
-                    text = "2",
-                    style = text16Medium,
-                    color = TextColor,
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                androidx.compose.material3.Text(
-                    text = stringResource(id = R.string.device),
-                    style = text13,
-                    color = SecondaryColor
-                )
-
-            }
-        }
-
     }
 }
 
+
 @Composable
-private fun CostView() {
+fun CostView(price: Price, payment: Payment, useWallet: Int) {
     Column(
         Modifier
             .padding(top = 21.dp)
             .padding(horizontal = 7.3.dp)
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 134.dp)
             .background(LightBlue.copy(.20f), shape = RoundedCornerShape(11.dp))
             .padding(bottom = 23.dp),
         verticalArrangement = Arrangement.Center
@@ -360,13 +526,13 @@ private fun CostView() {
                 horizontalArrangement = Arrangement.End
             ) {
                 androidx.compose.material3.Text(
-                    text = "100",
+                    text = "${price.grandTotal}",
                     style = text16Medium,
                     color = TextColor
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 androidx.compose.material3.Text(
-                    text = stringResource(id = R.string.currency_1),
+                    text = stringResource(id = R.string.currency_1, Extensions.getCurrency()),
                     style = text13,
                     color = SecondaryColor
                 )
@@ -379,86 +545,68 @@ private fun CostView() {
             color = DividerColorBlue,
             modifier = Modifier.paddingTop(15)
         )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 15.2.dp)
-                .padding(horizontal = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row {
-                Text(
-                    text = stringResource(id = R.string.wallet_balance),
-                    style = text12,
-                    color = SecondaryColor,
-                )
-
+        when (payment.id) {
+            Constants.WALLET -> {
+                WalletSection(false, price = price.paidWallet)
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                androidx.compose.material3.Text(
-                    text = "100",
-                    style = text16Medium,
-                    color = TextColor
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                androidx.compose.material3.Text(
-                    text =  stringResource(id = R.string.currency_1),
-                    style = text13,
-                    color = SecondaryColor
-                )
+            else -> {
+                if (useWallet == 1) {
+                    WalletSection(
+                        true,
+                        price = price.grandTotal - price.paidWallet,
+                        payment = payment
+                    )
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp)
+                            .padding(horizontal = 15.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row {
+                            Text(
+                                text = stringResource(id = R.string.payment_method),
+                                style = text12,
+                                color = SecondaryColor,
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                        ) {
+                            AsyncImage(
+                                imageUrl = payment.iconUrl,
+                                modifier = Modifier.size(33.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            androidx.compose.material3.Text(
+                                text = "${price.grandTotal}",
+                                style = text16Medium,
+                                color = TextColor,
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            androidx.compose.material3.Text(
+                                text = stringResource(
+                                    id = R.string.currency_1,
+                                    Extensions.getCurrency()
+                                ),
+                                style = text13,
+                                color = SecondaryColor
+                            )
 
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 14.dp)
-                .padding(horizontal = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row {
-                Text(
-                    text = stringResource(id = R.string.other_pay),
-                    style = text12,
-                    color = SecondaryColor,
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.visa),
-                    contentDescription = ""
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                androidx.compose.material3.Text(
-                    text = "100",
-                    style = text16Medium,
-                    color = TextColor,
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                androidx.compose.material3.Text(
-                    text =  stringResource(id = R.string.currency_1),
-                    style = text13,
-                    color = SecondaryColor
-                )
-
+                        }
+                    }
+                }
             }
         }
-
     }
 }
 
 @Composable
-private fun VisitDateView() {
+private fun VisitDateView(workPeriod: WorkPeriod) {
     Row(
         modifier = Modifier
             .padding(top = 13.dp)
@@ -476,7 +624,7 @@ private fun VisitDateView() {
                 contentDescription = ""
             )
             androidx.compose.material3.Text(
-                text =  stringResource(id = R.string.visit_date_1),
+                text = stringResource(id = R.string.visit_date_1),
                 style = text12,
                 color = SecondaryColor,
                 modifier = Modifier.padding(start = 8.dp)
@@ -494,13 +642,13 @@ private fun VisitDateView() {
             ) {
                 Spacer(modifier = Modifier.width(5.dp))
                 androidx.compose.material3.Text(
-                    text =  stringResource(id = R.string.am_lbl),
+                    text = workPeriod.name,
                     style = text14,
                     color = TextColor
                 )
             }
             androidx.compose.material3.Text(
-                text = stringResource(R.string._08_00_am_12_00_pm),
+                text = "${workPeriod.getTimeFromFormatted()} - ${workPeriod.getTimeToFormatted()}",
                 style = text12,
                 color = SecondaryColor,
                 modifier = Modifier.paddingTop(
@@ -513,7 +661,7 @@ private fun VisitDateView() {
 }
 
 @Composable
-private fun SelectedAddressView() {
+private fun SelectedAddressView(address: Address) {
     Row(
         modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -537,18 +685,96 @@ private fun SelectedAddressView() {
                 color = SecondaryColor
             )
             Text(
-                text = "المنقطة ـ المدينة ، الاشعر ، اسم الCA 95673",
+                text = "${address.area.name}-${address.city.name}-${address.district.name}",
                 style = text14,
                 color = TextColor,
                 modifier = Modifier.paddingTop(11)
             )
+        }
+    }
+}
+
+
+@Composable
+private fun WalletSection(
+    isPartition: Boolean = false, price: Double,
+    payment: Payment? = null
+) {
+
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 15.2.dp)
+            .padding(horizontal = 15.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row {
             Text(
-                text = "شارع عبد العزيز م، مدينة السالم",
-                style = text14,
-                color = TextColor,
-                modifier = Modifier.paddingTop(9)
+                text = stringResource(id = R.string.wallet_balance),
+                style = text12,
+                color = SecondaryColor,
             )
         }
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            androidx.compose.material3.Text(
+                text = "${price}",
+                style = text16Medium,
+                color = TextColor
+            )
+            Spacer(modifier = Modifier.width(3.dp))
+            androidx.compose.material3.Text(
+                text = stringResource(id = R.string.currency_1, Extensions.getCurrency()),
+                style = text13,
+                color = SecondaryColor
+            )
+
+        }
+    }
+    if (isPartition) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 14.dp)
+                .padding(horizontal = 15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row {
+                Text(
+                    text = stringResource(id = R.string.other_pay),
+                    style = text12,
+                    color = SecondaryColor,
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                AsyncImage(
+                    imageUrl = payment?.iconUrl ?: "",
+                    modifier = Modifier.size(33.dp)
+
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                androidx.compose.material3.Text(
+                    text = "${price}",
+                    style = text16Medium,
+                    color = TextColor,
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                androidx.compose.material3.Text(
+                    text = stringResource(id = R.string.currency_1, Extensions.getCurrency()),
+                    style = text13,
+                    color = SecondaryColor
+                )
+
+            }
+        }
     }
 }

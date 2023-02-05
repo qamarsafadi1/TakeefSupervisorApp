@@ -61,7 +61,7 @@ fun OrderItem(
     uiState: OrderUiState,
     currentOrder: Order,
     onClick: () -> Unit,
-    addAdditionalCost: () -> Unit,
+    addAdditionalCost: (Int) -> Unit,
     updateOrderStatus: (Int,String?) -> Unit
 ) {
     Card(
@@ -95,8 +95,7 @@ fun OrderItem(
             ) {
                 Column(
                     Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                        .wrapContentWidth()
                 ) {
                     Text(
                         text = stringResource(id = R.string.order_number),
@@ -113,13 +112,12 @@ fun OrderItem(
                 }
 
                 StepperView(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1.5f),
+                    Modifier.fillMaxWidth(),
                     items = LocalData.cases?.filter { it.id != 6 },
                     currentStep = currentOrder.logs.distinctBy { it.case.id }.lastIndex
                 )
             }
+
             Column(
                 modifier = Modifier
                     .paddingTop(10)
@@ -194,7 +192,7 @@ fun OrderItem(
                 ) {
                     if (currentOrder.hasMaintenance == 1) {
                         ElasticButton(
-                            onClick = { addAdditionalCost() },
+                            onClick = { addAdditionalCost(currentOrder.id) },
                             title = stringResource(id = R.string.extra_cost),
                             modifier = Modifier
                                 .paddingTop(13)
@@ -303,8 +301,7 @@ fun NextOrderItem(
             ) {
                 Column(
                     Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                        .wrapContentWidth()
                 ) {
                     Text(
                         text = stringResource(id = R.string.order_number),
@@ -322,8 +319,7 @@ fun NextOrderItem(
 
                 StepperView(
                     Modifier
-                        .fillMaxWidth()
-                        .weight(1.5f),
+                        .fillMaxWidth(),
                     items = LocalData.cases?.filter { it.id != 6 },
                     currentStep = order.logs.distinctBy { it.case.id }.lastIndex
                 )

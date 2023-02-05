@@ -1,7 +1,6 @@
 package com.selsela.takeefapp.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.selsela.takeefapp.navigation.Navigation.navigateWithClearBackStack
 
 object Destinations {
@@ -13,6 +12,7 @@ object Destinations {
     const val COMPLETE_INFO_SCREEN = "complete_info_screen"
     const val PENDING_ACCOUNT_SCREEN = "pending_account"
     const val ADD_COST_SCREEN = "add_cost_screen"
+    const val ADD_COST_SCREEN_ARGS = "add_cost_screen/{id}"
     const val ADDRESS_SCREEN = "address"
     const val SUCCESS = "success"
     const val ERROR = "error"
@@ -20,7 +20,8 @@ object Destinations {
     const val MY_ACCOUNT = "my_account"
     const val ORDERS_SCREEN = "orders"
     const val ORDER_ROUTE_SCREEN = "order_route_screen"
-    const val ORDER_DETAILS = "order_details"
+    const val ORDER_DETAILS = "order_details/"
+    const val ORDER_DETAILS_ARGS = "order_details/{id}"
     const val NOTIFICATION_SCREEN = "notification_screen"
     const val ABOUT_APP_SCREEN = "about_app_screen"
     const val TERMS = "terms"
@@ -49,8 +50,8 @@ class NavigationActions(private val navController: NavController) {
     }
 
     fun navigateToSuccess() {
-        navController.navigate(Destinations.SUCCESS){
-            popUpTo(Destinations.HOME_SCREEN ) {
+        navController.navigate(Destinations.SUCCESS) {
+            popUpTo(Destinations.HOME_SCREEN) {
                 inclusive = false
             }
         }
@@ -68,8 +69,8 @@ class NavigationActions(private val navController: NavController) {
         navController.navigate(Destinations.ORDER_ROUTE_SCREEN)
     }
 
-    fun navigateToOrderDetails() {
-        navController.navigate(Destinations.ORDER_DETAILS)
+    fun navigateToOrderDetails(id: Int) {
+        navController.navigate("${Destinations.ORDER_DETAILS}${id}")
     }
 
     fun navigateToNotification() {
@@ -98,11 +99,11 @@ class NavigationActions(private val navController: NavController) {
 
     fun navigateToPendingAccount() {
         navController.navigate(Destinations.PENDING_ACCOUNT_SCREEN) {
-             navigateWithClearBackStack(navController)
+            navigateWithClearBackStack(navController)
         }
     }
 
-    fun navigateToAddCostScreen() {
-        navController.navigate(Destinations.ADD_COST_SCREEN)
+    fun navigateToAddCostScreen(id: Int) {
+        navController.navigate("${Destinations.ADD_COST_SCREEN}/${id}")
     }
 }

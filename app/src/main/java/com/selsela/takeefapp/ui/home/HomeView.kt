@@ -48,18 +48,16 @@ import com.selsela.takeefapp.ui.theme.text12Meduim
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
-import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 
 @Composable
 fun HomeView(
     vm: AuthViewModel = hiltViewModel(),
     orderVm: OrderViewModel = hiltViewModel(),
-    goToRoute: () -> Unit,
     goToMyAccount: () -> Unit,
-    goToDetails: () -> Unit,
+    goToDetails: (Int) -> Unit,
     onPending: () -> Unit,
-    goToCost: () -> Unit,
+    goToCost: (Int) -> Unit,
 ) {
     val lazyColumnListState = rememberLazyListState()
     val shouldStartPaginate = remember {
@@ -140,8 +138,8 @@ private fun HomeContent(
     onStatusChanged: (String) -> Unit,
     updateOrderStatus: (Int, String?) -> Unit,
     goToMyAccount: () -> Unit,
-    goToCost: () -> Unit,
-    goToDetails: () -> Unit
+    goToCost: (Int) -> Unit,
+    goToDetails: (Int) -> Unit
 ) {
     val currentOrder = viewModel.currentOrder.value
     Color.White.ChangeStatusBarColor()
@@ -219,9 +217,9 @@ private fun OrdersList(
     viewState: OrderUiState,
     currentOrder: Order?,
     updateOrderStatus: (Int, String?) -> Unit,
-    goToCost: () -> Unit,
+    goToCost: (Int) -> Unit,
     orders: SnapshotStateList<Order>,
-    goToDetails: () -> Unit
+    goToDetails: (Int) -> Unit
 ) {
     LazyColumn(Modifier.fillMaxWidth()) {
         if (currentOrder != null) {
@@ -235,7 +233,7 @@ private fun OrdersList(
                     viewState,
                     currentOrder,
                     onClick = {
-                        goToDetails()
+                        goToDetails(currentOrder.id)
                     },
                     addAdditionalCost = goToCost
                 ) { id, codAmount ->
@@ -257,7 +255,7 @@ private fun OrdersList(
                     currentOrder,
                     it,
                     onClick = {
-                        goToDetails()
+                        goToDetails(it.id)
                     }) { id, codAmount ->
                     updateOrderStatus(id, codAmount)
                 }

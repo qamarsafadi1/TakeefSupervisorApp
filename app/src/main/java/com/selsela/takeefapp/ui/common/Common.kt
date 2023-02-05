@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -74,6 +75,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -1246,15 +1248,15 @@ fun StepperView(
     currentStep: Int = 0,
     isDetails: Boolean = false,
     items: List<Case>?
-
 ) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
+
         Divider(
             Modifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth(0.75f)
                 .padding(vertical = 10.dp)
                 .align(Alignment.TopCenter),
             thickness = 4.dp,
@@ -1274,7 +1276,9 @@ fun StepperView(
                     isDetails = isDetails
                 )
             }
+
         }
+
     }
 }
 
@@ -1285,18 +1289,14 @@ private fun Step(
     isCompleted: Boolean,
     isDetails: Boolean = false
 ) {
-    val drawable: Int by animateIntAsState(
-        targetValue = if (isCurrent) {
+    val drawable = if (isCurrent) {
+        R.drawable.checked
+    } else {
+        if (isCompleted)
             R.drawable.checked
-        } else {
-            if (isCompleted)
-                R.drawable.checked
-            else R.drawable.uncomplete
-        },
-        animationSpec = tween(
-            durationMillis = 1000,
-        )
-    )
+        else R.drawable.uncomplete
+    }
+
     val textColor: Color by animateColorAsState(
         targetValue = if (isCurrent) {
             TextColor
@@ -1360,5 +1360,45 @@ fun SelectedServicesView(orderServices: List<OrderService>) {
     }
 }
 
+@Composable
+fun AsyncImage(
+    imageUrl: Any,
+    modifier: Modifier
+    = Modifier
+        .size(90.dp)
+        .padding(horizontal = 8.dp),
+    contentScale: ContentScale = ContentScale.Fit
+) {
+    SubcomposeAsyncImage(
+        modifier = modifier,
+        model = imageUrl,
+        error = {
+            Image(
+                painter = painterResource(R.drawable.placeholder), contentDescription = "",
+                modifier
+            )
+        },
+        loading = {
+            LottieAnimationSizeView(
+                raw = R.raw.imageloading,
+                modifier = Modifier
+                    .width(25.dp)
+                    .height(25.dp)
+            )
+        },
+        contentDescription = "",
+        contentScale = contentScale
+    )
+}
 
+@Composable
+fun LottieAnimationSizeView(modifier: Modifier = Modifier, raw: Int) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(raw))
+    LottieAnimation(
+        composition,
+        modifier = modifier,
+        iterations = LottieConstants.IterateForever,
+        contentScale = ContentScale.None
+    )
+}
 

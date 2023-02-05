@@ -56,6 +56,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun AddCostScreen(
+    orderId: Int,
     vm: OrderViewModel = hiltViewModel(),
     onFinish: () -> Unit
 ) {
@@ -66,7 +67,7 @@ fun AddCostScreen(
         uiState = viewState,
         vm
     ) {
-        vm.addAdditionalCost(293)
+        vm.addAdditionalCost(orderId)
     }
 
 

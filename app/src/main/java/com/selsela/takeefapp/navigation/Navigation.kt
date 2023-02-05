@@ -13,7 +13,7 @@ object Navigation {
             Destinations.VERIFY_SCREEN, Destinations.SUCCESS,
             Destinations.ABOUT_APP_SCREEN,
             Destinations.TERMS, Destinations.COMPLETE_INFO_SCREEN,
-            Destinations.PENDING_ACCOUNT_SCREEN,Destinations.ADD_COST_SCREEN -> ""
+            Destinations.PENDING_ACCOUNT_SCREEN,Destinations.ADD_COST_SCREEN,Destinations.ADD_COST_SCREEN_ARGS -> ""
             Destinations.ORDERS_SCREEN -> this.context.getString(R.string.new_orders)
             Destinations.ORDER_ROUTE_SCREEN -> this.context.getString(R.string.order_route)
             Destinations.ORDER_DETAILS -> this.context.getString(R.string.order_details)

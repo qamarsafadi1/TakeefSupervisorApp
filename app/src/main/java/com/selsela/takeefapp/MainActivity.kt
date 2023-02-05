@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                                             && currentRoute.value?.destination?.route != Destinations.INTRO_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.ADDRESS_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.MY_ACCOUNT
-                                            && currentRoute.value?.destination?.route != Destinations.ORDER_DETAILS
+                                            && currentRoute.value?.destination?.route != Destinations.ORDER_DETAILS_ARGS
                                             && currentRoute.value?.destination?.route != Destinations.PROFILE_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.LOGIN_SCREEN
                                             && currentRoute.value?.destination?.route != Destinations.COMPLETE_INFO_SCREEN
@@ -193,7 +193,7 @@ class MainActivity : AppCompatActivity() {
         if (currentRoute.value?.destination?.route == Destinations.MY_ACCOUNT
             || currentRoute.value?.destination?.route == Destinations.SPLASH_SCREEN
             || currentRoute.value?.destination?.route == Destinations.ADDRESS_SCREEN
-            || currentRoute.value?.destination?.route == Destinations.ORDER_DETAILS
+            || currentRoute.value?.destination?.route == Destinations.ORDER_DETAILS_ARGS
             || currentRoute.value?.destination?.route == Destinations.COMPLETE_INFO_SCREEN
             || currentRoute.value?.destination?.route == Destinations.PROFILE_SCREEN
             || currentRoute.value?.destination?.route == Destinations.SUCCESS
