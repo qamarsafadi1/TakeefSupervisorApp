@@ -86,17 +86,17 @@ class AuthViewModel @Inject constructor(
     )
     var name: MutableState<String> = mutableStateOf(LocalData.user?.name ?: "")
     var email: MutableState<String> = mutableStateOf(LocalData.user?.email ?: "")
-    var areaID: MutableState<Int> = mutableStateOf(-1)
-    var cityId: MutableState<Int> = mutableStateOf(-1)
-    var districtID: MutableState<Int> = mutableStateOf(-1)
+    var areaID: MutableState<Int> = mutableStateOf(LocalData.user?.area?.id ?: -1)
+    var cityId: MutableState<Int> = mutableStateOf(LocalData.user?.city?.id ?: -1)
+    var districtID: MutableState<Int> = mutableStateOf(LocalData.user?.district?.id ?: -1)
     var code: MutableState<String> = mutableStateOf("")
     var errorMessage: MutableState<String> = mutableStateOf("")
     var errorMessageName: MutableState<String> = mutableStateOf("")
     var errorMessageCity: MutableState<String> = mutableStateOf("")
     var errorMessageArea: MutableState<String> = mutableStateOf("")
-    var selectedAreaName = mutableStateOf("")
-    var selectedCityName = mutableStateOf("")
-    var selectedDistrictName = mutableStateOf("")
+    var selectedAreaName = mutableStateOf(LocalData.user?.area?.name ?: "")
+    var selectedCityName = mutableStateOf(LocalData.user?.city?.name ?: "")
+    var selectedDistrictName = mutableStateOf(LocalData.user?.district?.name ?: "")
     var errorMessageDistrict: MutableState<String> = mutableStateOf("")
     var isValid: MutableState<Boolean> = mutableStateOf(true)
     var isNameValid: MutableState<Boolean> = mutableStateOf(true)
@@ -178,7 +178,7 @@ class AuthViewModel @Inject constructor(
         return isValid.value
     }
 
-    private fun profileInfoIsValid(): Boolean {
+    private fun infoIsValid(): Boolean {
         val nameValidationMessage = name.value.validateRequired(
             application.applicationContext, application.getString(
                 R.string.name
@@ -275,6 +275,51 @@ class AuthViewModel @Inject constructor(
         }
         return isNameValid.value && isCityValid.value && isAreaValid.value && isDistrictValid.value
     }
+
+    private fun profileInfoIsValid(): Boolean {
+        val nameValidationMessage = name.value.validateRequired(
+            application.applicationContext, application.getString(
+                R.string.name
+            )
+        )
+        val emailValidationMessage = email.value.validateRequired(
+            application.applicationContext, application.getString(
+                R.string.email
+            )
+        )
+        if (nameValidationMessage == "" &&
+            emailValidationMessage == ""
+        ) {
+            isNameValid.value = true
+            isValid.value = true
+        } else {
+            if (nameValidationMessage != "" &&
+                emailValidationMessage != ""
+            ) {
+                isValid.value = false
+                isNameValid.value = false
+                errorMessage.value = emailValidationMessage
+                errorMessageName.value = nameValidationMessage
+            } else {
+                if (nameValidationMessage != "") {
+                    errorMessageName.value = nameValidationMessage
+                    errorMessage.value = ""
+                    isValid.value = true
+                    isNameValid.value = false
+                    return false
+                }
+                if (emailValidationMessage != "") {
+                    errorMessage.value = emailValidationMessage
+                    errorMessageName.value = ""
+                    isValid.value = false
+                    isNameValid.value = true
+                    return false
+                }
+            }
+        }
+        return isValid.value && isNameValid.value
+    }
+
 
     fun validateBorderColor(): Color {
         return if (errorMessage.value.isNotEmpty() && isValid.value.not())
@@ -465,7 +510,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun completeInfo() {
-        if (profileInfoIsValid()) {
+        if (infoIsValid()) {
             viewModelScope.launch {
                 state = state.copy(
                     isLoading = true
@@ -596,8 +641,7 @@ class AuthViewModel @Inject constructor(
                 repository.updateProfile(
                     avatar = avatar,
                     name = name.value,
-                    email = email.value,
-                    mobile = mobile.value
+                    email = email.value
                 )
                     .collect { result ->
                         val authUiState = when (result.status) {

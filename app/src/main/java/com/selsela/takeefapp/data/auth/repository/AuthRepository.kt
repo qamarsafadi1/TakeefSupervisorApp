@@ -277,14 +277,11 @@ class AuthRepository @Inject constructor(
     suspend fun updateProfile(
         avatar: File?,
         name: String,
-        mobile: String,
         email: String,
     ): Flow<Resource<User>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<User>> = try {
             val body = HashMap<String, String>()
             body["name"] = name
-            body["mobile"] = mobile
-            body["country_id"] = "1"
             body["email"] = email
             val map: HashMap<String, RequestBody> = hashMapOf()
             body.forEach { entry ->

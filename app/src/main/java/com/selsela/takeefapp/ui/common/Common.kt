@@ -361,6 +361,7 @@ fun EditText(
     isValid: Boolean = true,
     validationMessage: String = "",
     borderColor: Color = BorderColor,
+    enabled: Boolean = true,
     trailing: @Composable (() -> Unit)? = null
 ) {
     val color: Color by animateColorAsState(
@@ -398,7 +399,8 @@ fun EditText(
             if (trailing != null)
                 trailing()
         },
-        keyboardOptions = KeyboardOptions(keyboardType = inputType)
+        keyboardOptions = KeyboardOptions(keyboardType = inputType),
+        enabled = enabled
     )
     Row(Modifier.fillMaxWidth()) {
         AnimatedVisibility(visible = isValid.not()) {
@@ -416,7 +418,9 @@ fun EditText(
 @Composable
 fun InputEditText(
     text: String,
-    modifier: Modifier,
+    modifier: Modifier = Modifier
+        .fillMaxWidth(1f)
+        .requiredHeight(48.dp),
     onValueChange: (String) -> Unit,
     hint: String = "",
     enabled: Boolean = true,

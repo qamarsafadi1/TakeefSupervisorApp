@@ -466,7 +466,7 @@ class Extensions {
                     // Continue only if the File was successfully created
                     val photoURI: Uri = FileProvider.getUriForFile(
                         context,
-                        "com.selsela.airconditioner.fileprovider",
+                        "com.selsela.airconditionersupervisor.fileprovider",
                         photoFile
                     )
 

@@ -215,7 +215,7 @@ private fun AccountViewContent(
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
+                     .fillMaxWidth()
             ) {
                 WalletCard(uiState) {
                     goToWallet()
