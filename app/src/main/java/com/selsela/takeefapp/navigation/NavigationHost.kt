@@ -54,6 +54,10 @@ fun NavigationHost(
                 else {
                     LocalData.user?.status?.log("status")
                     LocalData.user?.completed?.log("status")
+                    if (LocalData.user?.verifiedFromManagement == NOT_VERIFIED) {
+                        navActions.navigateToPendingAccount()
+                        return@SplashView
+                    }
                     if (LocalData.user?.status == VERIFIED && LocalData.user?.completed == 1) {
                         LocalData.user?.isBlock = 0
                         if (LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
