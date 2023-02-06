@@ -330,7 +330,9 @@ private fun CompleteInfoForm(
             text = vm.name.value,
             hint = stringResource(R.string.full_name),
             inputType = KeyboardType.Text,
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(top = 16.dp)
+                .fillMaxWidth(1f)
+                .requiredHeight(48.dp),
             isValid = vm.isNameValid.value,
             validationMessage = vm.errorMessageName.value,
             borderColor = vm.validateNameBorderColor()

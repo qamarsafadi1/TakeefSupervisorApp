@@ -71,6 +71,10 @@ interface AuthApi {
         @Field("token") token: String? = LocalData.fcmToken
     ): Response<GeneralResponse>
 
+    @POST("supervisor/delete_me")
+    suspend fun deleteAccount(
+    ): Response<GeneralResponse>
+
     @POST("supervisor/update_profile")
     @JvmSuppressWildcards
     @Multipart

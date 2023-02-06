@@ -80,11 +80,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileScreen(
     vm: AuthViewModel = hiltViewModel(),
+    goToLogin: () -> Unit,
     onBack: () -> Unit
 ) {
     Color.Transparent.ChangeStatusBarOnlyColor()
     Color.White.ChangeNavigationBarColor()
 
+    var fromDelete = false
     val coroutineScope = rememberCoroutineScope()
     val deleteAccountSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -93,10 +95,19 @@ fun ProfileScreen(
     )
     val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())
     val context = LocalContext.current
+
+    var user by remember {
+        vm.user
+    }
     ProfileContent(
         viewState,
         onBack,
-        onClick = vm::updateProfile, vm, coroutineScope, deleteAccountSheetState
+        onClick = vm::updateProfile,
+        onDelete = {
+            fromDelete = true
+            vm.deleteAccount()
+        },
+        vm, coroutineScope, deleteAccountSheetState
     )
 
     /**
@@ -107,7 +118,23 @@ fun ProfileScreen(
         event = viewState.onSuccess,
         onConsumed = vm::onSuccess
     ) { message ->
-        context.showSuccess(message)
+        if (fromDelete.not())
+            context.showSuccess(message)
+        else {
+            LocalData.clearData()
+            user = null
+            vm.userLoggedIn.value = false
+            goToLogin()
+        }
+    }
+    EventEffect(
+        event = viewState.onDeleteAccount,
+        onConsumed = vm::onDeleteAccount
+    ) { message ->
+            LocalData.clearData()
+            user = null
+            vm.userLoggedIn.value = false
+            goToLogin()
     }
 
     EventEffect(
@@ -130,6 +157,7 @@ private fun ProfileContent(
     viewState: AuthUiState,
     onBack: () -> Unit,
     onClick: () -> Unit,
+    onDelete: () -> Unit,
     vm: AuthViewModel,
     coroutineScope: CoroutineScope,
     deleteAccountSheetState: ModalBottomSheetState
@@ -238,7 +266,8 @@ private fun ProfileContent(
                 }
             }
         }
-        DeleteAccountSheet(sheetState = deleteAccountSheetState) {
+        DeleteAccountSheet(sheetState = deleteAccountSheetState,viewState) {
+            onDelete()
         }
     }
 }
@@ -496,6 +525,7 @@ private fun DistrictView(
         }
     }
 }
+
 @Composable
 private fun ImageChooser(viewModel: AuthViewModel) {
     val context = LocalContext.current

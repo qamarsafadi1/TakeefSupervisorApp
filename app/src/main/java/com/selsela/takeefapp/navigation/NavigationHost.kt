@@ -208,7 +208,9 @@ fun NavigationHost(
         }
 
         composable(Destinations.PROFILE_SCREEN) {
-            ProfileScreen() {
+            ProfileScreen(
+                goToLogin = navActions::navigateToLogin
+            ) {
                 navController.navigateUp()
             }
         }
