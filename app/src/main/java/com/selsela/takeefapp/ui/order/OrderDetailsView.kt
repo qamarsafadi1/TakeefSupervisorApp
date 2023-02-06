@@ -318,9 +318,7 @@ private fun OrderDetailsContent(
                                                 .requiredHeight(36.dp)
                                                 .fillMaxWidth()
                                                 .weight(1f),
-                                            colorBg = Purple40,
-                                            isLoading = uiState.state == State.LOADING
-                                        )
+                                            colorBg = Purple40,)
                                         Spacer(modifier = Modifier.width(14.dp))
                                     }
                                     ElasticButton(

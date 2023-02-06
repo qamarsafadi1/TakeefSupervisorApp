@@ -49,6 +49,8 @@ enum class OrderState {
 
 data class OrderUiState(
     val state: State = State.IDLE,
+    var orderId: Int = -1,
+    var caseId: Int = -1,
     var responseMessage: String? = "",
     var order: Order? = null,
     val onSuccess: StateEvent? = consumed,
@@ -206,7 +208,8 @@ class OrderViewModel @Inject constructor(
     fun updateOrderStatus(id: Int, amount: String? = null) {
         viewModelScope.launch {
             state = state.copy(
-                state = State.LOADING
+                state = State.LOADING,
+                orderId = id
             )
             repository.updateOrderStatus(id)
                 .collect { result ->
@@ -234,13 +237,18 @@ class OrderViewModel @Inject constructor(
 
                             OrderUiState(
                                 order = result.data?.order,
-                                state = State.SUCCESS
+                                state = State.SUCCESS,
+                                orderId = result.data?.order?.id ?: -1,
+                                caseId = result.data?.order?.case?.id  ?: -1
+
                             )
                         }
 
                         Status.LOADING ->
                             OrderUiState(
-                                state = State.LOADING
+                                state = State.LOADING,
+                                orderId = id,
+
                             )
 
                         Status.ERROR -> OrderUiState(

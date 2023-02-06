@@ -231,7 +231,6 @@ fun OrderItem(
                                         .fillMaxWidth()
                                         .weight(1f),
                                     colorBg = Purple40,
-                                    isLoading = uiState.state == State.LOADING
                                 )
                                 Spacer(modifier = Modifier.width(14.dp))
                             }
@@ -288,7 +287,7 @@ fun OrderItem(
                                     .width(137.dp)
                                     .requiredHeight(36.dp),
                                 colorBg = color,
-                                isLoading = uiState.state == State.LOADING
+                                isLoading = uiState.state == State.LOADING && uiState.orderId == currentOrder.id
                             )
                         }
                     }
@@ -468,8 +467,7 @@ fun OrderItem(
                                         .requiredHeight(36.dp)
                                         .fillMaxWidth()
                                         .weight(1f),
-                                    colorBg = Purple40,
-                                    isLoading = uiState.state == State.LOADING
+                                    colorBg = Purple40
                                 )
                                 Spacer(modifier = Modifier.width(14.dp))
                             }
@@ -489,7 +487,7 @@ fun OrderItem(
                                     .fillMaxWidth()
                                     .weight(1f),
                                 colorBg = TextColor,
-                                isLoading = uiState.state == State.LOADING
+                                isLoading = uiState.state == State.LOADING && uiState.caseId+1 == FINISHED
 
                             )
                         }
@@ -526,7 +524,7 @@ fun OrderItem(
                                     .width(137.dp)
                                     .requiredHeight(36.dp),
                                 colorBg = color,
-                                isLoading = uiState.state == State.LOADING
+                                isLoading = uiState.state == State.LOADING && uiState.orderId == currentOrder.id
                             )
                         }
                     }
@@ -732,7 +730,7 @@ fun NextOrderItem(
                             .fillMaxWidth()
                             .weight(1f),
                         colorBg = TextColor,
-                        isLoading = viewState.state == State.LOADING
+                        isLoading = viewState.state == State.LOADING && viewState.caseId+1 == FINISHED
                     )
                 }
             } else {
@@ -771,7 +769,7 @@ fun NextOrderItem(
                             .width(137.dp)
                             .requiredHeight(36.dp),
                         colorBg = color,
-                        isLoading = viewState.state == State.LOADING
+                        isLoading = viewState.state == State.LOADING && viewState.orderId == order.id
                     )
                 }
             }

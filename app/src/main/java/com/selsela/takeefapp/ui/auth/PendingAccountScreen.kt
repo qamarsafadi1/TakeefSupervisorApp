@@ -20,11 +20,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,17 +49,62 @@ import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.selsela.takeefapp.ui.splash.ConfigViewModel
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text12Meduim
+import com.selsela.takeefapp.utils.Constants.VERIFIED_ADMIN
 import com.selsela.takeefapp.utils.Constants.VERIFIED_MANAGEMENT
+import com.selsela.takeefapp.utils.Extensions.Companion.OnLifecycleEvent
+import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
+import de.palm.composestateevents.EventEffect
 
 @Preview
 @Composable
 fun PendingAccountScreen(
+    vm: AuthViewModel = hiltViewModel(),
     onFinish: () -> Unit
 ) {
     Color.White.ChangeStatusBarColor()
+    val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())
+
+    PendingAccountContent()
+    BroadcastReceiver(
+        context = LocalContext.current,
+        action = VERIFIED_MANAGEMENT,
+    ) {
+
+        onFinish()
+    }
+    OnLifecycleEvent { _, event ->
+        // do stuff on event
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                vm.me()
+                "heyPending".log()
+            }
+
+            else -> {}
+        }
+    }
+
+    EventEffect(
+        event = viewState.onVerfied,
+        onConsumed = vm::onVerfied
+    ) { message ->
+        if (message == VERIFIED_ADMIN)
+            onFinish()
+    }
+
+}
+
+@Composable
+private fun PendingAccountContent() {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier.fillMaxSize(),
@@ -122,12 +171,6 @@ fun PendingAccountScreen(
         ) {
 
         }
-    }
-    BroadcastReceiver(
-        context = LocalContext.current,
-        action = VERIFIED_MANAGEMENT,
-    ) {
-        onFinish()
     }
 }
 

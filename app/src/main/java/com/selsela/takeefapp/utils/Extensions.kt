@@ -37,6 +37,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -617,6 +618,24 @@ class Extensions {
             i.data = Uri.parse(url)
             this.startActivity(i)
         }
+        @Composable
+        fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
+            val eventHandler = rememberUpdatedState(onEvent)
+            val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+
+            DisposableEffect(lifecycleOwner.value) {
+                val lifecycle = lifecycleOwner.value.lifecycle
+                val observer = LifecycleEventObserver { owner, event ->
+                    eventHandler.value(owner, event)
+                }
+
+                lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycle.removeObserver(observer)
+                }
+            }
+        }
+
     }
 
 
