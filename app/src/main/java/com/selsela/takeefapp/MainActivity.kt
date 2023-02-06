@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -44,6 +46,8 @@ import com.selsela.takeefapp.navigation.Navigation.bindToolbarTitle
 import com.selsela.takeefapp.navigation.Navigation.showingBackButton
 import com.selsela.takeefapp.navigation.NavigationHost
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
+import com.selsela.takeefapp.ui.splash.ConfigViewModel
+import com.selsela.takeefapp.ui.splash.receiveToken
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.TakeefAppTheme
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -63,7 +67,18 @@ class MainActivity : AppCompatActivity() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel: ConfigViewModel by viewModels()
         setContent {
+            LaunchedEffect(Unit) {
+                /**
+                 * Get fcm token
+                 */
+                /**
+                 * Get fcm token
+                 */
+                viewModel.getConfig()
+                receiveToken()
+            }
             TakeefAppTheme {
                 val context = LocalContext.current
                 val coroutineScope = rememberCoroutineScope()

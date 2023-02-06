@@ -3,7 +3,6 @@ package com.selsela.takeefapp.data.config.repository
 import com.google.gson.Gson
 import com.selsela.takeefapp.data.config.model.Configurations
 import com.selsela.takeefapp.data.config.model.city.Area
-import com.selsela.takeefapp.data.config.model.city.City
 import com.selsela.takeefapp.data.config.model.page.Page
 import com.selsela.takeefapp.data.config.model.payments.Payment
 import com.selsela.takeefapp.data.config.source.remote.ConfigApi
@@ -25,10 +24,10 @@ class ConfigurationsRepository @Inject constructor(
         val data: Flow<Resource<Configurations>> = try {
             val response = api.getConfigurations()
             if (response.isSuccessful) {
-                withContext(Dispatchers.Default){
+                withContext(Dispatchers.Default) {
+                    getCities()
                     getTerms()
                     getAboutApp()
-                    getCities()
                     getPayments()
                 }
                 LocalData.configurations = response.body()?.configurations
