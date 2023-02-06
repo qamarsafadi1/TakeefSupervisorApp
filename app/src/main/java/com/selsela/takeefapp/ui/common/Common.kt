@@ -357,10 +357,11 @@ fun EditText(
     inputType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
     modifier: Modifier = Modifier,
-    textStyle: androidx.compose.ui.text.TextStyle = text13,
+    textStyle: androidx.compose.ui.text.TextStyle = text14White,
     isValid: Boolean = true,
     validationMessage: String = "",
     borderColor: Color = BorderColor,
+    textColor: Color =  Color.White,
     enabled: Boolean = true,
     trailing: @Composable (() -> Unit)? = null
 ) {
@@ -377,10 +378,10 @@ fun EditText(
                 .requiredHeight(48.dp)
                 .border(1.dp, color = color, RoundedCornerShape(8.dp))
         ),
-        textStyle = text14White,
+        textStyle = textStyle,
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.textFieldColors(
-            Color.White,
+            textColor,
             backgroundColor = TextFieldBg,
             cursorColor = Color.White,
             disabledLabelColor = Color.Transparent,

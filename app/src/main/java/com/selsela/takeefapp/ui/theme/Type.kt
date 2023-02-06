@@ -98,6 +98,19 @@ val text14White = TextStyle(
     ),
     textAlign = TextAlign.Start
 )
+val text14Secondary = TextStyle(
+    fontFamily = fonts,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 14.sp,
+    color =  SecondaryColor.copy(0.67f),
+    lineHeight = 0.sp,
+    letterSpacing = 0.sp,
+    lineHeightStyle = LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.Both
+    ),
+    textAlign = TextAlign.Start
+)
 val text14WhiteLines = TextStyle(
     fontFamily = fonts,
     fontWeight = FontWeight.SemiBold,

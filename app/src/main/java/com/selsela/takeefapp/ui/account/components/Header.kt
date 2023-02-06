@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,8 +28,11 @@ import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.auth.model.auth.User
 import com.selsela.takeefapp.ui.common.AsyncImage
+import com.selsela.takeefapp.ui.theme.LogoutBg
+import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text12
+import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text16Bold
 import com.selsela.takeefapp.utils.Constants.LOG_IN
 import com.selsela.takeefapp.utils.Constants.LOG_OUT
@@ -62,23 +66,38 @@ fun Header(
             onClick(it)
         }
     }
-    Row(
-        Modifier
-            .padding(horizontal = 33.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CircularImage(user)
-        Text(
-            text = if (user?.name.isNullOrEmpty().not() && LocalData.accessToken.isNullOrEmpty()
-                    .not()
-            ) user?.name!! else stringResource(id = R.string.welcome_lbl),
-            style = text16Bold,
-            color = Color.White,
-            modifier = Modifier.padding(start = 18.dp)
-        )
+    Column(Modifier
+        .padding(horizontal = 33.dp)) {
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularImage(user)
+           Column() {
+               Text(
+                   text = if (user?.name.isNullOrEmpty().not() && LocalData.accessToken.isNullOrEmpty()
+                           .not()
+                   ) user?.name!! else stringResource(id = R.string.welcome_lbl),
+                   style = text16Bold,
+                   color = Color.White,
+                   modifier = Modifier.padding(start = 18.dp)
+               )
+               Text(
+                   text = user?.district?.name ?: "",
+                   style = text14,
+                   color = SecondaryColor,
+                   modifier = Modifier.padding(start = 18.dp)
+
+               )
+           }
+
+        }
+
     }
+
+
 }
 
 @Composable
@@ -118,7 +137,7 @@ private fun LogoutButton(
                     38.dp
                 )
                 .background(
-                    color = TextColor.copy(0.10f),
+                    color = LogoutBg,
                     RoundedCornerShape(19.dp)
                 ),
             verticalAlignment = Alignment.CenterVertically,

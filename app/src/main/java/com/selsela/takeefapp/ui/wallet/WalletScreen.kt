@@ -109,7 +109,7 @@ private fun TransactionList(wallet: List<Wallet>?) {
             .fillMaxWidth()
             .background(TextColor, RoundedCornerShape(33.dp))
             .padding(horizontal = 22.dp)
-            .padding(top = 26.dp, bottom = 96.dp)
+            .padding(vertical = 26.dp)
     ) {
         Text(
             text = stringResource(R.string.transactions),

@@ -519,12 +519,12 @@ fun OrderCards(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${uiState.user?.specificOrders?.convertToDecimalPatter()}",
+                    text = "${uiState.user?.processingOrders?.convertToDecimalPatter()}",
                     style = text16Medium,
                     color = Color.White
                 )
                 Text(
-                    text = stringResource(id = R.string.special_order),
+                    text = stringResource(id = R.string.on_progress_orders),
                     style = text12,
                     color = Color.White
                 )
@@ -579,7 +579,8 @@ fun WalletCard(
                 goToWallet()
             },
         shape = RoundedCornerShape(13.dp),
-        elevation = 20.dp
+        elevation = 20.dp,
+        backgroundColor = LogoutBg
     ) {
         Row(
             modifier = Modifier
@@ -611,7 +612,7 @@ fun WalletCard(
                 Text(
                     text = "${uiState.user?.balance}",
                     style = text14Meduim,
-                    color = TextColor
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(

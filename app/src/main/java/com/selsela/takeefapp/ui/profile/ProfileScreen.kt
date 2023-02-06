@@ -65,6 +65,7 @@ import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Bold
 import com.selsela.takeefapp.ui.theme.text14Meduim
+import com.selsela.takeefapp.ui.theme.text14Secondary
 import com.selsela.takeefapp.ui.theme.text14White
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Extensions
@@ -360,7 +361,7 @@ private fun EditTextView(vm: AuthViewModel) {
             vm.mobile.value = it
         },
         text = vm.mobile.value,
-        textStyle = text14White,
+        textStyle = text14Secondary,
         hint = "59XXXXXXX",
         inputType = KeyboardType.Phone,
         trailing = {
@@ -370,7 +371,8 @@ private fun EditTextView(vm: AuthViewModel) {
             )
         },
         modifier = Modifier.padding(top = 9.dp),
-        enabled = false
+        enabled = false,
+        textColor =  SecondaryColor.copy(0.67f)
     )
 }
 

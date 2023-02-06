@@ -56,6 +56,7 @@ import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12White
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
 import de.palm.composestateevents.EventEffect
 
@@ -122,7 +123,7 @@ private fun SupportContent(
     LaunchedEffect(messages.size) {
         listState.animateScrollToItem(messages.size)
     }
-    if (supportUiState.isLoading.not() || supportUiState.contactReplay != null) {
+    if (supportUiState.isLoading.not() ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 Modifier
@@ -181,7 +182,10 @@ private fun SupportContent(
                                         .not()
                                 ) {
                                     val reply = Reply(adminId = 0, message = viewModel.message.value)
-                                    messages.add(reply)
+                                    if (supportUiState.contactReplay != null) {
+                                        messages.clear()
+                                        supportUiState.contactReplay.replies?.add(reply)
+                                    } else messages.add(reply)
                                     sendMessage(viewModel.message.value)
                                     viewModel.message.value = ""
                                 }
@@ -212,6 +216,7 @@ private fun SupportContent(
 
 @Composable
 fun AdminItem(modifier: Modifier, reply: Reply) {
+    Spacer(modifier = Modifier.height(16.dp))
 
     Row(
         modifier,
