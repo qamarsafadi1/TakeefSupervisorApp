@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.LatLng
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.order.model.order.Order
 import com.selsela.takeefapp.data.order.model.order.WorkPeriod
@@ -72,6 +73,7 @@ fun OrderItem(
     uiState: OrderUiState,
     currentOrder: Order,
     onClick: () -> Unit,
+    onRouteClick: (LatLng, LatLng) -> Unit,
     addAdditionalCost: (Int) -> Unit,
     updateOrderStatus: (Int, String?) -> Unit
 ) {
@@ -151,7 +153,7 @@ fun OrderItem(
                 modifier = Modifier
                     .paddingTop(10)
                     .fillMaxWidth()
-                    .requiredHeight(63.dp)
+                    .defaultMinSize(minHeight = 63.dp)
                     .background(
                         LightBlue.copy(0.10f),
                         shape = RoundedCornerShape(8.dp)
@@ -272,23 +274,50 @@ fun OrderItem(
                                     color = LightBlue
                                 }
                             }
-                            ElasticButton(
-                                onClick = {
-                                    updateOrderStatus(
-                                        currentOrder.id,
-                                        if (currentOrder.payment.id == COD)
-                                            currentOrder.price.paidCash.toString()
-                                        else null
+                            Row(Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End) {
+                                ElasticButton(
+                                    onClick = {
+                                        updateOrderStatus(
+                                            currentOrder.id,
+                                            if (currentOrder.payment.id == COD)
+                                                currentOrder.price.paidCash.toString()
+                                            else null
+                                        )
+                                    },
+                                    title = title,
+                                    modifier = Modifier
+                                        .paddingTop(13)
+                                        .width(137.dp)
+                                        .requiredHeight(36.dp),
+                                    colorBg = color,
+                                    isLoading = uiState.state == State.LOADING && uiState.orderId == currentOrder.id
+                                )
+                                if(currentOrder.case.id == ON_WAY){
+                                    Spacer(modifier = Modifier.width(14.dp))
+
+                                    ElasticButton(
+                                        onClick = {
+                                            onRouteClick(
+                                                LatLng(currentOrder.address.latitude, currentOrder.address.longitude),
+                                                LatLng(
+                                                    currentOrder.supervisor?.latitude ?: 0.0,
+                                                    currentOrder.supervisor?.longitude ?: 0.0
+                                                )
+                                            )
+                                        },
+                                        title = stringResource(id = R.string.follow_route),
+                                        icon = R.drawable.map,
+                                        iconGravity = Constants.RIGHT,
+                                        modifier = Modifier
+                                            .paddingTop(13)
+                                            .requiredHeight(36.dp)
+                                            .defaultMinSize( minWidth =  if (LocalData.appLocal == "ar") 137.dp else 157.dp),
+                                        buttonBg = LightBlue
                                     )
-                                },
-                                title = title,
-                                modifier = Modifier
-                                    .paddingTop(13)
-                                    .width(137.dp)
-                                    .requiredHeight(36.dp),
-                                colorBg = color,
-                                isLoading = uiState.state == State.LOADING && uiState.orderId == currentOrder.id
-                            )
+                                }
+                            }
+
                         }
                     }
                 }
@@ -388,7 +417,7 @@ fun OrderItem(
                 modifier = Modifier
                     .paddingTop(10)
                     .fillMaxWidth()
-                    .requiredHeight(63.dp)
+                    .defaultMinSize(minHeight = 63.dp)
                     .background(
                         LightBlue.copy(0.10f),
                         shape = RoundedCornerShape(8.dp)
@@ -620,7 +649,7 @@ fun NextOrderItem(
                 modifier = Modifier
                     .paddingTop(10)
                     .fillMaxWidth()
-                    .requiredHeight(63.dp)
+                    .defaultMinSize(minHeight = 63.dp)
                     .background(
                         LightBlue.copy(0.10f),
                         shape = RoundedCornerShape(8.dp)

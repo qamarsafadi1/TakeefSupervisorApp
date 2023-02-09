@@ -47,9 +47,15 @@ class ConfigViewModel @Inject constructor(
         }
 
     fun getConfig() {
-        viewModelScope.launch { repository.getConfigurations()
+        viewModelScope.launch {
+            repository.getConfigurations()
             if (LocalData.accessToken.isNullOrEmpty().not())
-            repositoryAuth.getWallet()}
+                repositoryAuth.getWallet()
+            repository.getCities()
+            getTerms()
+            getAboutApp()
+            repository.getPayments()
+        }
     }
 
     fun getAboutApp() {

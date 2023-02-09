@@ -68,12 +68,13 @@ import de.palm.composestateevents.EventEffect
 @Composable
 fun PendingAccountScreen(
     vm: AuthViewModel = hiltViewModel(),
+    goToSupport: () -> Unit,
     onFinish: () -> Unit
 ) {
     Color.White.ChangeStatusBarColor()
     val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())
 
-    PendingAccountContent()
+    PendingAccountContent(goToSupport)
     BroadcastReceiver(
         context = LocalContext.current,
         action = VERIFIED_MANAGEMENT,
@@ -104,7 +105,9 @@ fun PendingAccountScreen(
 }
 
 @Composable
-private fun PendingAccountContent() {
+private fun PendingAccountContent(
+    goToSupport: () -> Unit,
+    ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier.fillMaxSize(),
@@ -169,7 +172,7 @@ private fun PendingAccountContent() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 43.dp)
         ) {
-
+            goToSupport()
         }
     }
 }

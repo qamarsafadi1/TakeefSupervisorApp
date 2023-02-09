@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.order.model.order.Address
 import com.selsela.takeefapp.data.order.model.order.Order
@@ -56,6 +57,7 @@ import com.selsela.takeefapp.ui.home.OrderUiState
 import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.cell.DateView
 import com.selsela.takeefapp.ui.order.rate.RateSheet
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
 import com.selsela.takeefapp.ui.theme.DividerColor
@@ -95,9 +97,10 @@ fun OrderDetailsView(
     id: Int,
     viewModel: OrderViewModel = hiltViewModel(),
     goToCost: (Int) -> Unit,
+    onRouteClick: (LatLng, LatLng) -> Unit,
     onBack: () -> Unit
 ) {
-    Color.Transparent.ChangeStatusBarOnlyColor()
+    Color.Transparent.ChangeStatusBarColor(true)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val viewState: OrderUiState by viewModel.uiState.collectAsStateLifecycleAware(
@@ -117,7 +120,8 @@ fun OrderDetailsView(
                     uiState = viewState,
                     goToCost,
                     viewModel::updateOrderStatus,
-                    onBack
+                    onBack,
+                    onRouteClick
                 ){
 
                     viewModel.getRateItem()
@@ -141,7 +145,8 @@ fun OrderDetailsView(
                         uiState = viewState,
                         goToCost,
                         viewModel::updateOrderStatus,
-                        onBack
+                        onBack,
+                        onRouteClick
                     ){
                         viewState.order = Order(id = it)
                         coroutineScope.launch {
@@ -219,6 +224,7 @@ private fun OrderDetailsContent(
     addAdditionalCost: (Int) -> Unit,
     updateOrderStatus: (Int, String?) -> Unit,
     onBack: () -> Unit,
+    onRouteClick: (LatLng, LatLng) -> Unit,
     onRateClick: (Int) -> Unit
 ) {
     Box(
@@ -361,6 +367,33 @@ private fun OrderDetailsContent(
                                         }
                                     }
                                     val context = LocalContext.current
+                                    if(order.case.id == Constants.ON_WAY){
+
+                                        ElasticButton(
+                                            onClick = {
+                                                onRouteClick(
+                                                    LatLng(order.address.latitude, order.address.longitude),
+                                                    LatLng(
+                                                        order.supervisor?.latitude ?: 0.0,
+                                                        order.supervisor?.longitude ?: 0.0
+                                                    )
+                                                )
+                                            },
+                                            title = stringResource(id = R.string.follow_route),
+                                            icon = R.drawable.map,
+                                            iconGravity = Constants.RIGHT,
+                                            modifier = Modifier
+                                                .paddingTop(13)
+                                                .requiredHeight(36.dp)
+                                                .weight(1f)
+                                                .fillMaxWidth()
+                                            ,
+                                            buttonBg = LightBlue
+                                        )
+                                        Spacer(modifier = Modifier.width(14.dp))
+
+                                    }
+
                                     ElasticButton(
                                         onClick = {
                                             if (viewModel.currentOrder.value == null || viewModel.currentOrder.value?.id == order.id) {
@@ -378,6 +411,7 @@ private fun OrderDetailsContent(
                                         modifier = Modifier
                                             .paddingTop(13)
                                             .fillMaxWidth()
+                                            .weight(1f)
                                             .requiredHeight(36.dp),
                                         colorBg = color,
                                         isLoading = uiState.state == State.LOADING

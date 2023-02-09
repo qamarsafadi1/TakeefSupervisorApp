@@ -230,4 +230,5 @@
     <string name="no_notifications">لا يوجد اشعارات</string>
     <string name="no_notifications_lbl">لا توجد اشعارات حالياً</string>
     <string name="on_progress_orders">طلبات جارية</string>
+    <string name="please_download_app">الرجاء تحميل التطبيق</string>
 </resources>

@@ -71,7 +71,7 @@ fun CompleteInfoScreen(
     goToPending: () -> Unit,
     onBack: () -> Unit
 ) {
-    Color.Transparent.ChangeStatusBarColor()
+    Color.Transparent.ChangeStatusBarColor(true)
     TextColor.ChangeNavigationBarColor()
 
     val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())

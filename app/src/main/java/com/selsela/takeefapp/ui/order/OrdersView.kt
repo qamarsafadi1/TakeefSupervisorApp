@@ -46,7 +46,11 @@ import com.selsela.takeefapp.ui.home.OrderUiState
 import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.cell.OrderItem
 import com.selsela.takeefapp.ui.order.rate.RateSheet
+import com.selsela.takeefapp.ui.splash.ChangeNavigationBarColor
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
+import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Constants.FINISHED
@@ -64,7 +68,7 @@ fun OrdersView(
     goToCost: (Int) -> Unit,
     onBack: () -> Unit
 ) {
-
+    Color.Transparent.ChangeStatusBarColor(true)
     val context = LocalContext.current
     val lazyColumnListState = rememberLazyListState()
     var rateSheetState = rememberModalBottomSheetState(

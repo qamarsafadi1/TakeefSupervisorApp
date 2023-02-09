@@ -1,7 +1,9 @@
 package com.selsela.takeefapp
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.rememberNavController
+import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.selsela.takeefapp.navigation.Destinations
 import com.selsela.takeefapp.navigation.Navigation.bindToolbarTitle
 import com.selsela.takeefapp.navigation.Navigation.showingBackButton
@@ -121,9 +124,7 @@ class MainActivity : AppCompatActivity() {
                                             && currentRoute.value?.destination?.route != Destinations.SUCCESS_ARGS
                                             && currentRoute.value?.destination?.route != Destinations.ORDERS_SCREEN_ARGS
                                         ) {
-                                            if (currentRoute.value?.destination?.route != Destinations.VERIFY_SCREEN)
-                                                Color.White.ChangeStatusBarColor()
-                                            else TextColor.ChangeStatusBarColor(true)
+                                            Color.White.ChangeStatusBarColor(true)
 
                                             CenterAlignedTopAppBar(
                                                 title = {
@@ -194,8 +195,22 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsBuilder(
+                Manifest.permission.POST_NOTIFICATIONS
+            ).build().send()
         }
     }
+
+
+    override fun onResume() {
+        super.onResume()
+
+    }
+
 
     @Composable
     private fun BindMenuItems(currentRoute: State<NavBackStackEntry?>) {

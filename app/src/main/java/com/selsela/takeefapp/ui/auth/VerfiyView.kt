@@ -120,7 +120,7 @@ private fun VerifyCodeContent(
                         .padding(top = 0.dp)
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 360.dp)
+                        .defaultMinSize(minHeight = 370.dp)
 
                 ) {
                     Column(

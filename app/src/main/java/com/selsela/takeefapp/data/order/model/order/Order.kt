@@ -23,7 +23,7 @@ data class Order(
     val orderDate: String = "",
     @SerializedName("order_service")
     val orderService: List<OrderService> = listOf(),
-    @SerializedName("supervisor")
+    @SerializedName("user")
     val supervisor: Supervisor? = Supervisor(),
     @SerializedName("transaction")
     val transaction: Transaction = Transaction(),

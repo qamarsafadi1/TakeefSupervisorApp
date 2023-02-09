@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.order.model.order.Order
@@ -58,7 +59,11 @@ fun HomeView(
     goToDetails: (Int) -> Unit,
     onPending: () -> Unit,
     goToCost: (Int) -> Unit,
-) {
+    goToOrderRoute: (LatLng,LatLng) -> Unit,
+
+    ) {
+    Color.Transparent.ChangeStatusBarColor(true)
+
     val lazyColumnListState = rememberLazyListState()
     val shouldStartPaginate = remember {
         derivedStateOf {
@@ -90,6 +95,7 @@ fun HomeView(
         orderVm::updateOrderStatus,
         goToMyAccount,
         goToCost,
+        goToOrderRoute,
         goToDetails,
     )
 
@@ -139,10 +145,11 @@ private fun HomeContent(
     updateOrderStatus: (Int, String?) -> Unit,
     goToMyAccount: () -> Unit,
     goToCost: (Int) -> Unit,
+    goToOrderRoute: (LatLng,LatLng) -> Unit,
     goToDetails: (Int) -> Unit
 ) {
     val currentOrder = viewModel.currentOrder.value
-    Color.White.ChangeStatusBarColor()
+    Color.White.ChangeStatusBarColor(true)
     // hide ripple effect
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
         Box(
@@ -196,6 +203,7 @@ private fun HomeContent(
                             currentOrder,
                             updateOrderStatus,
                             goToCost,
+                            goToOrderRoute,
                             orders,
                             goToDetails
                         )
@@ -218,6 +226,7 @@ private fun OrdersList(
     currentOrder: Order?,
     updateOrderStatus: (Int, String?) -> Unit,
     goToCost: (Int) -> Unit,
+    goToOrderRoute: (LatLng, LatLng) -> Unit,
     orders: SnapshotStateList<Order>,
     goToDetails: (Int) -> Unit
 ) {
@@ -234,6 +243,9 @@ private fun OrdersList(
                     currentOrder,
                     onClick = {
                         goToDetails(currentOrder.id)
+                    },
+                    onRouteClick = { myLatLng, supervisorLatLbg ->
+                        goToOrderRoute(myLatLng,supervisorLatLbg)
                     },
                     addAdditionalCost = goToCost
                 ) { id, codAmount ->

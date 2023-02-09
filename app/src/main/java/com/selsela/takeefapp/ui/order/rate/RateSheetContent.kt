@@ -160,7 +160,10 @@ private fun NoteView(
     InputEditText(
         text = viewModel.note,
         hint = stringResource(R.string.write_note),
-        modifier = Modifier.padding(top = 34.dp),
+        modifier = Modifier
+            .padding(top = 34.dp)
+            .fillMaxWidth()
+            .requiredHeight(48.dp),
         onValueChange = {
             note = it
             onValueChange(note)

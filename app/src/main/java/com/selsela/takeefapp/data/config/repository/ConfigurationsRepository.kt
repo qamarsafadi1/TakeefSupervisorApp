@@ -24,12 +24,6 @@ class ConfigurationsRepository @Inject constructor(
         val data: Flow<Resource<Configurations>> = try {
             val response = api.getConfigurations()
             if (response.isSuccessful) {
-                withContext(Dispatchers.Default) {
-                    getCities()
-                    getTerms()
-                    getAboutApp()
-                    getPayments()
-                }
                 LocalData.configurations = response.body()?.configurations
                 LocalData.cases = response.body()?.cases
                 LocalData.acTypes = response.body()?.acTypes
@@ -92,7 +86,7 @@ class ConfigurationsRepository @Inject constructor(
         }
         data
     }
-    private suspend fun getCities(): Flow<Resource<List<Area>>> = withContext(Dispatchers.IO) {
+    suspend fun getCities(): Flow<Resource<List<Area>>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<List<Area>>> = try {
             val response = api.getCities()
             if (response.isSuccessful) {
@@ -112,7 +106,7 @@ class ConfigurationsRepository @Inject constructor(
         }
         data
     }
-    private suspend fun getPayments(): Flow<Resource<List<Payment>>> = withContext(Dispatchers.IO) {
+    suspend fun getPayments(): Flow<Resource<List<Payment>>> = withContext(Dispatchers.IO) {
         val data: Flow<Resource<List<Payment>>> = try {
             val response = api.getPayments()
             if (response.isSuccessful) {

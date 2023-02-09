@@ -45,6 +45,7 @@ data class AuthUiState(
     val responseMessage: String = "",
     val user: User? = LocalData.user,
     val onSuccess: StateEventWithContent<String> = consumed(),
+    val onResend: StateEventWithContent<String> = consumed(),
     val onVerfied: StateEventWithContent<String> = consumed(),
     val onDeleteAccount: StateEventWithContent<String> = consumed(),
     val isLoading: Boolean = false,
@@ -488,7 +489,7 @@ class AuthViewModel @Inject constructor(
                         Status.SUCCESS -> {
                             AuthUiState(
                                 responseMessage = result.message ?: "",
-                                onSuccess = triggered(result.data?.status ?: ""),
+                                onResend = triggered(result.data?.status ?: ""),
                             )
                         }
 

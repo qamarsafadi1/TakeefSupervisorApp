@@ -65,11 +65,6 @@ fun SuccessView(
     )
     viewState.log("viewState")
     viewState.order = Order(id = orderID)
-    val rateSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded },
-        skipHalfExpanded = true
-    )
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -91,11 +86,7 @@ fun SuccessView(
             ) {
 
                 SuccessSend(){
-                    coroutineScope.launch {
-                        if (rateSheetState.isVisible)
-                            rateSheetState.hide()
-                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                    }
+goToRate()
                 }
             }
             LottieAnimationView(
@@ -104,31 +95,6 @@ fun SuccessView(
                     .size(126.dp)
             )
         }
-
-        RateSheet(rateSheetState,
-            viewModel,
-            viewState,
-            onConfirm = viewModel::rateOrder)
-    }
-
-    when (viewState.state) {
-        State.SUCCESS -> {
-            if (viewState.responseMessage.isNullOrEmpty().not()) {
-                LocalContext.current.showSuccess(
-                    viewState.responseMessage ?: ""
-                )
-                LaunchedEffect(key1 = Unit){
-                    coroutineScope.launch {
-                        if (rateSheetState.isVisible)
-                            rateSheetState.hide()
-                        else rateSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                    }
-                }
-                viewState.responseMessage = ""
-                goToRate()
-            }
-        }
-        else -> {}
     }
 }
 
@@ -158,9 +124,7 @@ fun SuccessSend(goToRate: () -> Unit) {
 
         Spacer(modifier = Modifier.height(20.dp))
         ElasticButton(
-            onClick = { goToRate() }, title = stringResource(id = R.string.rate),
-            icon = R.drawable.starfill,
-            iconGravity = Constants.RIGHT,
+            onClick = { goToRate() }, title = stringResource(id = R.string.close),
             modifier = Modifier
                 .padding(top = 45.dp)
                 .padding(horizontal = 37.dp)

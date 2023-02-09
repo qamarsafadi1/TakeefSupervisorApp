@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,9 @@ private fun SplashContent(onFinish: () -> Unit) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.splashart),
-            contentDescription = ""
+            contentDescription = "",
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillBounds
         )
 
         Column(
@@ -81,8 +84,9 @@ private fun SplashContent(onFinish: () -> Unit) {
             verticalArrangement = Arrangement.Bottom
         ) {
             AppLogoImage()
+
             Text(
-                text = "مشرف صيانة",
+                text = stringResource(id = R.string.app_name),
                 style = text17,
                 modifier = Modifier.paddingTop(30)
             )
@@ -101,11 +105,11 @@ fun Color.ChangeStatusBarColor(
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(
         color = this,
-        darkIcons = false
+        darkIcons = isDark
     )
     systemUiController.setNavigationBarColor(
         color = this,
-        darkIcons = true
+        darkIcons = isDark
     )
 }
 

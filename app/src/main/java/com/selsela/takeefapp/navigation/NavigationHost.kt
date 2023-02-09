@@ -1,5 +1,7 @@
 package com.selsela.takeefapp.navigation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -11,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.aboutapp.AboutAppView
 import com.selsela.takeefapp.ui.account.MyAccountView
 import com.selsela.takeefapp.ui.auth.CompleteInfoScreen
@@ -33,6 +36,7 @@ import com.selsela.takeefapp.ui.wallet.WalletScreen
 import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
 import com.selsela.takeefapp.utils.Constants.VERIFIED
 import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.showError
 import com.selsela.takeefapp.utils.Extensions.Companion.whatsappContact
 import com.selsela.takeefapp.utils.LocalData
 
@@ -74,14 +78,25 @@ fun NavigationHost(
             }
         }
         composable(Destinations.HOME_SCREEN) {
+            val context = LocalContext.current
             HomeView(goToMyAccount = {
                 navActions.navigateToMyAccount()
             }, goToDetails = {
                 navActions.navigateToOrderDetails(it)
             },
                 onPending = navActions::navigateToPendingAccount
-            ) {
+            , goToCost =  {
                 navActions.navigateToAddCostScreen(it)
+            }){ latLng, supervisorLatLbg ->
+                try {
+                    val mapUri =
+                        Uri.parse("http://maps.google.com/maps?saddr=${latLng.latitude},${latLng.longitude} &daddr=${supervisorLatLbg.latitude},${supervisorLatLbg.longitude} &dirflg=d")
+                    val intent = Intent(Intent.ACTION_VIEW, mapUri)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    context.showError(context.getString(R.string.please_download_app))
+                }
             }
         }
         composable(Destinations.LOGIN_SCREEN) {
@@ -179,6 +194,7 @@ fun NavigationHost(
             arguments = listOf(navArgument("id") { type = NavType.StringType }),
             deepLinks = listOf(navDeepLink { uriPattern = "$uri/id={id}" })
         ) {
+            val context = LocalContext.current
             navController.previousBackStackEntry?.destination?.route?.log("navController")
             val parentEntry = remember(it) {
                 when (navController.previousBackStackEntry?.destination?.route) {
@@ -194,7 +210,19 @@ fun NavigationHost(
                 viewModel = parentViewModel,
                 goToCost = {
                     navActions.navigateToAddCostScreen(it)
-                }) {
+                },
+            onRouteClick = {
+                    latLng, supervisorLatLbg ->
+                try {
+                    val mapUri =
+                        Uri.parse("http://maps.google.com/maps?saddr=${latLng.latitude},${latLng.longitude} &daddr=${supervisorLatLbg.latitude},${supervisorLatLbg.longitude} &dirflg=d")
+                    val intent = Intent(Intent.ACTION_VIEW, mapUri)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    context.showError(context.getString(R.string.please_download_app))
+                }
+            }) {
                 navController.navigateUp()
             }
         }
@@ -222,7 +250,16 @@ fun NavigationHost(
             WalletScreen()
         }
         composable(Destinations.PENDING_ACCOUNT_SCREEN) {
-            PendingAccountScreen() {
+            val context = LocalContext.current
+            PendingAccountScreen(
+                goToSupport = {
+                    if (LocalData.accessToken.isNullOrEmpty().not())
+                        navActions.navigateToSupport()
+                    else {
+                        context.whatsappContact(LocalData.configurations?.whatsapp ?: "")
+                    }
+                }
+            ) {
                 navActions.navigateToHome()
             }
         }
