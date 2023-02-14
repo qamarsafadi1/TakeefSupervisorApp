@@ -55,6 +55,8 @@ import com.selsela.takeefapp.ui.theme.text10
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12White
 import com.selsela.takeefapp.utils.Common
+import com.selsela.takeefapp.utils.Constants.ADMIN_REPLIED
+import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
@@ -103,6 +105,11 @@ fun SupportScreen(
         viewModel.contactId = contactId
     }
 
+    Extensions.BroadcastReceiver(context = context, action = ADMIN_REPLIED) {
+        viewModel.getContacts()
+
+    }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -115,7 +122,7 @@ private fun SupportContent(
     val messages = mutableListOf<Reply>().toMutableStateList()
     if (supportUiState.contactReplay != null) {
         messages.clear()
-        supportUiState.contactReplay.replies?.forEach {
+        supportUiState.contactReplay!!.replies?.forEach {
             messages.add(it)
         }
     }
@@ -123,7 +130,7 @@ private fun SupportContent(
     LaunchedEffect(messages.size) {
         listState.animateScrollToItem(messages.size)
     }
-    if (supportUiState.isLoading.not() ) {
+    if (supportUiState.isLoading.not() || supportUiState.contactReplay != null) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 Modifier
@@ -134,18 +141,23 @@ private fun SupportContent(
                     .padding(start = 29.dp, end = 20.dp),
                 state = listState
             ) {
-                items(messages) {
+                items(messages,
+                    key = {
+                        it.id ?: 0
+                    }) {
                     if (it.adminId != 1)
                         MeItem(
                             Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement(),
+                                .animateItemPlacement(
+
+                                )
+                                .fillMaxWidth(),
                             it
                         )
                     else AdminItem(
                         Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(),
+                            .animateItemPlacement()
+                            .fillMaxWidth(),
                         it
                     )
                 }
@@ -162,16 +174,22 @@ private fun SupportContent(
                 verticalAlignment = Alignment.CenterVertically,
                 //horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(Modifier.fillMaxWidth()
-                    .requiredHeight(48.dp)
-                    .weight(1f),
-                    horizontalArrangement = Arrangement.Start) {
-                    MessageEditText(viewModel,Modifier.fillMaxSize())
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .requiredHeight(48.dp)
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    MessageEditText(viewModel, Modifier.fillMaxSize())
                 }
 
-                Row(Modifier.fillMaxWidth()
-                    .weight(0.2f),
-                horizontalArrangement = Arrangement.End) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(0.2f),
+                    horizontalArrangement = Arrangement.End
+                ) {
                     Image(painter = painterResource(id = R.drawable.send), contentDescription = "",
                         modifier = Modifier
                             .width(38.dp)
@@ -181,11 +199,18 @@ private fun SupportContent(
                                         .isEmpty()
                                         .not()
                                 ) {
-                                    val reply = Reply(adminId = 0, message = viewModel.message.value)
+                                    val reply =
+                                        Reply(adminId = 0, message = viewModel.message.value)
                                     if (supportUiState.contactReplay != null) {
-                                        messages.clear()
-                                        supportUiState.contactReplay.replies?.add(reply)
-                                    } else messages.add(reply)
+                                        reply.id =
+                                            (supportUiState.contactReplay?.replies?.last()?.id
+                                                ?: 0) + 1
+                                        supportUiState.contactReplay?.replies?.add(reply)
+                                    } else {
+                                        reply.id = 1
+                                        messages.add(reply)
+                                        viewModel.getContacts()
+                                    }
                                     sendMessage(viewModel.message.value)
                                     viewModel.message.value = ""
                                 }

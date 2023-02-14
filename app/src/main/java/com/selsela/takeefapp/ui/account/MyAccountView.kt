@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.ui.account.components.Header
 import com.selsela.takeefapp.ui.auth.AuthUiState
@@ -144,6 +145,17 @@ fun MyAccountView(
             context
         )
     }
+
+    Extensions.OnLifecycleEvent { _, event ->
+        // do stuff on event
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                viewModel.me()
+            }
+
+            else -> {}
+        }
+    }
 }
 
 @Composable
@@ -192,9 +204,7 @@ private fun AccountViewContent(
                 user,
                 viewModel.userLoggedIn.value,
                 onBack = {
-                    {
-                        onBack()
-                    }.withDelay(1000)
+                    onBack()
                 }
             ) {
                 if (it == Constants.LOG_OUT) {
@@ -345,12 +355,12 @@ private fun AccountViewContent(
         }
         LanguageSheet(languageSheet) {
             configViewModel.getConfig()
-
             coroutineScope.launch {
                 if (languageSheet.isVisible)
                     languageSheet.hide()
                 else languageSheet.animateTo(ModalBottomSheetValue.Expanded)
             }
+            onBack()
         }
     }
 }

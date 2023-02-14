@@ -134,12 +134,16 @@ fun RateSheetContent(
         ElasticButton(
             onClick = {
                 viewModel.rateArray.size.log(" rateArray ")
-                if (viewModel.note.isEmpty().not()) {
-                    onConfirm(viewState.order?.id!!, viewModel.rateArray, viewModel.note)
-                    viewModel.note = ""
-                    viewModel.rateItemArray.value = listOf()
+                if (viewModel.rateArray.isEmpty().not()) {
+                    if (viewModel.note.isEmpty().not()) {
+                        onConfirm(viewState.order?.id!!, viewModel.rateArray, viewModel.note)
+                        viewModel.note = ""
+                        viewModel.rateItemArray.value = listOf()
+                    } else {
+                        context.showError(context.getString(R.string.please_enter_note))
+                    }
                 } else {
-                    context.showError(context.getString(R.string.please_enter_note))
+                    context.showError(context.getString(R.string.please_rate_at_least))
                 }
             }, title = stringResource(id = R.string.send_rate),
             modifier = Modifier

@@ -50,7 +50,7 @@ fun SplashView(
     viewModel: ConfigViewModel = hiltViewModel(),
     onFinish: () -> Unit
 ) {
-    Color.Transparent.ChangeStatusBarColor()
+    Color.Transparent.ChangeStatusBarColor(true)
 
     SplashContent(onFinish)
     LaunchedEffect(Unit) {

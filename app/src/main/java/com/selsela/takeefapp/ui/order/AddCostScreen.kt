@@ -48,9 +48,12 @@ import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Constants
+import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
 import com.selsela.takeefapp.utils.Extensions.Companion.getCurrency
 import com.selsela.takeefapp.utils.Extensions.Companion.log
+import com.selsela.takeefapp.utils.Extensions.Companion.showError
+import com.selsela.takeefapp.utils.Extensions.Companion.showSuccess
 import de.palm.composestateevents.EventEffect
 import kotlinx.coroutines.delay
 
@@ -80,8 +83,20 @@ fun AddCostScreen(
             event = it,
             onConsumed = vm::onSuccess
         ) {
-            onFinish()
+          //  onFinish()
         }
+    }
+
+    Extensions.BroadcastReceiver(context = context,
+        action = "accept_additional_cost" ) {
+        onFinish()
+    }
+
+    Extensions.BroadcastReceiver(context = context,
+        action = "reject_additional_cost" ) {
+        context.showError("تم رفض التكلفة الاضافية")
+        onFinish()
+
     }
 
     EventEffect(
@@ -111,9 +126,9 @@ private fun AddCostContent(
             mutableStateOf(CardFace.Front)
 
         }
-        if (uiState.state == State.LOADING)
-            state.next
-        else state = CardFace.Front
+//        if (uiState.state == State.LOADING)
+//            state.next
+//        else state = CardFace.Front
         Column(
             Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -188,10 +203,10 @@ private fun AddCostContent(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Countdown(
-                            seconds = 120,
-                            modifier = Modifier.paddingTop(12)
-                        ) {}
+//                        Countdown(
+//                            seconds = 120,
+//                            modifier = Modifier.paddingTop(12)
+//                        ) {}
                     }
 
                 }

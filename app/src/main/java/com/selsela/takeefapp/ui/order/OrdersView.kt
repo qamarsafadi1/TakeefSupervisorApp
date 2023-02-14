@@ -96,7 +96,6 @@ fun OrdersView(
     }
     orders.isEmpty().log("orders")
 
-    var clickedOnRate = false
     OrderListContent(
         viewState,
         caseID,

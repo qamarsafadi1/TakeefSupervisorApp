@@ -231,5 +231,7 @@
     <string name="no_notifications_lbl">Currently there are no notifications</string>
     <string name="on_progress_orders">On progress orders</string>
     <string name="please_download_app">Please download app</string>
+    <string name="please_rate_at_least">Please rate at least one item</string>
+    <string name="maintinance_cost">Maintenance cost</string>
 
 </resources>

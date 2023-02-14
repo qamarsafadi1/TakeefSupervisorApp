@@ -72,20 +72,22 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 class Extensions {
-    companion object{
+    companion object {
         fun <T> (() -> T).withDelay(delay: Long = 250L) {
             Handler(Looper.getMainLooper()).postDelayed({ this.invoke() }, delay)
         }
+
         fun Context.findDrawable(color: Int): Int {
             return ContextCompat.getColor(this, color)
         }
 
-        fun Int.convertToDecimalPatter(): String{
-           return DecimalFormat(
+        fun Int.convertToDecimalPatter(): String {
+            return DecimalFormat(
                 "00",
                 DecimalFormatSymbols(Locale.US)
             ).format(this)
         }
+
         fun Any.log(tag: String = "") {
             if (tag.equals("")) {
                 Log.d("QMR : ", this.toString())
@@ -99,7 +101,7 @@ class Extensions {
         fun Context.RequestPermission(
             permission: String,
             onGranted: (Boolean) -> Unit
-        ){
+        ) {
             val launcher = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ) { isGranted: Boolean ->
@@ -112,6 +114,7 @@ class Extensions {
                 ) -> {
                     onGranted(true)
                 }
+
                 else -> {
                     SideEffect { // SideEffect just when you need to request your permission
                         // first time before composition
@@ -122,6 +125,7 @@ class Extensions {
 
 
         }
+
         fun getMyLocation(
             context: Context,
             onMyLocation: (LatLng) -> Unit
@@ -568,14 +572,16 @@ class Extensions {
 
 
         @Composable
-         fun BroadcastReceiver(
+        fun BroadcastReceiver(
             context: Context,
             action: String,
             onReceived: () -> Unit
         ) {
-            val receiver: NotificationReceiver = object : NotificationReceiver() {
+            var receiver: NotificationReceiver? = null
+            receiver = object : NotificationReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     onReceived()
+                    receiver?.let { LocalBroadcastManager.getInstance(context).unregisterReceiver(it) }
                 }
             }
             LocalBroadcastManager.getInstance(context).registerReceiver(
@@ -607,17 +613,20 @@ class Extensions {
                     .toString()
             }
         }
+
         fun getCurrency(): Any {
             return (if (LocalData.appLocal == "ar")
                 LocalData.configurations?.currencyAr
             else LocalData.configurations?.currencyEn)!!
         }
+
         fun Context.whatsappContact(phone: String) {
             val url = "https://api.whatsapp.com/send?phone=${phone}"
             val i = Intent(Intent.ACTION_VIEW)
             i.data = Uri.parse(url)
             this.startActivity(i)
         }
+
         @Composable
         fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
             val eventHandler = rememberUpdatedState(onEvent)
@@ -637,7 +646,6 @@ class Extensions {
         }
 
     }
-
 
 
 }

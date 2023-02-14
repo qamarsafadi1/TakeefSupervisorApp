@@ -3,6 +3,7 @@ package com.selsela.takeefapp.ui.auth
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.selsela.takeefapp.ui.common.Countdown
 import com.selsela.takeefapp.ui.common.ElasticButton
 import com.selsela.takeefapp.ui.common.OtpTextField
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.text12
 import com.selsela.takeefapp.ui.theme.text12Meduim
@@ -55,13 +57,16 @@ import de.palm.composestateevents.EventEffect
 @Composable
 fun VerifyView(
     viewModel: AuthViewModel = hiltViewModel(),
-    onConfirm: () -> Unit
+    goToSupport: () -> Unit,
+    onConfirm: () -> Unit,
 ) {
     val viewState: AuthUiState by viewModel.uiState.collectAsStateLifecycleAware(AuthUiState())
     val context = LocalContext.current
+    TextColor.ChangeStatusBarColor(false)
 
     VerifyCodeContent(
         uiState = viewState,
+        goToSupport = goToSupport,
         onConfirm = viewModel::verifyCode,
         viewModel = viewModel,
         resend = viewModel::resendCode
@@ -94,6 +99,7 @@ fun VerifyView(
 @Composable
 private fun VerifyCodeContent(
     uiState: AuthUiState,
+    goToSupport: () -> Unit,
     onConfirm: () -> Unit,
     resend: () -> Unit,
     viewModel: AuthViewModel
@@ -205,7 +211,7 @@ private fun VerifyCodeContent(
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 43.dp),
+                .padding(bottom = 23.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -231,7 +237,11 @@ private fun VerifyCodeContent(
                     text = stringResource(R.string.support_lbl),
                     style = text12Meduim,
                     color = LightBlue,
-                    modifier = Modifier.padding(start = 6.dp)
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .clickable {
+                            goToSupport()
+                        }
                 )
             }
         }

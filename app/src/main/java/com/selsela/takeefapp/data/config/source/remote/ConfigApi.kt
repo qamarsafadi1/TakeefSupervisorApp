@@ -13,7 +13,7 @@ interface ConfigApi {
     suspend fun getConfigurations(): Response<ConfigResponse>
     @GET("app/page/3")
     suspend fun getAboutApp(): Response<PageResponse>
-    @GET("app/page/1")
+    @GET("app/page/2")
     suspend fun getTerms(): Response<PageResponse>
     @GET("app/get_cities")
     suspend fun getCities(

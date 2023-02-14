@@ -199,7 +199,7 @@ fun OrderItem(
 
                     Row {
                         Text(
-                            text = "${currentOrder.grandTotal}",
+                            text = "${currentOrder.grandTotal.plus(currentOrder.price.additionalCost)}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)
@@ -463,7 +463,7 @@ fun OrderItem(
 
                     Row {
                         Text(
-                            text = "${currentOrder.grandTotal}",
+                            text = "${currentOrder.grandTotal.plus(currentOrder.price.additionalCost)}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)
@@ -695,7 +695,7 @@ fun NextOrderItem(
 
                     Row {
                         Text(
-                            text = "${order.grandTotal}",
+                            text = "${order.grandTotal.plus(order.price.additionalCost)}",
                             style = text12Bold,
                             color = TextColor,
                             modifier = Modifier.padding(start = 4.dp)

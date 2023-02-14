@@ -820,6 +820,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+
     fun getContacts() {
         viewModelScope.launch {
             supportState = supportState.copy(
@@ -837,6 +838,7 @@ class AuthViewModel @Inject constructor(
                                     null
                                 }
                             if (contactReplay != null) {
+                                contactId = contactReplay.id ?: -1
                                 contactReplay.replies?.add(
                                     0, Reply(
                                         message = contactReplay.message,
@@ -892,10 +894,11 @@ class AuthViewModel @Inject constructor(
                     Status.SUCCESS -> {
                         isLoaded = true
                         val contactReplay = result.data?.contactReplies
+                        contactId = contactReplay?.id  ?: -1
                         contactReplay?.replies?.add(
                             0, Reply(
                                 message = contactReplay.message,
-                                type = "supervisor",
+                                type = "user",
                                 adminId = LocalData.user?.id
                             )
                         )
@@ -915,6 +918,7 @@ class AuthViewModel @Inject constructor(
                                 ErrorsData(
                                     result.errors,
                                     result.message,
+                                    result.statusCode
                                 )
                             )
                         )

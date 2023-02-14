@@ -45,6 +45,8 @@ data class Order(
     val price: Price = Price(),
     @SerializedName("payment")
     val payment: Payment = Payment(),
+    @SerializedName("additional_payment_type")
+    val additional_payment_type: Payment? = null,
     //  "${orderDate[0]}-${orderDate[1]}-${orderDate[2]}"
     //                "${orderDate[3]}:${orderDate[4]}"
     //                orderDate.last()

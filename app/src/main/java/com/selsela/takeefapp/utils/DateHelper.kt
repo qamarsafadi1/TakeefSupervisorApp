@@ -16,7 +16,26 @@ class DateHelper {
             }
             return dates
         }
-
+        fun getOrderDateNoraml(createdAt: String): List<String> {
+            var list = listOf<String>()
+            val h_mm_ss = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            val year = SimpleDateFormat("yyyy", Locale.ENGLISH)
+            val day = SimpleDateFormat("dd", Locale.ENGLISH)
+            val month = SimpleDateFormat("MM", Locale.ENGLISH)
+            try {
+                val d1 = h_mm_ss.parse(createdAt)
+                d1?.let {
+                    val yearInt = year.format(d1)
+                    val dayInt = day.format(d1)
+                    val monthInt = month.format(d1)
+                    return listOf(yearInt, dayInt, monthInt)
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                return list
+            }
+            return list
+        }
         fun findHoursBetween(startTime: String, endTime: String, duration: Int): ArrayList<String> {
             val hh_mm = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
             val h_mm_a = SimpleDateFormat("hh:mm a", Locale.ENGLISH)

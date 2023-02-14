@@ -15,6 +15,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +46,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
@@ -68,13 +71,18 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -361,7 +369,7 @@ fun EditText(
     isValid: Boolean = true,
     validationMessage: String = "",
     borderColor: Color = BorderColor,
-    textColor: Color =  Color.White,
+    textColor: Color = Color.White,
     enabled: Boolean = true,
     trailing: @Composable (() -> Unit)? = null
 ) {
@@ -873,7 +881,15 @@ fun Countdown(
     )
 
     if (isFinish) {
-        ElasticView(onClick = { resend() }) {
+        ElasticView(
+            onClick = {
+                resend()
+                isFinish = false
+                timeData = millisInFuture
+                countDownTimer.start()
+            },
+            modifier = Modifier.padding(vertical = 20.dp)
+        ) {
             Text(
                 text = stringResource(id = R.string.resend),
                 style = text11Meduim,
@@ -991,7 +1007,7 @@ fun <T> ListedBottomSheet(
                         onValueChange = {
                             query = it
                         }, text = query,
-                        hint = "بحث",
+                        hint = stringResource(id = R.string.search),
                         leading = {
                             androidx.compose.material3.Icon(
                                 painter = painterResource(id = R.drawable.search),
@@ -1261,7 +1277,7 @@ fun StepperView(
 
         Divider(
             Modifier
-                .fillMaxWidth(0.75f)
+                .fillMaxWidth(0.7f)
                 .padding(vertical = 10.dp)
                 .align(Alignment.TopCenter),
             thickness = 4.dp,
@@ -1294,14 +1310,14 @@ private fun Step(
     isCompleted: Boolean,
     isDetails: Boolean = false
 ) {
-    val drawable = if (isCurrent) {
+    val drawable: Int = if (isCurrent) {
         R.drawable.checked
     } else {
         if (isCompleted)
             R.drawable.checked
         else R.drawable.uncomplete
-    }
 
+    }
     val textColor: Color by animateColorAsState(
         targetValue = if (isCurrent) {
             TextColor
@@ -1312,8 +1328,8 @@ private fun Step(
             durationMillis = 1000,
         )
     )
-    if (isDetails.not())
-        Spacer(modifier = Modifier.width(10.dp))
+//    if (isDetails.not())
+//        Spacer(modifier = Modifier.width(10.dp))
 
     Column(
         Modifier
@@ -1328,14 +1344,13 @@ private fun Step(
             text = step,
             modifier = Modifier
                 .paddingTop(9)
-                .width(30.dp),
+                .width(if (LocalData.appLocal == "ar") 30.dp else 50.dp),
             style = text8,
             color = textColor,
             textAlign = TextAlign.Center
         )
     }
 }
-
 @Composable
 fun SelectedServicesView(orderServices: List<OrderService>) {
     Row(
@@ -1363,6 +1378,54 @@ fun SelectedServicesView(orderServices: List<OrderService>) {
         }
 
     }
+}
+
+@Composable
+fun AutoSizeText(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    color: Color,
+    textAlign: TextAlign = TextAlign.Center,
+    modifier: Modifier = Modifier,
+    minTextSize: TextUnit = TextUnit.Unspecified,
+    maxLines: Int = Int.MAX_VALUE,
+) {
+    BoxWithConstraints(modifier) {
+        var combinedTextStyle = LocalTextStyle.current + style
+
+        while (shouldShrink(text, combinedTextStyle, minTextSize, maxLines)) {
+            combinedTextStyle = combinedTextStyle.copy(fontSize = combinedTextStyle.fontSize * .9f)
+        }
+
+        Text(
+            text = text,
+            style = style + androidx.compose.ui.text.TextStyle(fontSize = combinedTextStyle.fontSize),
+            maxLines = maxLines,
+            color = color
+        )
+    }
+}
+
+
+
+@Composable
+private fun BoxWithConstraintsScope.shouldShrink(
+    text: String,
+    combinedTextStyle: androidx.compose.ui.text.TextStyle,
+    minimumTextSize: TextUnit,
+    maxLines: Int
+): Boolean = if (minimumTextSize == TextUnit.Unspecified || combinedTextStyle.fontSize > minimumTextSize) {
+    false
+} else {
+    val paragraph = Paragraph(
+        text = text,
+        style = combinedTextStyle,
+        width = maxWidth.value,
+        maxLines = maxLines,
+        density = LocalDensity.current,
+        resourceLoader = LocalFontLoader.current,
+    )
+    paragraph.height > maxHeight.value
 }
 
 @Composable

@@ -17,6 +17,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import com.selsela.takeefapp.MainActivity
 import com.selsela.takeefapp.R
+import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Constants.BLOCKED
 import com.selsela.takeefapp.utils.Constants.NEW_ORDER
 import com.selsela.takeefapp.utils.Constants.NOT_VERIFIED
@@ -112,6 +113,7 @@ class Controller : FirebaseMessagingService() {
                             "none"
                         )
                     }
+
                     UN_BLOCKED -> {
                         val user = LocalData.user
                         LocalData.user = user
@@ -133,9 +135,10 @@ class Controller : FirebaseMessagingService() {
                         sendNotification(
                             remoteMessage.notification?.title ?: "",
                             remoteMessage.notification?.body ?: "",
-                            MainActivity::class.java.simpleName,
+                            "Walletً"
                         )
                     }
+
                     "new_order" -> {
                         val orderId = json.getString("order_id")
                         val localIntent = Intent("new_order")
@@ -149,6 +152,41 @@ class Controller : FirebaseMessagingService() {
                         )
                     }
 
+                    "accept_additional_cost","paid_additional_cost" -> {
+                        val orderId = json.getString("order_id")
+                        val localIntent = Intent("accept_additional_cost")
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            MainActivity::class.java.simpleName,
+                            orderId
+                        )
+                    }
+
+                    "reject_additional_cost" -> {
+                        val orderId = json.getString("order_id")
+                        val localIntent = Intent("reject_additional_cost")
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            MainActivity::class.java.simpleName,
+                            orderId
+                        )
+                    }
+                    Constants.ADMIN_REPLIED -> {
+                        val localIntent = Intent(Constants.ADMIN_REPLIED)
+                        val manager = LocalBroadcastManager.getInstance(this)
+                        manager.sendBroadcast(localIntent)
+                        sendNotification(
+                            remoteMessage.notification?.title ?: "",
+                            remoteMessage.notification?.body ?: "",
+                            "Support",
+                        )
+                    }
                     else -> {
                         sendNotification(
                             remoteMessage.notification?.title ?: "",
@@ -183,11 +221,27 @@ class Controller : FirebaseMessagingService() {
         val intent = if (orderID.isNullOrEmpty().not()) {
             Intent(
                 Intent.ACTION_VIEW,
-                "https://airconditioner.com/id=${orderID}".toUri(),
+                "https://airconditionersupervisor.com/id=${orderID}".toUri(),
                 applicationContext,
                 MainActivity::class.java
             )
-        } else Intent(this, MainActivity::class.java)
+        }else if (className == "Support") {
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://airconditionersupervisor.com/support".toUri(),
+                applicationContext,
+                MainActivity::class.java
+            )
+        } else if(className == "Walletً"){
+            "wallet".log()
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://airconditionersupervisor.com/wallet".toUri(),
+                applicationContext,
+                MainActivity::class.java
+            )
+        }
+        else Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         contentIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             TaskStackBuilder.create(applicationContext).run {

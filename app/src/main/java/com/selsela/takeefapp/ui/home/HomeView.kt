@@ -9,10 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ListItem
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -21,6 +27,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -31,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.qamar.elasticview.ElasticView
 import com.selsela.takeefapp.R
@@ -46,10 +54,15 @@ import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.theme.NoRippleTheme
 import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.text12Meduim
+import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
+import de.palm.composestateevents.EventEffect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeView(
@@ -59,11 +72,11 @@ fun HomeView(
     goToDetails: (Int) -> Unit,
     onPending: () -> Unit,
     goToCost: (Int) -> Unit,
-    goToOrderRoute: (LatLng,LatLng) -> Unit,
+    goToOrderRoute: (LatLng, LatLng) -> Unit,
 
     ) {
     Color.Transparent.ChangeStatusBarColor(true)
-
+    val context = LocalContext.current
     val lazyColumnListState = rememberLazyListState()
     val shouldStartPaginate = remember {
         derivedStateOf {
@@ -86,8 +99,13 @@ fun HomeView(
         if (shouldStartPaginate.value && orderVm.listState == OrderState.IDLE)
             orderVm.getOrders()
     }
+    val refreshing by remember { mutableStateOf(false) } // a flag  to start or stop refreshing
 
     HomeContent(
+        refreshing,
+        onRefresh = {
+            orderVm.onRefresh()
+        },
         viewState,
         orderVm,
         orders,
@@ -102,9 +120,32 @@ fun HomeView(
     HandleNotification(onPending)
     Extensions.BroadcastReceiver(
         context = LocalContext.current,
-        action ="new_order",
+        action = "new_order",
     ) {
         orderVm.onRefresh()
+    }
+
+    EventEffect(
+        event = viewState.onFailure,
+        onConsumed = vm::onFailure
+    ) { error ->
+        Common.handleErrors(
+            error.responseMessage,
+            error.errors,
+            context
+        )
+    }
+
+
+    Extensions.OnLifecycleEvent { _, event ->
+        // do stuff on event
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                orderVm.onRefresh()
+            }
+
+            else -> {}
+        }
     }
 
 
@@ -136,8 +177,11 @@ private fun HandleNotification(onPending: () -> Unit) {
     BlockedDialog(isBlocked)
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun HomeContent(
+    refreshing: Boolean,
+    onRefresh: () -> Unit,
     viewState: OrderUiState,
     viewModel: OrderViewModel,
     orders: SnapshotStateList<Order>,
@@ -145,27 +189,110 @@ private fun HomeContent(
     updateOrderStatus: (Int, String?) -> Unit,
     goToMyAccount: () -> Unit,
     goToCost: (Int) -> Unit,
-    goToOrderRoute: (LatLng,LatLng) -> Unit,
+    goToOrderRoute: (LatLng, LatLng) -> Unit,
     goToDetails: (Int) -> Unit
 ) {
     val currentOrder = viewModel.currentOrder.value
     Color.White.ChangeStatusBarColor(true)
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        onRefresh()
+        refreshing = false
+    }
+
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+
     // hide ripple effect
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-        ) {
+//        Box(Modifier.pullRefresh(state)) {
+////            Box(
+////                modifier = Modifier
+////                    .background(Color.White)
+////            ) {
+////                Column(
+////                    modifier = Modifier
+////                        .padding(horizontal = 19.dp)
+////                        .padding(top = 25.dp)
+////                        .fillMaxSize(),
+////                    horizontalAlignment = Alignment.CenterHorizontally
+////                ) {
+////
+////                    // Header
+////                    Box(
+////                        modifier = Modifier.fillMaxWidth(),
+////                    ) {
+////                        ElasticView(
+////                            modifier = Modifier.align(Alignment.TopStart),
+////                            onClick = { goToMyAccount() }) {
+////                            Image(
+////                                painter = painterResource(id = R.drawable.menu),
+////                                contentDescription = "",
+////                            )
+////                        }
+////                        Image(
+////                            painter = painterResource(id = R.drawable.logosmall),
+////                            contentDescription = "",
+////                            modifier = Modifier.align(Alignment.TopCenter)
+////                        )
+////                        Switch(
+////                            onStatusChanged,
+////                            Modifier.align(Alignment.TopEnd)
+////                        )
+////                    }
+////                    Spacer(modifier = Modifier.height(30.dp))
+////
+////                    when (viewModel.listState) {
+////                        OrderState.IDLE, OrderState.PAGINATING -> {
+////                            if (orders.isEmpty() && currentOrder == null)
+////                                EmptyView(
+////                                    stringResource(R.string.no_orders),
+////                                    stringResource(R.string.no_orders_lbl),
+////                                    backgroundColor = Color.White
+////                                )
+////                            else OrdersList(
+////                                viewState,
+////                                currentOrder,
+////                                updateOrderStatus,
+////                                goToCost,
+////                                goToOrderRoute,
+////                                orders,
+////                                goToDetails
+////                            )
+////
+////                        }
+////
+////                        OrderState.LOADING -> {
+////                            LoadingView()
+////                        }
+////                    }
+////// the refresh indicator
+////
+////                    // Order list
+////                }
+////
+////
+////            }
+//            PullRefreshIndicator(
+//                refres,
+//                state,
+//                Modifier
+//                    .padding(top = 90.dp)
+//                    .align(Alignment.TopCenter),
+//            )
+//        }
+
+
+        Box(Modifier.pullRefresh(state)) {
             Column(
                 modifier = Modifier
                     .padding(horizontal = 19.dp)
                     .padding(top = 25.dp)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // Header
+                //     Header
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -189,16 +316,9 @@ private fun HomeContent(
                 }
                 Spacer(modifier = Modifier.height(30.dp))
 
-                // Order list
                 when (viewModel.listState) {
                     OrderState.IDLE, OrderState.PAGINATING -> {
-                        if (orders.isEmpty() && currentOrder == null)
-                            EmptyView(
-                                stringResource(R.string.no_orders),
-                                stringResource(R.string.no_orders_lbl),
-                                backgroundColor = Color.White
-                            )
-                        else OrdersList(
+                        OrdersList(
                             viewState,
                             currentOrder,
                             updateOrderStatus,
@@ -207,19 +327,19 @@ private fun HomeContent(
                             orders,
                             goToDetails
                         )
-
                     }
-
                     OrderState.LOADING -> {
                         LoadingView()
                     }
                 }
-            }
 
+            }
+            PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun OrdersList(
     viewState: OrderUiState,
@@ -230,50 +350,61 @@ private fun OrdersList(
     orders: SnapshotStateList<Order>,
     goToDetails: (Int) -> Unit
 ) {
-    LazyColumn(Modifier.fillMaxWidth()) {
-        if (currentOrder != null) {
-            item {
-                Text(
-                    text = stringResource(R.string.current_order),
-                    style = text12Meduim,
-                    color = SecondaryColor
-                )
-                OrderItem(
-                    viewState,
-                    currentOrder,
-                    onClick = {
-                        goToDetails(currentOrder.id)
-                    },
-                    onRouteClick = { myLatLng, supervisorLatLbg ->
-                        goToOrderRoute(myLatLng,supervisorLatLbg)
-                    },
-                    addAdditionalCost = goToCost
-                ) { id, codAmount ->
-                    updateOrderStatus(id, codAmount)
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+        ) {
+            if (currentOrder != null) {
+                item {
+                    Text(
+                        text = stringResource(R.string.current_order),
+                        style = text12Meduim,
+                        color = SecondaryColor
+                    )
+                    OrderItem(
+                        viewState,
+                        currentOrder,
+                        onClick = {
+                            goToDetails(currentOrder.id)
+                        },
+                        onRouteClick = { myLatLng, supervisorLatLbg ->
+                            goToOrderRoute(myLatLng, supervisorLatLbg)
+                        },
+                        addAdditionalCost = goToCost
+                    ) { id, codAmount ->
+                        updateOrderStatus(id, codAmount)
+                    }
                 }
             }
-        }
-        if (orders.isEmpty().not()) {
-            item {
-                Text(
-                    text = stringResource(R.string.upcoming_orders),
-                    style = text12Meduim,
-                    color = SecondaryColor
-                )
-            }
-            items(orders) {
-                NextOrderItem(
-                    viewState,
-                    currentOrder,
-                    it,
-                    onClick = {
-                        goToDetails(it.id)
-                    }) { id, codAmount ->
-                    updateOrderStatus(id, codAmount)
+            if (orders.isEmpty().not()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.upcoming_orders),
+                        style = text12Meduim,
+                        color = SecondaryColor
+                    )
+                }
+                items(orders) {
+                    NextOrderItem(
+                        viewState,
+                        currentOrder,
+                        it,
+                        onClick = {
+                            goToDetails(it.id)
+                        }) { id, codAmount ->
+                        updateOrderStatus(id, codAmount)
+                    }
                 }
             }
+            else item {
+                EmptyView(
+                    stringResource(R.string.no_orders),
+                    stringResource(R.string.no_orders_lbl),
+                    backgroundColor = Color.White
+                )
+            }
         }
-    }
+
 }
 
 

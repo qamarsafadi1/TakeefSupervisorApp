@@ -144,9 +144,9 @@
     <string name="pay_lbl">دفع</string>
     <string name="extra_cost_maintincance">التكلفة الإضافية للصيانة</string>
     <string name="payment_method">طريقة الدفع</string>
-    <string name="confirm_lbl_1">تاكيد</string>
+    <string name="confirm_lbl_1">تأكيد</string>
     <string name="delete_account">حذف الحساب</string>
-    <string name="delete_account_lbl">لن تمكن من الوصول الي بياناتك لاحقا في حالة حذف الحساب</string>
+    <string name="delete_account_lbl">لن تتمكن من الوصول الي بياناتك لاحقا في حالة حذف الحساب</string>
     <string name="delete_confirmation">تأكيد الحذف؟</string>
     <string name="cancel_lbl">الغاء</string>
     <string name="delete_account_lbl_1">لن تتمكن من استعادة بياناتك مرة اخرى</string>
@@ -231,4 +231,6 @@
     <string name="no_notifications_lbl">لا توجد اشعارات حالياً</string>
     <string name="on_progress_orders">طلبات جارية</string>
     <string name="please_download_app">الرجاء تحميل التطبيق</string>
+    <string name="please_rate_at_least">الرجاء اضافة تقييم واحد على الاقل</string>
+    <string name="maintinance_cost">تكلفة صيانة</string>
 </resources>

@@ -47,6 +47,7 @@ import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.selsela.takeefapp.navigation.Destinations
 import com.selsela.takeefapp.navigation.Navigation.bindToolbarTitle
 import com.selsela.takeefapp.navigation.Navigation.showingBackButton
+import com.selsela.takeefapp.navigation.NavigationActions
 import com.selsela.takeefapp.navigation.NavigationHost
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.splash.ConfigViewModel
@@ -124,7 +125,8 @@ class MainActivity : AppCompatActivity() {
                                             && currentRoute.value?.destination?.route != Destinations.SUCCESS_ARGS
                                             && currentRoute.value?.destination?.route != Destinations.ORDERS_SCREEN_ARGS
                                         ) {
-                                            Color.White.ChangeStatusBarColor(true)
+                                            if (currentRoute.value?.destination?.route != Destinations.VERIFY_SCREEN)
+                                                Color.White.ChangeStatusBarColor(true)
 
                                             CenterAlignedTopAppBar(
                                                 title = {
@@ -151,7 +153,10 @@ class MainActivity : AppCompatActivity() {
                                                             )
                                                         if (isShowing) {
                                                             IconButton(onClick = {
-                                                                navController.navigateUp()
+                                                                if (navController.previousBackStackEntry?.destination?.route != Destinations.SPLASH_SCREEN)
+                                                                    navController.navigateUp()
+                                                                else NavigationActions(navController = navController).navigateToHome()
+
                                                             }) {
                                                                 Icon(
                                                                     painter = painterResource(id = R.drawable.backbutton),

@@ -2,6 +2,7 @@ package com.selsela.takeefapp.navigation
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -84,10 +85,9 @@ fun NavigationHost(
             }, goToDetails = {
                 navActions.navigateToOrderDetails(it)
             },
-                onPending = navActions::navigateToPendingAccount
-            , goToCost =  {
-                navActions.navigateToAddCostScreen(it)
-            }){ latLng, supervisorLatLbg ->
+                onPending = navActions::navigateToPendingAccount, goToCost = {
+                    navActions.navigateToAddCostScreen(it)
+                }) { latLng, supervisorLatLbg ->
                 try {
                     val mapUri =
                         Uri.parse("http://maps.google.com/maps?saddr=${latLng.latitude},${latLng.longitude} &daddr=${supervisorLatLbg.latitude},${supervisorLatLbg.longitude} &dirflg=d")
@@ -100,9 +100,17 @@ fun NavigationHost(
             }
         }
         composable(Destinations.LOGIN_SCREEN) {
+            val context = LocalContext.current
             LoginView(
                 goToTerms = navActions::navigateToTermsScreen,
-                goToSupport = navActions::navigateToSupport,
+                goToSupport = {
+                    if (LocalData.accessToken.isNullOrEmpty().not()) {
+                        navActions.navigateToSupport()
+                    } else {
+                        context.whatsappContact(LocalData.configurations?.whatsapp ?: "")
+
+                    }
+                },
                 goToHome = navActions::navigateToHome,
                 goToVerify = navActions::navigateToVerify
             )
@@ -119,7 +127,15 @@ fun NavigationHost(
             }
         }
         composable(Destinations.VERIFY_SCREEN) {
-            VerifyView() {
+            val context = LocalContext.current
+            VerifyView(goToSupport = {
+                if (LocalData.accessToken.isNullOrEmpty().not()) {
+                    navActions.navigateToSupport()
+                } else {
+                    context.whatsappContact(LocalData.configurations?.whatsapp ?: "")
+
+                }
+            }) {
                 if (LocalData.user?.status == VERIFIED && LocalData.user?.completed == 1) {
                     LocalData.user?.isBlock = 0
                     if (LocalData.user?.verifiedFromManagement != NOT_VERIFIED)
@@ -197,9 +213,10 @@ fun NavigationHost(
             val context = LocalContext.current
             navController.previousBackStackEntry?.destination?.route?.log("navController")
             val parentEntry = remember(it) {
+
                 when (navController.previousBackStackEntry?.destination?.route) {
                     Destinations.ORDERS_SCREEN_ARGS -> navController.getBackStackEntry(navController.previousBackStackEntry?.destination?.route!!)
-                    else -> navController.getBackStackEntry(Destinations.HOME_SCREEN)
+                    else  -> navController.getBackStackEntry(navController.previousBackStackEntry?.destination?.route!!)
                 }
             }
 
@@ -211,19 +228,21 @@ fun NavigationHost(
                 goToCost = {
                     navActions.navigateToAddCostScreen(it)
                 },
-            onRouteClick = {
-                    latLng, supervisorLatLbg ->
-                try {
-                    val mapUri =
-                        Uri.parse("http://maps.google.com/maps?saddr=${latLng.latitude},${latLng.longitude} &daddr=${supervisorLatLbg.latitude},${supervisorLatLbg.longitude} &dirflg=d")
-                    val intent = Intent(Intent.ACTION_VIEW, mapUri)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    context.showError(context.getString(R.string.please_download_app))
-                }
-            }) {
-                navController.navigateUp()
+                onRouteClick = { latLng, supervisorLatLbg ->
+                    try {
+                        val mapUri =
+                            Uri.parse("http://maps.google.com/maps?saddr=${latLng.latitude},${latLng.longitude} &daddr=${supervisorLatLbg.latitude},${supervisorLatLbg.longitude} &dirflg=d")
+                        val intent = Intent(Intent.ACTION_VIEW, mapUri)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        context.showError(context.getString(R.string.please_download_app))
+                    }
+                }) {
+                if (navController.previousBackStackEntry?.destination?.route == Destinations.SPLASH_SCREEN)
+                    navActions.navigateToHome()
+                else navController.navigateUp()
             }
         }
         composable(Destinations.NOTIFICATION_SCREEN) {
@@ -235,8 +254,15 @@ fun NavigationHost(
         composable(Destinations.TERMS) {
             TermsView()
         }
-        composable(Destinations.TECHNICAL_SUPPORT) {
+        composable(Destinations.TECHNICAL_SUPPORT,
+            deepLinks = listOf(navDeepLink { uriPattern = "$uri/support" })
+        ) {
             SupportScreen()
+            BackHandler {
+                if (navController.previousBackStackEntry?.destination?.route != Destinations.SPLASH_SCREEN)
+                    navController.navigateUp()
+                else navActions.navigateToHome()
+            }
         }
 
         composable(Destinations.PROFILE_SCREEN) {
@@ -246,10 +272,18 @@ fun NavigationHost(
                 navController.navigateUp()
             }
         }
-        composable(Destinations.WALLET_SCREEN) {
+        composable(Destinations.WALLET_SCREEN,
+            deepLinks = listOf(navDeepLink { uriPattern = "$uri/wallet" })
+        ) {
             WalletScreen()
+            navController.previousBackStackEntry?.destination?.route?.log("destinations")
+            BackHandler {
+                if (navController.previousBackStackEntry?.destination?.route != Destinations.SPLASH_SCREEN)
+                    navController.navigateUp()
+                else navActions.navigateToHome()
+            }
         }
-        composable(Destinations.PENDING_ACCOUNT_SCREEN) {
+        composable(Destinations.PENDING_ACCOUNT_SCREEN,) {
             val context = LocalContext.current
             PendingAccountScreen(
                 goToSupport = {

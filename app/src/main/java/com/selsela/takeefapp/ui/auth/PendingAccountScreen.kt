@@ -71,7 +71,7 @@ fun PendingAccountScreen(
     goToSupport: () -> Unit,
     onFinish: () -> Unit
 ) {
-    Color.White.ChangeStatusBarColor()
+    Color.White.ChangeStatusBarColor(true)
     val viewState: AuthUiState by vm.uiState.collectAsStateLifecycleAware(AuthUiState())
 
     PendingAccountContent(goToSupport)
@@ -160,6 +160,7 @@ private fun PendingAccountContent(
                 style = text16Line,
                 color = TextColor,
                 modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .fillMaxWidth()
                     .paddingTop(23),
                 textAlign = TextAlign.Center

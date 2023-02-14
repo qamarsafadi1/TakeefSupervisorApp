@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,7 +57,6 @@ import com.selsela.takeefapp.ui.home.OrderViewModel
 import com.selsela.takeefapp.ui.order.cell.DateView
 import com.selsela.takeefapp.ui.order.rate.RateSheet
 import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
-import com.selsela.takeefapp.ui.splash.ChangeStatusBarOnlyColor
 import com.selsela.takeefapp.ui.theme.Bg
 import com.selsela.takeefapp.ui.theme.DividerColor
 import com.selsela.takeefapp.ui.theme.DividerColorBlue
@@ -81,9 +79,9 @@ import com.selsela.takeefapp.ui.theme.text16MediumStrike
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Constants.FINISHED
+import com.selsela.takeefapp.utils.DateHelper
 import com.selsela.takeefapp.utils.Extensions
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
-import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.Extensions.Companion.showError
 import com.selsela.takeefapp.utils.Extensions.Companion.showSuccess
 import com.selsela.takeefapp.utils.LocalData
@@ -297,7 +295,6 @@ private fun OrderDetailsContent(
                             )
                         }
                         DateView(order)
-
                     }
                     if (order.case.id != 6) {
                         Spacer(modifier = Modifier.height(22.dp))
@@ -315,7 +312,7 @@ private fun OrderDetailsContent(
                                         .fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    if (order.hasMaintenance == 1) {
+                                    if (order.hasMaintenance == 1 && order.price.additionalCost == 0.0) {
                                         ElasticButton(
                                             onClick = { addAdditionalCost(order.id) },
                                             title = stringResource(id = R.string.extra_cost),
@@ -466,14 +463,16 @@ private fun OrderDetailsContent(
                         color = DividerColor,
                         modifier = Modifier.padding(top = 27.6.dp)
                     )
-                    VisitDateView(order.workPeriod)
+                    VisitDateView(order.workPeriod,order.orderDate)
                     Divider(
                         thickness = 1.dp,
                         color = DividerColor,
                         modifier = Modifier.padding(top = 8.6.dp)
                     )
                     SelectedAddressView(order.address)
-                    CostView(order.price, order.payment, order.useWallet)
+                    CostView(order.price, order.payment,
+                        order.additional_payment_type,
+                        useWallet = order.useWallet)
                     Box(
                         modifier = Modifier
                             .padding(top = 11.2.dp)
@@ -596,7 +595,10 @@ fun ServiceItem(orderService: OrderService) {
 
 
 @Composable
-fun CostView(price: Price, payment: Payment, useWallet: Int) {
+fun CostView(price: Price,
+             payment: Payment,
+             additional_payment_type: Payment? = null,
+             useWallet: Int) {
     Column(
         Modifier
             .padding(top = 21.dp)
@@ -634,7 +636,7 @@ fun CostView(price: Price, payment: Payment, useWallet: Int) {
                 horizontalArrangement = Arrangement.End
             ) {
                 androidx.compose.material3.Text(
-                    text = "${price.grandTotal}",
+                    text = "${price.grandTotal.plus(price.additionalCost)}",
                     style = text16Medium,
                     color = TextColor
                 )
@@ -655,7 +657,8 @@ fun CostView(price: Price, payment: Payment, useWallet: Int) {
         )
         when (payment.id) {
             Constants.WALLET -> {
-                WalletSection(false, price = price.paidWallet)
+                WalletSection(false, price =0.0,
+                    paidWallet = price.paidWallet,)
             }
 
             else -> {
@@ -663,7 +666,8 @@ fun CostView(price: Price, payment: Payment, useWallet: Int) {
                     WalletSection(
                         true,
                         price = price.grandTotal - price.paidWallet,
-                        payment = payment
+                        payment = payment,
+                        paidWallet = price.paidWallet
                     )
                 } else {
                     Row(
@@ -710,11 +714,56 @@ fun CostView(price: Price, payment: Payment, useWallet: Int) {
                 }
             }
         }
+        if (price.additionalCost != 0.0){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp)
+                    .padding(horizontal = 15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row {
+                    Text(
+                        text = stringResource(id = R.string.maintinance_cost),
+                        style = text12,
+                        color = SecondaryColor,
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    AsyncImage(
+                        imageUrl = additional_payment_type?.iconUrl ?: "",
+                        modifier = Modifier.size(33.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.material3.Text(
+                        text = "${price.additionalCost}",
+                        style = text16Medium,
+                        color = TextColor,
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    androidx.compose.material3.Text(
+                        text = stringResource(
+                            id = R.string.currency_1,
+                            Extensions.getCurrency()
+                        ),
+                        style = text13,
+                        color = SecondaryColor
+                    )
+
+                }
+            }
+        }
+
     }
 }
 
 @Composable
-private fun VisitDateView(workPeriod: WorkPeriod) {
+private fun VisitDateView(workPeriod: WorkPeriod, date: String) {
+    val orderDate = if (date != "") DateHelper.getOrderDateNoraml(date) else listOf()
     Row(
         modifier = Modifier
             .padding(top = 13.dp)
@@ -724,7 +773,6 @@ private fun VisitDateView(workPeriod: WorkPeriod) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.weight(1.5f),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -741,30 +789,52 @@ private fun VisitDateView(workPeriod: WorkPeriod) {
         }
 
         Column(
-            modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.End
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.End
             ) {
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(25.dp))
                 androidx.compose.material3.Text(
                     text = workPeriod.name,
                     style = text14,
-                    color = TextColor
+                    color = TextColor,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
                 )
             }
-            androidx.compose.material3.Text(
-                text = "${workPeriod.getTimeFromFormatted()} - ${workPeriod.getTimeToFormatted()}",
-                style = text12,
-                color = SecondaryColor,
-                modifier = Modifier.paddingTop(
+            Row(
+                Modifier.paddingTop(
                     7
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (orderDate.isEmpty().not())
+                        "${orderDate[0]}-${orderDate[1]}-${orderDate[2]}"
+                    else "",
+                    style = text12,
+                    color = SecondaryColor
                 )
-            )
+                Spacer(modifier = Modifier.width(3.dp))
+                Text(
+                    text = ".",
+                    style = text12,
+                    color = SecondaryColor
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                androidx.compose.material3.Text(
+                    text = "${workPeriod.getTimeFromFormatted()} - ${workPeriod.getTimeToFormatted()}",
+                    style = text12,
+                    color = SecondaryColor,
+                )
+
+            }
+
         }
     }
+
 
 }
 
@@ -793,7 +863,7 @@ private fun SelectedAddressView(address: Address) {
                 color = SecondaryColor
             )
             Text(
-                text = "${address.area.name}-${address.city.name}-${address.district.name}",
+                text = address.note,
                 style = text14,
                 color = TextColor,
                 modifier = Modifier.paddingTop(11)
@@ -806,7 +876,8 @@ private fun SelectedAddressView(address: Address) {
 @Composable
 private fun WalletSection(
     isPartition: Boolean = false, price: Double,
-    payment: Payment? = null
+    paidWallet: Double? = 0.0,
+            payment: Payment? = null
 ) {
 
 
@@ -831,7 +902,7 @@ private fun WalletSection(
             horizontalArrangement = Arrangement.End
         ) {
             androidx.compose.material3.Text(
-                text = "${price}",
+                text = "${paidWallet}",
                 style = text16Medium,
                 color = TextColor
             )

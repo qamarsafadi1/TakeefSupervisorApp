@@ -37,6 +37,7 @@ import com.selsela.takeefapp.ui.auth.component.EditTextView
 import com.selsela.takeefapp.ui.auth.component.SupportBottomSection
 import com.selsela.takeefapp.ui.common.LottieAnimationView
 import com.selsela.takeefapp.ui.common.NextPageButton
+import com.selsela.takeefapp.ui.splash.ChangeStatusBarColor
 import com.selsela.takeefapp.ui.splash.ConfigViewModel
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.TextColor
@@ -49,6 +50,7 @@ import com.selsela.takeefapp.ui.theme.text18Meduim
 import com.selsela.takeefapp.utils.Common
 import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions.Companion.collectAsStateLifecycleAware
+import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.LocalUtils.setLocale
 import de.palm.composestateevents.EventEffect
 
@@ -107,6 +109,8 @@ private fun LoginContent(
     goToTerms: () -> Unit,
     goToSupport: () -> Unit
 ) {
+    Color.White.ChangeStatusBarColor(true)
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -228,17 +232,19 @@ private fun LoginContent(
         }
 
         val context = LocalContext.current
-        Image(
-            painter = painterResource(id = R.drawable.en),
-            contentDescription = "en",
+        Text(
+            text = if (LocalData.appLocal == "ar") "EN" else "ع",
+            style = text18,
+            color = Color.Black,
             modifier = Modifier
                 .padding(top = 54.dp, start = 24.dp, end = 24.dp)
+                .align(Alignment.TopEnd)
                 .clickable {
-                    context.setLocale("en")
+                    if (LocalData.appLocal == "ar")
+                        context.setLocale("en")
+                    else context.setLocale("ar")
                     viewModelConfig.getConfig()
                 }
-                .align(Alignment.TopEnd),
-            colorFilter = ColorFilter.tint(TextColor)
         )
     }
 }

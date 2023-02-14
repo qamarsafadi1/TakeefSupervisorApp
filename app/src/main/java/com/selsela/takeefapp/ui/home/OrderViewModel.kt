@@ -123,6 +123,14 @@ class OrderViewModel @Inject constructor(
         else BorderColor
     }
 
+    fun clearRate() {
+        rateItemArray.value.forEach {
+            it.rate = 0f
+        }
+        val list: List<RateProperitiesUser> = rateItemArray.value
+        rateItemArray.value = list
+
+    }
 
     /**
      * API Requests
@@ -166,6 +174,7 @@ class OrderViewModel @Inject constructor(
             }
         }
     }
+
     fun getArchiveOrders() = viewModelScope.launch {
         if (page == 1 || (page != 1 && canPaginate) && listState == OrderState.IDLE) {
             listState = if (page == 1) OrderState.LOADING else OrderState.PAGINATING
@@ -239,7 +248,7 @@ class OrderViewModel @Inject constructor(
                                 order = result.data?.order,
                                 state = State.SUCCESS,
                                 orderId = result.data?.order?.id ?: -1,
-                                caseId = result.data?.order?.case?.id  ?: -1
+                                caseId = result.data?.order?.case?.id ?: -1
 
                             )
                         }
@@ -249,7 +258,7 @@ class OrderViewModel @Inject constructor(
                                 state = State.LOADING,
                                 orderId = id,
 
-                            )
+                                )
 
                         Status.ERROR -> OrderUiState(
                             onFailure = triggered(
@@ -344,7 +353,7 @@ class OrderViewModel @Inject constructor(
     fun getOrderDetails(id: Int) {
         isDetailsLoaded = false
         viewModelScope.launch {
-            state =  OrderUiState(
+            state = OrderUiState(
                 state = State.LOADING
             )
             repository.getOrderDetails(id)
@@ -434,7 +443,7 @@ class OrderViewModel @Inject constructor(
 
     }
 
-    fun getRateItem(){
+    fun getRateItem() {
         rateItemArray.value = LocalData.rateItems!!
     }
 
@@ -451,6 +460,7 @@ class OrderViewModel @Inject constructor(
         canPaginate = false
         getOrders()
     }
+
     fun onRefreshArchive() {
         page = 1
         listState = OrderState.IDLE
