@@ -1,11 +1,13 @@
 package com.selsela.takeefapp.data.auth.model.auth
 
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import com.selsela.takeefapp.data.auth.model.address.District
 import com.selsela.takeefapp.data.config.model.city.Area
 import com.selsela.takeefapp.data.config.model.city.City
 
+@Keep
 data class User(
     @SerializedName("accessToken")
     val accessToken: String = "",

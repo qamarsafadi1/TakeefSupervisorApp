@@ -1,9 +1,11 @@
 package com.selsela.takeefapp.data.order.model.order
 
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import com.selsela.takeefapp.utils.DateHelper
 
+@Keep
 data class Order(
     @SerializedName("case")
     val case: com.selsela.takeefapp.data.config.model.Case = com.selsela.takeefapp.data.config.model.Case(),

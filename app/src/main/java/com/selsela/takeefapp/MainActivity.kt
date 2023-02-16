@@ -2,7 +2,9 @@ package com.selsela.takeefapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.rememberNavController
@@ -56,6 +59,7 @@ import com.selsela.takeefapp.ui.theme.SecondaryColor
 import com.selsela.takeefapp.ui.theme.TakeefAppTheme
 import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.text14Meduim
+import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,6 +109,9 @@ class MainActivity : AppCompatActivity() {
                                     else LayoutDirection.Ltr
                         ) {
                             val navController = rememberNavController()
+                            HandleBackgroundNotification()
+
+
                             val currentRoute =
                                 navController.currentBackStackEntryFlow.collectAsState(
                                     initial = navController.currentBackStackEntry
@@ -214,6 +221,51 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+    }
+
+    @Composable
+    private fun HandleBackgroundNotification() {
+        if (intent != null && intent.extras != null) {
+            val bundle = intent.extras
+            if (bundle?.containsKey("action") == true) {
+                val intent = when (bundle.getString("action")) {
+                  "new_order","accept_additional_cost","paid_additional_cost","reject_additional_cost" -> {
+                        val orderID = bundle.getString("order_id")
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://airconditionersupervisor.com/id=${orderID}".toUri(),
+                            applicationContext,
+                            MainActivity::class.java
+                        )
+                    }
+                    Constants.WALLET_CHANGED->{
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://airconditionersupervisor.com/wallet".toUri(),
+                            applicationContext,
+                            MainActivity::class.java
+                        )
+                    }
+                    Constants.ADMIN_REPLIED ->{
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://airconditionersupervisor.com/support".toUri(),
+                            applicationContext,
+                            MainActivity::class.java
+                        )
+                    }
+                    else -> null
+                }
+                if (intent != null) {
+                    val pendingIntent =
+                        PendingIntent.getActivity(
+                            this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                    pendingIntent.send()
+                }
+            }
+        }
     }
 
 

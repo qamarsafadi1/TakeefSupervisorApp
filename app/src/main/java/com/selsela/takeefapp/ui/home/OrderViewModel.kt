@@ -1,6 +1,7 @@
 package com.selsela.takeefapp.ui.home
 
 import android.app.Application
+import androidx.annotation.Keep
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ enum class OrderState {
     PAGINATING,
 }
 
+@Keep
 data class OrderUiState(
     val state: State = State.IDLE,
     var orderId: Int = -1,

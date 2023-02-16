@@ -240,6 +240,13 @@ fun NavigationHost(
                         context.showError(context.getString(R.string.please_download_app))
                     }
                 }) {
+                navController.previousBackStackEntry?.destination?.route?.log("navController")
+                if (navController.previousBackStackEntry?.destination?.route == Destinations.SPLASH_SCREEN)
+                    navActions.navigateToHome()
+                else navController.navigateUp()
+            }
+
+            BackHandler() {
                 if (navController.previousBackStackEntry?.destination?.route == Destinations.SPLASH_SCREEN)
                     navActions.navigateToHome()
                 else navController.navigateUp()
