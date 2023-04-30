@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,24 +50,19 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontLoader
@@ -82,14 +75,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.qamar.elasticview.ElasticView
-import com.selsela.takeefapp.LocalMutableContext
 import com.selsela.takeefapp.R
 import com.selsela.takeefapp.data.config.model.Case
 import com.selsela.takeefapp.data.config.model.city.Area
@@ -98,7 +89,6 @@ import com.selsela.takeefapp.data.config.model.city.City
 import com.selsela.takeefapp.data.order.model.order.OrderService
 import com.selsela.takeefapp.ui.auth.AuthViewModel
 import com.selsela.takeefapp.ui.theme.BorderColor
-import com.selsela.takeefapp.ui.theme.LightBlue
 import com.selsela.takeefapp.ui.theme.Purple40
 import com.selsela.takeefapp.ui.theme.Red
 import com.selsela.takeefapp.ui.theme.SecondaryColor
@@ -107,17 +97,13 @@ import com.selsela.takeefapp.ui.theme.TextColor
 import com.selsela.takeefapp.ui.theme.TextFieldBg
 import com.selsela.takeefapp.ui.theme.VerifiedBg
 import com.selsela.takeefapp.ui.theme.buttonText
-import com.selsela.takeefapp.ui.theme.text10
 import com.selsela.takeefapp.ui.theme.text11
 import com.selsela.takeefapp.ui.theme.text11Meduim
 import com.selsela.takeefapp.ui.theme.text12
-import com.selsela.takeefapp.ui.theme.text12Bold
-import com.selsela.takeefapp.ui.theme.text13
 import com.selsela.takeefapp.ui.theme.text14
 import com.selsela.takeefapp.ui.theme.text14Meduim
 import com.selsela.takeefapp.ui.theme.text14White
 import com.selsela.takeefapp.ui.theme.text14WhiteCenter
-import com.selsela.takeefapp.ui.theme.text16Bold
 import com.selsela.takeefapp.ui.theme.text18
 import com.selsela.takeefapp.ui.theme.text8
 import com.selsela.takeefapp.utils.Constants.LEFT
@@ -126,7 +112,6 @@ import com.selsela.takeefapp.utils.Extensions.Companion.convertToDecimalPatter
 import com.selsela.takeefapp.utils.LocalData
 import com.selsela.takeefapp.utils.LocalUtils.setLocale
 import com.selsela.takeefapp.utils.ModifiersExtension.paddingTop
-import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
@@ -1103,9 +1088,9 @@ fun LanguageSheet(
                     ElasticButton(
                         onClick = {
                             if (check == 0) {
-                                context.setLocale("ar")
+                                setLocale("ar")
                             } else {
-                                context.setLocale("en")
+                                setLocale("en")
                             }
                             onConfirm()
                         },

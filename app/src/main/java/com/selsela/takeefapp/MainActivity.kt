@@ -2,11 +2,13 @@ package com.selsela.takeefapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.LocaleManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.LocaleList
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -63,6 +65,7 @@ import com.selsela.takeefapp.utils.Constants
 import com.selsela.takeefapp.utils.Extensions.Companion.log
 import com.selsela.takeefapp.utils.LocalData
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -96,6 +99,11 @@ class MainActivity : AppCompatActivity() {
                     skipHalfExpanded = true
                 )
 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    getSystemService(
+                        LocaleManager::class.java
+                    ).applicationLocales = LocaleList(Locale.forLanguageTag(LocalData.appLocal ?: "ar"))
+                }
                 CompositionLocalProvider(
                     LocalMutableContext provides remember { mutableStateOf(context) },
                 ) {

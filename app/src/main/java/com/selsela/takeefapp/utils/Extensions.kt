@@ -575,12 +575,12 @@ class Extensions {
         fun BroadcastReceiver(
             context: Context,
             action: String,
-            onReceived: () -> Unit
+            onReceived: (Intent) -> Unit
         ) {
             var receiver: NotificationReceiver? = null
             receiver = object : NotificationReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
-                    onReceived()
+                    onReceived(intent)
                     receiver?.let { LocalBroadcastManager.getInstance(context).unregisterReceiver(it) }
                 }
             }

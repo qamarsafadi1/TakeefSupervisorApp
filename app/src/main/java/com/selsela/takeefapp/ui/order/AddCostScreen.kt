@@ -124,7 +124,6 @@ private fun AddCostContent(
     ) {
         var state by remember {
             mutableStateOf(CardFace.Front)
-
         }
 //        if (uiState.state == State.LOADING)
 //            state.next

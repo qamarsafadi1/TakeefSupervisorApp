@@ -1,7 +1,7 @@
 package com.selsela.takeefapp.data.address
 import com.ihsanbal.logging.Level
 import com.ihsanbal.logging.LoggingInterceptor
-import com.yariksoffice.lingver.Lingver
+import com.selsela.takeefapp.utils.LocalData
 import okhttp3.OkHttpClient
 import okhttp3.internal.platform.Platform
 import retrofit2.Retrofit
@@ -28,7 +28,7 @@ class RetrofitClientGoogle {
                 okHttpBuilder.addInterceptor { chain ->
                           val original = chain.request()
                     val requestBuilder = original.newBuilder()
-                        .header("language", Lingver.getInstance().getLanguage())
+                        .header("language", LocalData.appLocal)
                         .header("Accept","application/json")
                           /*  if(LocalData.user!=null)
                        requestBuilder.header("Authorization","Bearer ${LocalData.accessToken}")*/

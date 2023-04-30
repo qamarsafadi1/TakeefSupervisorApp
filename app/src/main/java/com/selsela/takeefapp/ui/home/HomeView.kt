@@ -118,6 +118,7 @@ fun HomeView(
     )
 
     HandleNotification(onPending)
+
     Extensions.BroadcastReceiver(
         context = LocalContext.current,
         action = "new_order",
